@@ -1,0 +1,2988 @@
+<!doctype html>
+
+<html lang="en">
+
+<head><link rel="preload" as="image" href="/assets/volterax-logo.png" fetchpriority="high">
+
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>VOLTERAX — Power Beyond Limits</title>
+
+<style>
+
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#050607;color:#f3f3f0;font-family:Arial,Helvetica,sans-serif}a{color:inherit;text-decoration:none}.fullImage>img,.hero>img,.card>img,.archVisual>img{display:block;width:100%;height:100%;object-fit:cover}.nav{position:fixed;z-index:50;top:0;left:0;right:0;padding:24px 4.5vw;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(#050607e8,transparent);mix-blend-mode:normal}.logo{font-weight:900;letter-spacing:.18em;font-size:15px}.navlinks{display:flex;gap:26px;font:10px monospace;letter-spacing:.15em;align-items:center}.navlinks a{opacity:.7}.navlinks a:hover{opacity:1}.hero{height:100vh;min-height:680px;position:relative;overflow:hidden}.hero>img{position:absolute;inset:0;filter:saturate(.78) contrast(1.12);transform:scale(1.04)}.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#050607f2 0%,#050607bd 38%,#05060720 75%),linear-gradient(0deg,#050607 0%,transparent 25%)}.heroText{position:absolute;z-index:2;left:7vw;bottom:12vh;max-width:850px}.eyebrow{font:11px monospace;letter-spacing:.22em;color:#c5c8ca;margin-bottom:24px}.hero h1{font-size:clamp(62px,9vw,145px);line-height:.82;letter-spacing:-.075em;margin:0;text-transform:uppercase}.hero p{font-size:17px;line-height:1.55;max-width:570px;color:#c9ccce;margin:30px 0}.btn{display:inline-flex;padding:14px 21px;border:1px solid #ffffff55;border-radius:999px;font:11px monospace;letter-spacing:.12em}.scroll{position:absolute;z-index:3;right:4.5vw;bottom:35px;font:10px monospace;letter-spacing:.15em;color:#aaa}.intro{padding:140px 7vw 120px;display:grid;grid-template-columns:1fr 1fr;gap:8vw}.intro h2{font-size:clamp(45px,6vw,90px);line-height:.92;letter-spacing:-.06em;margin:0}.intro p{font-size:19px;line-height:1.7;color:#aeb2b5;max-width:600px;margin:0}.fullImage{height:78vh;min-height:550px;position:relative;overflow:hidden}.fullImage img{filter:saturate(.7) contrast(1.08)}.caption{position:absolute;z-index:2;left:6vw;bottom:7vh;max-width:700px}.caption small{font:10px monospace;letter-spacing:.2em;color:#ddd}.caption h2{font-size:clamp(48px,7vw,110px);line-height:.85;letter-spacing:-.065em;margin:16px 0 0}.caption:after{content:"";position:absolute;inset:-40px -80px;background:linear-gradient(90deg,#050607dd,transparent);z-index:-1;filter:blur(20px)}.systems{padding:130px 7vw}.sectionTop{display:flex;justify-content:space-between;align-items:end;margin-bottom:55px}.sectionTop h2{font-size:clamp(45px,6vw,90px);line-height:.9;letter-spacing:-.06em;margin:0}.sectionTop p{max-width:370px;color:#9fa4a8;line-height:1.6}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:#25272a}.card{background:#08090a;min-height:460px;position:relative;overflow:hidden}.card img{height:65%;filter:saturate(.72) contrast(1.08);transition:.7s}.card:hover img{transform:scale(1.06);filter:saturate(.95)}.cardText{padding:22px}.num{font:10px monospace;color:#8e9499}.card h3{font-size:25px;margin:13px 0 8px}.card p{color:#92979b;line-height:1.55;font-size:14px}.spec{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}.spec span{border:1px solid #34373a;padding:6px 8px;font:9px monospace;color:#c7cacc}.architecture{padding:120px 7vw;background:#0a0b0d}.arch{display:grid;grid-template-columns:1fr 1fr;gap:6vw;align-items:center}.archVisual{height:600px;position:relative;background:#030405;overflow:hidden}.archVisual img{opacity:.55;filter:grayscale(.3)}.flow{position:absolute;inset:0;padding:40px;display:flex;flex-direction:column;justify-content:space-between}.flowrow{display:flex;align-items:center;gap:15px}.node{border:1px solid #ffffff66;background:#070809dd;padding:14px 16px;font:11px monospace;letter-spacing:.08em}.line{height:1px;background:#fff8;flex:1}.arch h2{font-size:clamp(50px,6vw,92px);line-height:.88;letter-spacing:-.06em;margin:0 0 25px}.arch p{color:#a6aaad;line-height:1.7;font-size:17px}.origin{padding:130px 7vw}.originGrid{display:grid;grid-template-columns:1fr 1fr;gap:7vw;align-items:center}.map{height:620px;background:#070809;position:relative;display:grid;place-items:center;border:1px solid #25282b}.map img{width:75%;height:75%;object-fit:contain;filter:invert(1) brightness(.75);opacity:.85}.mapLabel{position:absolute;left:25px;bottom:25px;font:10px monospace;letter-spacing:.14em;color:#b9bdc0}.origin h2{font-size:clamp(55px,7vw,105px);line-height:.84;letter-spacing:-.065em;margin:0 0 30px}.origin p{color:#a9adaf;line-height:1.7;font-size:18px;max-width:560px}.cities{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:35px}.city{border-top:1px solid #2d3033;padding:13px 0;font:10px monospace;letter-spacing:.12em;color:#c5c8ca}.connect{padding:150px 7vw;background:#e9e9e5;color:#070809}.connect h2{font-size:clamp(58px,9vw,150px);line-height:.8;letter-spacing:-.075em;margin:0;max-width:1000px}.connect p{font-size:18px;max-width:580px;line-height:1.6;color:#4d5154;margin:35px 0}.connectBtns{display:flex;gap:10px;flex-wrap:wrap}.connect .btn{border-color:#17191b;color:#08090a}.footer{padding:25px 4.5vw;display:flex;justify-content:space-between;color:#707477;font:9px monospace;letter-spacing:.1em;border-top:1px solid #222528}.grain{position:fixed;inset:0;z-index:100;pointer-events:none;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E")}
+
+
+
+.bridge{padding:140px 7vw;background:#050607;position:relative;overflow:hidden}.bridgeHead{display:grid;grid-template-columns:1fr 1fr;gap:7vw;align-items:end;margin-bottom:75px}.bridgeHead h2{font-size:clamp(52px,7vw,110px);line-height:.84;letter-spacing:-.07em;margin:0}.bridgeHead p{color:#aeb2b5;font-size:18px;line-height:1.7;max-width:560px}.bridgeVisual{min-height:390px;border:1px solid #25282b;background:radial-gradient(circle at 50% 50%,#15181c 0,#08090a 48%,#050607 100%);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}.bridgeLine{position:absolute;left:12%;right:12%;height:1px;background:linear-gradient(90deg,transparent,#cfd3d5,transparent);top:50%}.bridgeLine:after{content:"";position:absolute;left:0;top:-2px;width:8px;height:5px;border-radius:50%;background:#fff;box-shadow:0 0 18px #fff;animation:travel 3s linear infinite}.bridgeNode{position:relative;z-index:2;width:180px;height:180px;border:1px solid #656a6e;border-radius:50%;display:grid;place-items:center;background:#08090bdd;box-shadow:0 0 80px #ffffff0a}.bridgeNode strong{font-size:20px;letter-spacing:.12em}.bridgeNode small{position:absolute;font:9px monospace;letter-spacing:.14em;color:#aeb2b5;bottom:36px}.bridgeSide{position:absolute;top:50%;transform:translateY(-50%);width:22%;font:10px monospace;letter-spacing:.14em;color:#c9ccce}.bridgeSide.left{text-align:left;left:3%}.bridgeSide.right{text-align:right;right:3%}.bridgeSide b{display:block;font-size:13px;color:#f2f2ef;margin-bottom:8px}.bridgeSide span{color:#777d82}.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#292c2f;margin-top:55px}.step{background:#08090a;padding:28px;min-height:190px}.stepNo{font:10px monospace;color:#858b90}.step h3{font-size:22px;margin:25px 0 10px}.step p{font-size:13px;line-height:1.55;color:#92979b;margin:0}.promise{padding:140px 7vw;background:#e9e9e5;color:#08090a}.promiseGrid{display:grid;grid-template-columns:1fr 1fr;gap:7vw}.promise h2{font-size:clamp(52px,7vw,105px);line-height:.84;letter-spacing:-.07em;margin:0}.promiseList{border-top:1px solid #9da0a2}.promiseItem{display:grid;grid-template-columns:70px 1fr;gap:20px;padding:22px 0;border-bottom:1px solid #9da0a2}.promiseItem span{font:10px monospace;color:#5c6062}.promiseItem h3{margin:0 0 7px;font-size:19px}.promiseItem p{margin:0;color:#505457;line-height:1.5;font-size:14px}.project{padding:140px 7vw;background:#08090a}.projectGrid{display:grid;grid-template-columns:1fr 1.2fr;gap:6vw;align-items:center}.project h2{font-size:clamp(52px,7vw,105px);line-height:.84;letter-spacing:-.07em;margin:0 0 25px}.project p{color:#a8adb0;line-height:1.7;font-size:17px;max-width:520px}.projectPanel{border:1px solid #292d30;padding:30px;background:#0b0c0e}.projectPanel label{display:block;font:9px monospace;letter-spacing:.14em;color:#8f9599;margin-bottom:9px}.projectPanel input,.projectPanel textarea{width:100%;background:#050607;border:1px solid #303438;color:#f2f2ef;padding:14px;margin-bottom:15px;font:13px Arial;outline:none}.projectPanel textarea{min-height:110px;resize:vertical}.projectPanel button{background:#f1f1ed;color:#070809;border:0;border-radius:999px;padding:14px 20px;font:10px monospace;letter-spacing:.13em;cursor:pointer}.tiny{font:9px monospace;color:#777d82;margin-top:12px}
+
+@keyframes travel{0%{left:0;opacity:0}10%{opacity:1}90%{opacity:1}100%{left:100%;opacity:0}}
+
+@media(max-width:800px){.bridgeHead,.promiseGrid,.projectGrid{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}.bridgeSide{width:27%}.bridgeNode{width:145px;height:145px}.bridgeLine{left:8%;right:8%}}
+
+@media(max-width:520px){.steps{grid-template-columns:1fr}.bridgeSide{font-size:8px}.bridgeSide b{font-size:10px}.bridgeNode{width:125px;height:125px}.bridgeNode strong{font-size:15px}}
+
+
+
+@media(max-width:800px){.navlinks{display:none}.intro,.arch,.originGrid{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.heroText{left:7vw;right:7vw}.hero h1{font-size:18vw}.fullImage{height:62vh}.archVisual,.map{height:470px}.systems,.origin,.architecture,.connect{padding-top:90px;padding-bottom:90px}}
+
+
+
+/* V17 POWER-UP ENTRY EXPERIENCE */
+
+#boot{position:fixed;inset:0;z-index:99999;background:#050507;color:#fff;display:grid;place-items:center;overflow:hidden;transition:opacity .35s cubic-bezier(.16,1,.3,1),visibility .35s cubic-bezier(.16,1,.3,1)}#boot.hide{opacity:0;visibility:hidden;pointer-events:none}.boot-grid{position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:70px 70px;mask-image:radial-gradient(circle at center,#000 20%,transparent 78%);opacity:.35}.boot-core{position:relative;width:min(72vw,760px);height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}.boot-core:before{content:"";position:absolute;width:330px;height:330px;border:1px solid rgba(255,255,255,.2);border-radius:50%;box-shadow:0 0 90px rgba(120,150,255,.12);animation:corePulse 2.4s ease-in-out infinite}.boot-line{position:absolute;width:100%;height:1px;background:linear-gradient(90deg,transparent,#fff,transparent);transform:scaleX(0);animation:scan 1.7s .3s ease forwards}.boot-trace{position:absolute;width:68%;height:68%;border:1px solid rgba(255,255,255,.12);clip-path:polygon(0 30%,35% 30%,45% 0,100% 0,100% 70%,70% 70%,60% 100%,0 100%);animation:traceIn 1.6s ease forwards}.boot-brand{position:relative;z-index:4;text-align:center;letter-spacing:.32em;font-size:clamp(28px,5vw,62px);font-weight:800;animation:brandIn 1.5s .6s both}.boot-sub{position:relative;z-index:4;margin-top:15px;font-size:10px;letter-spacing:.32em;opacity:.55}.boot-status{position:absolute;bottom:42px;left:42px;font:10px monospace;letter-spacing:.2em;opacity:.5}.boot-corner{position:absolute;inset:28px;border:1px solid rgba(255,255,255,.08);pointer-events:none}.boot-corner:after{content:"SYSTEM / ONLINE";position:absolute;right:12px;top:-7px;background:#050507;padding:0 8px;font:9px monospace;letter-spacing:.16em;opacity:.45}@keyframes scan{to{transform:scaleX(1)}}@keyframes traceIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}@keyframes brandIn{from{opacity:0;transform:translateY(14px);letter-spacing:.6em}to{opacity:1;transform:none;letter-spacing:.32em}}@keyframes corePulse{50%{transform:scale(1.08);box-shadow:0 0 120px rgba(120,150,255,.2)}}
+
+.hero{min-height:100svh;position:relative;overflow:hidden}.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.72),rgba(0,0,0,.08) 70%),linear-gradient(0deg,#050507 0%,transparent 35%);pointer-events:none}.hero-content{position:relative;z-index:2}.hero-image,.hero img{filter:saturate(.9) contrast(1.06)}
+
+.customer-bridge{position:relative;overflow:hidden}.bridge-flow{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin:40px auto;max-width:1000px}.bridge-node{padding:18px 24px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.035);backdrop-filter:blur(10px);font-weight:700;letter-spacing:.08em}.bridge-arrow{opacity:.5;font-size:24px}.bridge-beam{height:2px;max-width:760px;margin:0 auto;background:linear-gradient(90deg,transparent,#fff,transparent);animation:beam 2.2s linear infinite}@keyframes beam{0%{opacity:.2;transform:scaleX(.35)}50%{opacity:1;transform:scaleX(1)}100%{opacity:.2;transform:scaleX(.35)}}
+
+
+
+/* V25 additions: visual systems + FAQ */
+
+.buildShowcase{padding:120px 7vw;background:#070707;color:#fff;overflow:hidden}.buildHead{display:flex;justify-content:space-between;gap:50px;align-items:end;margin-bottom:55px}.buildHead h2{font-size:clamp(58px,9vw,132px);line-height:.84;letter-spacing:-.07em;margin:0}.buildHead p{max-width:440px;color:#aaa;line-height:1.7}.buildStage{display:grid;grid-template-columns:1.45fr .55fr;min-height:620px;gap:2px}.buildHero{position:relative;overflow:hidden;background:#111}.buildHero img{width:100%;height:100%;object-fit:cover;filter:saturate(.78) contrast(1.05);transition:transform 1s ease}.buildHero:hover img{transform:scale(1.035)}.buildOverlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.88));display:flex;flex-direction:column;justify-content:end;padding:42px}.buildOverlay .tag{font-size:10px;letter-spacing:.2em;color:#cfcfcf;margin-bottom:12px}.buildOverlay h3{font-size:clamp(38px,5vw,76px);margin:0 0 12px;letter-spacing:-.05em}.buildOverlay p{max-width:560px;color:#ddd;line-height:1.55;margin:0}.buildRail{display:grid;grid-template-rows:repeat(4,1fr);gap:2px}.buildItem{position:relative;overflow:hidden;background:#111;min-height:150px;padding:25px;display:flex;align-items:end}.buildItem img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.42;transition:opacity .5s,transform .8s}.buildItem:hover img{opacity:.72;transform:scale(1.04)}.buildItem:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent,rgba(0,0,0,.9))}.buildItemContent{position:relative;z-index:2}.buildItem small{font-size:9px;letter-spacing:.18em;color:#aaa}.buildItem h3{margin:5px 0 0;font-size:25px;letter-spacing:-.03em}.buildItem .arrow{position:absolute;right:22px;top:20px;z-index:3;font-size:22px;color:#fff}
+
+.faq{padding:125px 7vw;background:#0a0a0a;color:#fff}.faqGrid{display:grid;grid-template-columns:.75fr 1.25fr;gap:90px}.faq h2{font-size:clamp(60px,9vw,130px);line-height:.82;letter-spacing:-.07em;margin:0}.faqIntro{color:#999;line-height:1.7;max-width:390px;margin-top:30px}.faqList{border-top:1px solid #2b2b2b}.faqItem{border-bottom:1px solid #2b2b2b}.faqQ{width:100%;background:none;border:0;color:#fff;text-align:left;padding:28px 0;display:flex;justify-content:space-between;gap:25px;align-items:center;font:inherit;font-size:clamp(18px,2vw,27px);cursor:pointer}.faqQ span:last-child{font-size:26px;color:#888;transition:transform .3s}.faqA{max-height:0;overflow:hidden;color:#9f9f9f;line-height:1.7;transition:max-height .45s ease,padding .35s ease}.faqItem.open .faqA{max-height:180px;padding:0 55px 28px 0}.faqItem.open .faqQ span:last-child{transform:rotate(45deg);color:#fff}
+
+@media(max-width:850px){.buildShowcase,.faq{padding:85px 5vw}.buildHead,.faqGrid{grid-template-columns:1fr;display:grid;gap:30px}.buildStage{grid-template-columns:1fr;min-height:auto}.buildHero{height:560px}.buildRail{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}.buildItem{min-height:210px}.faqGrid{gap:55px}.faqItem.open .faqA{padding-right:10px}}
+
+@media(max-width:520px){.buildHead h2,.faq h2{font-size:clamp(54px,16vw,82px)}.buildHero{height:470px}.buildOverlay{padding:24px}.buildOverlay h3{font-size:39px}.buildRail{grid-template-columns:1fr}.buildItem{min-height:170px}.faqQ{font-size:18px;padding:24px 0}}
+
+
+
+/* V26 account + referral additions — preserves the existing V25 visual system */
+
+.accountLink{border:1px solid rgba(255,255,255,.18)!important;padding:10px 13px!important;border-radius:999px!important;color:#fff!important;background:rgba(255,255,255,.04)}
+
+.accountLink:hover{border-color:rgba(255,255,255,.55)!important;background:rgba(255,255,255,.09)}
+
+.securityNote{margin-top:16px;padding:12px 14px;border:1px solid rgba(255,255,255,.12);border-radius:12px;font-size:11px;line-height:1.55;color:rgba(255,255,255,.62);background:rgba(255,255,255,.025)}
+
+@media(max-width:800px){.accountLink{display:block!important;text-align:left;border:0!important;padding:15px 0!important;background:none!important;border-radius:0!important}}
+
+
+
+/* VOLTERAX REFER & EARN */
+
+.earnHero{position:relative;overflow:hidden;padding:150px 6vw 110px;background:#07070c;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08)}
+
+.earnGlow{position:absolute;width:650px;height:650px;right:-180px;top:20px;border-radius:50%;background:radial-gradient(circle,rgba(108,59,255,.24),transparent 65%);filter:blur(20px);pointer-events:none}
+
+.earnGrid{position:relative;display:grid;grid-template-columns:1.05fr .95fr;gap:7vw;align-items:center;max-width:1450px;margin:auto}
+
+.earnGrid h2{font-size:clamp(58px,9vw,150px);line-height:.83;letter-spacing:-.065em;margin:20px 0 30px}.earnGrid h2 span{color:#9a7cff}.earnGrid p{max-width:620px;color:#a7a7b2;font-size:18px;line-height:1.65}.earnBtns{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:32px}.earnPrimary,.earnSecondary{font:inherit;font-weight:800;letter-spacing:.08em;text-decoration:none}.earnPrimary{border:0;padding:17px 22px;background:#fff;color:#08080b;cursor:pointer}.earnSecondary{color:#fff;border:1px solid rgba(255,255,255,.22);padding:16px 20px}.earnVisual{min-height:440px;position:relative;display:grid;place-items:center}.earnOrb{width:240px;height:240px;border:1px solid rgba(255,255,255,.25);border-radius:50%;display:grid;place-items:center;text-align:center;background:radial-gradient(circle,rgba(108,59,255,.32),rgba(10,10,15,.75) 62%,transparent 63%);box-shadow:0 0 100px rgba(108,59,255,.25)}.earnAmount{font-size:100px;font-weight:900;line-height:.7}.earnOrb small{font-size:10px;letter-spacing:.18em;color:#bbb}.earnLine{position:absolute;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transform-origin:center}.l1{width:90%;transform:rotate(24deg)}.l2{width:80%;transform:rotate(-28deg)}.l3{width:72%;transform:rotate(90deg)}.earnNode{position:absolute;border:1px solid rgba(255,255,255,.22);padding:10px 13px;background:rgba(7,7,12,.9);font-size:11px;font-weight:800;letter-spacing:.15em}.n1{top:12%;left:4%}.n2{top:18%;right:4%}.n3{bottom:12%;right:15%}.earnRules{position:relative;max-width:1450px;margin:100px auto 0;padding:60px 0 0;border-top:1px solid rgba(255,255,255,.12)}.earnRules h3{font-size:clamp(32px,4vw,64px);margin:10px 0 36px;letter-spacing:-.04em}.ruleGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.12)}.ruleGrid>div{background:#07070c;padding:28px;min-height:190px}.ruleGrid b{display:block;color:#9a7cff;font-size:12px;letter-spacing:.15em;margin-bottom:28px}.ruleGrid strong{display:block;font-size:15px;letter-spacing:.06em}.ruleGrid p{color:#92929e;line-height:1.6;margin:10px 0 0;font-size:14px}.earnNote{margin-top:18px;padding:18px 20px;border:1px solid rgba(154,124,255,.25);background:rgba(108,59,255,.06);color:#aaa9b5;font-size:13px;line-height:1.6}.earnNote b{color:#fff}
+
+@media(max-width:900px){.earnHero{padding:110px 5vw 80px}.earnGrid{grid-template-columns:1fr}.earnVisual{min-height:340px}.ruleGrid{grid-template-columns:1fr 1fr}}
+
+@media(max-width:600px){.earnGrid h2{font-size:18vw}.earnGrid p{font-size:15px}.earnVisual{min-height:290px}.earnOrb{width:180px;height:180px}.earnAmount{font-size:75px}.earnBtns>*{width:100%;text-align:center}.ruleGrid{grid-template-columns:1fr}.ruleGrid>div{min-height:auto}.earnRules{margin-top:65px;padding-top:40px}}
+
+
+
+</style>
+
+
+
+<style>
+
+/* V18 FRONT + CONTACT UPGRADE */
+
+.heroText{max-width:1050px;bottom:10vh}.heroText .eyebrow{font-size:12px;opacity:.8}.hero h1{font-weight:900;text-shadow:0 8px 40px #000}.hero p{max-width:650px;font-size:18px}.hero .btn{background:#f2f2ee;color:#070809;border-color:#f2f2ee;padding:16px 25px;font-weight:700;box-shadow:0 0 35px #fff1}.hero .btn:hover{transform:translateY(-2px);box-shadow:0 10px 45px #fff2}
+
+.hero:before{content:'VOLTERAX / ENGINEERING SYSTEM 01';position:absolute;z-index:3;top:50%;right:4.5vw;writing-mode:vertical-rl;transform:translateY(-50%);font:9px monospace;letter-spacing:.25em;color:#dfe2e3;opacity:.55}
+
+.heroTopline{position:absolute;z-index:4;left:7vw;top:105px;right:7vw;display:flex;justify-content:space-between;font:9px monospace;letter-spacing:.18em;color:#d5d8da;opacity:.65}
+
+.contactRail{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:#2b2d30;margin-top:65px}.contactRail a{background:#08090a;color:#f5f5f2;padding:34px 30px;min-height:150px;display:flex;flex-direction:column;justify-content:space-between;transition:.3s}.contactRail a:hover{background:#15171a;transform:translateY(-3px)}.contactRail small{font:10px monospace;letter-spacing:.18em;color:#969ca0}.contactRail strong{font-size:clamp(22px,3vw,38px);letter-spacing:-.04em}.contactRail span{font:10px monospace;color:#858b90}
+
+.mobileLead{margin-top:55px;border:1px solid #2d3033;background:#0b0c0e;padding:34px;max-width:760px}.mobileLead h3{font-size:28px;margin:0 0 9px}.mobileLead p{margin:0 0 24px;color:#92979b;font-size:14px}.mobileLeadRow{display:grid;grid-template-columns:1fr auto;gap:10px}.mobileLead input{background:#050607;border:1px solid #3a3e42;color:#fff;padding:18px;font:15px Arial;outline:none}.mobileLead button{border:0;background:#f1f1ed;color:#070809;padding:18px 24px;font:10px monospace;letter-spacing:.12em;cursor:pointer}.mobileLead .note{font:9px monospace;color:#656b70;margin-top:12px}
+
+@media(max-width:700px){.contactRail{grid-template-columns:1fr}.mobileLeadRow{grid-template-columns:1fr}.heroTopline{display:none}}
+
+
+
+
+
+/* VOLTERAX social contact cards */
+
+.socialContactRail{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;background:transparent;margin-top:48px}
+
+.socialContactRail a{position:relative;min-height:205px;padding:26px 25px;border:1px solid rgba(139,92,255,.28);background:linear-gradient(145deg,#0d0b18 0%,#080a12 68%,#07101a 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 12px 35px rgba(0,0,0,.16);gap:14px;justify-content:flex-start;transition:border-color .25s,transform .25s,box-shadow .25s}
+
+.socialContactRail a:hover{background:linear-gradient(145deg,#151027 0%,#0b1020 100%);border-color:rgba(91,157,255,.75);box-shadow:0 12px 38px rgba(70,75,255,.16);transform:translateY(-4px)}
+
+.socialContactRail .socialIcon{width:42px;height:42px;display:grid;place-items:center;border:1px solid rgba(139,92,255,.35);border-radius:12px;background:rgba(108,59,255,.11);color:#a98aff}
+
+.socialContactRail .socialIcon svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+.socialContactRail .socialIcon .iconFill{fill:currentColor;stroke:none}
+
+.socialContactRail small{color:#9e91d9}
+
+.socialContactRail strong{font-size:clamp(20px,2.3vw,30px);color:#f6f4ff}
+
+.socialContactRail span:last-child{margin-top:auto;color:#8e9bb5;font:11px monospace;letter-spacing:.035em;overflow-wrap:anywhere}
+
+@media(max-width:700px){.socialContactRail{grid-template-columns:1fr}.socialContactRail a{min-height:165px}}
+
+</style>
+
+
+
+<style>
+
+.brandMark{display:block !important;position:relative !important;inset:auto !important;width:62px !important;height:62px !important;flex:0 0 62px !important;object-fit:contain !important;object-position:center !important;visibility:visible !important;opacity:1 !important;filter:drop-shadow(0 0 10px rgba(130,110,255,.5)) !important;image-rendering:auto !important;}
+
+.boot-logo{display:block !important;position:relative !important;inset:auto !important;z-index:20 !important;width:min(38vw,360px) !important;height:min(38vw,360px) !important;flex:0 0 auto !important;object-fit:contain !important;object-position:center !important;visibility:visible !important;opacity:1 !important;filter:drop-shadow(0 0 28px rgba(112,82,255,.65)) drop-shadow(0 0 70px rgba(55,130,255,.28)) !important;animation:logoFloat 2.8s ease-in-out infinite;}
+
+.heroLogo{display:block !important;position:relative !important;inset:auto !important;z-index:10 !important;width:250px !important;height:250px !important;flex:0 0 250px !important;object-fit:contain !important;object-position:center !important;margin-bottom:24px !important;visibility:visible !important;opacity:1 !important;filter:drop-shadow(0 0 24px rgba(110,80,255,.5)) !important;animation:heroLogoIn 1.2s cubic-bezier(.2,.8,.2,1) both;}
+
+@keyframes logoFloat{0%,100%{transform:scale(1) rotate(0deg);filter:drop-shadow(0 0 24px rgba(112,82,255,.5))}50%{transform:scale(1.035) rotate(.7deg);filter:drop-shadow(0 0 42px rgba(112,82,255,.8))}}
+
+@keyframes heroLogoIn{from{opacity:0;transform:translateY(20px) scale(.75);filter:blur(8px) drop-shadow(0 0 0 transparent)}to{opacity:1;transform:none;filter:drop-shadow(0 0 24px rgba(110,80,255,.42))}}
+
+.logoWrap{display:flex;align-items:center;gap:10px}.navWord{font-weight:900;letter-spacing:.16em;font-size:13px}.brandFallback{display:none;font-weight:900;letter-spacing:.18em;font-size:15px}
+
+@media(max-width:520px){.brandMark{width:48px;height:48px;flex-basis:48px}.heroLogo{width:150px;height:150px;flex-basis:150px}}
+
+</style>
+
+<style>#skipBoot{position:absolute;right:28px;bottom:24px;z-index:5;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.35);padding:10px 14px;font:10px monospace;letter-spacing:.12em;cursor:pointer;border-radius:999px}#skipBoot:hover{background:#fff;color:#050507}</style>
+
+<style id="volterax-responsive-v24">
+
+/* V24 responsive system: desktop, tablet and mobile are intentionally composed separately. */
+
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+
+img{max-width:100%}
+
+.nav{padding-left:clamp(18px,4.5vw,70px);padding-right:clamp(18px,4.5vw,70px)}
+
+.logoWrap{min-width:0}.navWord{white-space:nowrap}
+
+.mobileMenu{display:none;background:transparent;border:1px solid #ffffff3a;color:#fff;width:44px;height:44px;border-radius:50%;padding:0;align-items:center;justify-content:center;flex-direction:column;gap:4px;cursor:pointer}
+
+.mobileMenu span{display:block;width:16px;height:1px;background:#fff;transition:.25s}
+
+
+
+@media (max-width:1100px){
+
+.navlinks{gap:18px;font-size:9px}
+
+.heroText{left:6vw;max-width:720px}
+
+.systems,.architecture,.origin,.bridge,.promise,.project,.connect{padding-left:6vw;padding-right:6vw}
+
+.grid{grid-template-columns:repeat(2,1fr)}
+
+.card:last-child{grid-column:1/-1}
+
+.originGrid,.arch{gap:4vw}
+
+.originGrid .map{height:520px}
+
+}
+
+
+
+@media (max-width:820px){
+
+.nav{padding-top:14px;padding-bottom:14px;background:linear-gradient(#050607f5,transparent)}
+
+.navlinks{display:none;position:absolute;top:68px;left:14px;right:14px;background:#090a0ceF;border:1px solid #2a2d30;padding:10px;flex-direction:column;gap:0;backdrop-filter:blur(18px)}
+
+.navlinks.open{display:flex}
+
+.navlinks a{padding:15px 13px;border-bottom:1px solid #24272a;font-size:10px;letter-spacing:.16em}
+
+.navlinks a:last-child{border-bottom:0}
+
+.mobileMenu{display:flex;flex:0 0 44px}
+
+.mobileMenu.open span:nth-child(1){transform:translateY(5px) rotate(45deg)}
+
+.mobileMenu.open span:nth-child(2){opacity:0}
+
+.mobileMenu.open span:nth-child(3){transform:translateY(-5px) rotate(-45deg)}
+
+.logoWrap{gap:7px}.brandMark{width:50px!important;height:50px!important;flex-basis:50px!important}.navWord{display:none}
+
+.hero{min-height:720px;height:100svh}
+
+.heroText{left:6vw;right:6vw;bottom:11vh;max-width:none}
+
+.hero h1{font-size:clamp(54px,12vw,100px);line-height:.86}
+
+.hero p{font-size:15px;max-width:560px;margin:22px 0}
+
+.scroll{right:6vw;font-size:9px}
+
+.intro{padding:90px 6vw!important}
+
+.intro h2{font-size:clamp(48px,11vw,80px)!important}
+
+.intro p{max-width:none!important;font-size:15px!important}
+
+.fullImage{height:70svh!important;min-height:430px!important}
+
+.systems,.architecture,.origin,.bridge,.promise,.project,.connect{padding-top:95px;padding-bottom:95px;padding-left:6vw;padding-right:6vw}
+
+.sectionTop{display:grid;grid-template-columns:1fr;gap:22px;align-items:start}
+
+.sectionTop p{max-width:600px}
+
+.grid{grid-template-columns:1fr;gap:1px}
+
+.card,.card:last-child{grid-column:auto;min-height:440px}
+
+.card img{height:58%}
+
+.arch{grid-template-columns:1fr;gap:45px}
+
+.archVisual{height:520px}
+
+.originGrid{grid-template-columns:1fr;gap:45px}
+
+.originGrid .map{height:min(92vw,520px)}
+
+.bridgeHead{display:grid;grid-template-columns:1fr;gap:20px}
+
+.bridgeVisual{min-height:420px}
+
+.steps{grid-template-columns:1fr 1fr}
+
+.promiseGrid{grid-template-columns:1fr;gap:40px}
+
+.projectGrid{grid-template-columns:1fr;gap:45px}
+
+.contactRail{grid-template-columns:1fr}
+
+.mobileLead{max-width:none}
+
+.footer{padding:22px 6vw;gap:12px;flex-direction:column}
+
+}
+
+
+
+@media (max-width:560px){
+
+.heroText{bottom:10vh}
+
+.eyebrow{font-size:9px;letter-spacing:.16em;margin-bottom:17px}
+
+.hero h1{font-size:clamp(48px,14vw,76px);letter-spacing:-.07em}
+
+.hero p{font-size:14px;line-height:1.55;margin:19px 0}
+
+.btn{padding:13px 17px;font-size:10px}
+
+.fullImage{height:62svh!important;min-height:380px!important}
+
+.caption{left:6vw!important;right:6vw!important;bottom:7vh!important}
+
+.caption h2{font-size:clamp(40px,11vw,64px)!important}
+
+.systems h2,.sectionTop h2{font-size:clamp(45px,12vw,70px)!important}
+
+.card{min-height:410px}
+
+.card img{height:54%}
+
+.architecture .archVisual{height:430px}
+
+.flow{padding:22px!important}
+
+.node{font-size:9px!important;padding:10px 12px!important}
+
+.origin h2{font-size:clamp(44px,12vw,70px)!important}
+
+.origin p,.project p,.connect p{font-size:15px!important}
+
+.originGrid .map{height:88vw;min-height:330px}
+
+.mapLabel{left:15px;bottom:15px;font-size:8px}
+
+.bridgeVisual{min-height:440px}
+
+.bridgeSide{width:32%!important;font-size:8px!important}
+
+.bridgeSide.right{right:2%!important}
+
+.bridgeSide.left{left:2%!important}
+
+.bridgeNode{width:128px!important;height:128px!important}
+
+.bridgeNode strong{font-size:14px!important}
+
+.bridgeNode small{font-size:7px!important;bottom:25px!important}
+
+.steps{grid-template-columns:1fr;gap:1px}
+
+.step{padding:25px 20px!important}
+
+.promiseList{gap:0!important}
+
+.promiseItem{grid-template-columns:34px 1fr!important;padding:24px 0!important}
+
+.promiseItem h3{font-size:20px!important}
+
+.project h2,.connect h2{font-size:clamp(46px,13vw,76px)!important}
+
+.projectPanel{padding:20px!important}
+
+.mobileLead{padding:22px!important}
+
+.mobileLeadRow{grid-template-columns:1fr!important}
+
+.mobileLead button{width:100%}
+
+.contactRail a{min-height:128px!important;padding:25px 22px!important}
+
+.contactRail strong{font-size:29px!important}
+
+.footer span{font-size:8px}
+
+#skipBoot{right:14px;bottom:14px;padding:9px 12px;font-size:8px}
+
+.boot-core{width:92vw!important;height:310px!important}
+
+.boot-logo{width:min(64vw,270px)!important;height:min(64vw,270px)!important}
+
+.boot-core:before{width:240px!important;height:240px!important}
+
+}
+
+
+
+@media (max-width:380px){
+
+.hero h1{font-size:47px}
+
+.heroText{left:5vw;right:5vw}
+
+.systems,.architecture,.origin,.bridge,.promise,.project,.connect{padding-left:5vw;padding-right:5vw}
+
+.brandMark{width:46px!important;height:46px!important;flex-basis:46px!important}
+
+.mobileMenu{width:40px;height:40px;flex-basis:40px}
+
+.navlinks{top:62px;left:10px;right:10px}
+
+}
+
+
+
+@media (prefers-reduced-motion:reduce){
+
+*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+
+}
+
+</style>
+
+<style id="volterax-account-css">
+
+.accountModal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(3,3,7,.94);backdrop-filter:blur(18px);overflow:auto;padding:28px}.accountModal.open{display:block}.accountShell{width:min(1120px,96vw);margin:0 auto;padding:24px 0 60px}.accountTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}.accountClose{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:#fff;border-radius:999px;padding:11px 16px;cursor:pointer}.accountGrid{display:grid;grid-template-columns:1fr .8fr;gap:28px}.accountBox{background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.13);border-radius:26px;padding:28px}.accountBox h2{font-size:clamp(34px,5vw,68px);line-height:.9;margin:0 0 16px;letter-spacing:-.05em}.accountBox h3{font-size:24px;margin:0 0 8px}.accountMuted{color:rgba(255,255,255,.58);line-height:1.55;font-size:13px}.accountLabel{display:block;font-size:9px;letter-spacing:.15em;margin:18px 0 7px;color:rgba(255,255,255,.65)}.accountInput{width:100%;padding:14px 15px;background:#09090e;border:1px solid rgba(255,255,255,.14);border-radius:12px;color:#fff;outline:none}.accountBtn:disabled{opacity:.55;cursor:wait}.accountBtn{width:100%;padding:15px;border:0;border-radius:12px;background:#7d55ff;color:#fff;font-weight:800;cursor:pointer,margin-top:18px}.accountDash{display:none;margin-top:28px}.accountDash.show{display:block}.accountStats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}.accountStat{padding:20px;border:1px solid rgba(255,255,255,.11);border-radius:18px;background:rgba(255,255,255,.035)}.accountStat small{font-size:8px;letter-spacing:.14em;color:rgba(255,255,255,.5)}.accountBig{font-size:25px;font-weight:800;margin-top:8px}.refBox{margin-top:12px;border:1px solid rgba(125,85,255,.35);background:rgba(125,85,255,.08);border-radius:20px;padding:22px}.refCode{font-size:28px;font-weight:900;letter-spacing:.08em;margin:15px 0}.refActions{display:flex;gap:10px}.refActions button{flex:1;padding:13px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;cursor:pointer}.accountNotice{margin-top:16px;padding:13px;border-radius:12px;background:rgba(255,255,255,.04);color:rgba(255,255,255,.55);font-size:11px;line-height:1.5}.accountLogout{float:right;background:transparent;border:1px solid rgba(255,255,255,.15);color:#fff;border-radius:10px;padding:8px 12px;cursor:pointer}@media(max-width:800px){.accountModal{padding:12px}.accountGrid{grid-template-columns:1fr}.accountStats{grid-template-columns:1fr 1fr}.refActions{flex-direction:column}.accountShell{padding-top:10px}}
+
+</style><style>
+
+.vx-pass-wrap{position:relative;width:100%}
+
+.vx-pass-wrap input{padding-right:54px!important;box-sizing:border-box}
+
+.vx-pass-toggle{position:absolute!important;right:8px;top:50%;transform:translateY(-50%);width:auto!important;margin:0!important;padding:8px 10px!important;background:transparent!important;border:0!important;color:#fff!important;cursor:pointer}
+
+</style><style id="vx-perf-opt">
+
+/* Phase 2: Performance & Mobile Optimization */
+
+.systems, .builds, .architecture, .fullImage, .origin, .bridge, .vx-feedback, .faq, .contact {
+
+content-visibility: auto;
+
+contain-intrinsic-size: 1px 700px;
+
+}
+
+.vx-float-earn {
+
+will-change: transform;
+
+}
+
+</style><link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style id="vx-ultra-premium-enhancements">
+
+/* VOLTERAX / ultra-premium visual layer — additive only */
+
+:where(h1,h2,h3,h4,.navlinks,.eyebrow,.btn,.spec,.num,.stepNo,.faqQ,.accountBtn,.accountLabel,.boot-brand,.boot-sub,.boot-status,.node,.mapLabel,.sectionTop,.buildItemContent,.vx-float-earn){
+
+font-family:'Space Grotesk',Arial,Helvetica,sans-serif;
+
+}
+
+:where(h1,h2,h3,h4){font-weight:600; text-wrap:balance;}
+
+:where(button,.btn,a){-webkit-tap-highlight-color:transparent;}
+
+:where(button,.btn){transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease,border-color .22s ease,background-color .22s ease;}
+
+:where(button,.btn):focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #00E5FF;outline-offset:4px;}
+
+/* Scroll reveal: elements remain visible unless JS successfully activates this layer. */
+
+.vx-reveal-ready .reveal{opacity:0;transform:translate3d(0,28px,0);transition:opacity .72s cubic-bezier(.2,.7,.2,1),transform .72s cubic-bezier(.2,.7,.2,1);will-change:opacity,transform;}
+
+.vx-reveal-ready .reveal.is-visible{opacity:1;transform:translate3d(0,0,0);}
+
+.vx-reveal-ready .reveal[data-reveal-delay="1"]{transition-delay:90ms;}
+
+.vx-reveal-ready .reveal[data-reveal-delay="2"]{transition-delay:160ms;}
+
+.vx-reveal-ready .reveal[data-reveal-delay="3"]{transition-delay:230ms;}
+
+/* Atmospheric engineering grid sits above the hero photograph, below hero copy. */
+
+.hero{isolation:isolate;}
+
+.vx-hero-atmosphere{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;opacity:.72;
+
+background-image:linear-gradient(rgba(108,59,255,.105) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.075) 1px,transparent 1px),radial-gradient(ellipse at 72% 34%,rgba(108,59,255,.22),transparent 42%),radial-gradient(ellipse at 22% 76%,rgba(0,229,255,.10),transparent 38%);
+
+background-size:72px 72px,72px 72px,100% 100%,100% 100%;
+
+mask-image:linear-gradient(90deg,transparent 0%,#000 42%,#000 100%);
+
+animation:vxGridDrift 34s linear infinite;
+
+}
+
+.vx-hero-atmosphere:after{content:"";position:absolute;inset:-35%;background:radial-gradient(ellipse at 50% 50%,rgba(108,59,255,.12),transparent 48%);transform:translate3d(-8%,0,0);animation:vxGlowFloat 16s ease-in-out infinite alternate;}
+
+@keyframes vxGridDrift{from{background-position:0 0,0 0,0 0,0 0}to{background-position:72px 72px,-72px 72px,0 0,0 0}}
+
+@keyframes vxGlowFloat{from{transform:translate3d(-5%,-2%,0) scale(.96);opacity:.55}to{transform:translate3d(6%,3%,0) scale(1.08);opacity:1}}
+
+@media(prefers-reduced-motion:reduce){.vx-hero-atmosphere,.vx-hero-atmosphere:after{animation:none!important}.vx-reveal-ready .reveal{opacity:1!important;transform:none!important;transition:none!important}}
+
+</style>
+
+
+
+<style id="vx-cinematic-visual-upgrades">
+
+/* VOLTERAX cinematic bridge + earn core; visual-only overrides */
+
+.bridgeVisual{
+
+isolation:isolate;
+
+border:1px solid rgba(108,59,255,.32);
+
+border-radius:22px;
+
+background:
+
+radial-gradient(ellipse at 50% 50%,rgba(108,59,255,.16),transparent 34%),
+
+radial-gradient(ellipse at 50% 50%,rgba(0,229,255,.09),transparent 62%),
+
+linear-gradient(145deg,rgba(15,17,25,.94),rgba(5,6,7,.98));
+
+box-shadow:inset 0 0 70px rgba(108,59,255,.08),0 22px 70px rgba(0,0,0,.34),0 0 34px rgba(108,59,255,.08);
+
+}
+
+.bridgeVisual:before{
+
+content:"";position:absolute;inset:0;pointer-events:none;opacity:.48;
+
+background:linear-gradient(90deg,transparent 49.8%,rgba(0,229,255,.14) 50%,transparent 50.2%),
+
+radial-gradient(circle at 50% 50%,transparent 0 34%,rgba(108,59,255,.08) 34.2%,transparent 34.7%);
+
+mask-image:radial-gradient(ellipse at center,#000 15%,transparent 78%);
+
+}
+
+.bridgeLine{
+
+height:2px;z-index:1;
+
+background:linear-gradient(90deg,transparent,rgba(108,59,255,.65) 20%,rgba(0,229,255,.85) 50%,rgba(108,59,255,.65) 80%,transparent);
+
+box-shadow:0 0 12px rgba(0,229,255,.3);
+
+}
+
+.bridgeLine:before{
+
+content:"";position:absolute;inset:-5px 0;
+
+background:linear-gradient(90deg,transparent,rgba(0,229,255,.35),transparent);
+
+filter:blur(5px);animation: vxBridgeSweep 2.2s linear infinite;
+
+}
+
+.bridgeLine:after{
+
+width:42px;height:7px;top:-2.5px;border-radius:99px;
+
+background:linear-gradient(90deg,transparent,#6C3BFF 22%,#fff 52%,#00E5FF 78%,transparent);
+
+box-shadow:0 0 10px #00E5FF,0 0 24px rgba(108,59,255,.95),0 0 42px rgba(0,229,255,.55);
+
+animation:travel 1.65s cubic-bezier(.35,0,.25,1) infinite;
+
+}
+
+.bridgeNode{
+
+isolation:isolate;width:190px;height:190px;
+
+border:1px solid rgba(0,229,255,.62);
+
+background:radial-gradient(circle,rgba(108,59,255,.24),rgba(7,8,14,.96) 65%);
+
+box-shadow:0 0 35px rgba(108,59,255,.28),0 0 70px rgba(0,229,255,.12),inset 0 0 38px rgba(108,59,255,.2);
+
+animation:vxBridgeCore 3.2s ease-in-out infinite;
+
+}
+
+.bridgeNode:before,.bridgeNode:after{
+
+content:"";position:absolute;inset:-12px;border-radius:50%;pointer-events:none;
+
+border:1px solid rgba(108,59,255,.9);
+
+box-shadow:0 0 18px rgba(108,59,255,.65),inset 0 0 18px rgba(108,59,255,.16);
+
+animation:vxBridgeRing 3s ease-out infinite;
+
+}
+
+.bridgeNode:after{
+
+inset:-23px;border-color:rgba(0,229,255,.68);
+
+box-shadow:0 0 22px rgba(0,229,255,.45);
+
+animation-delay:1.5s;
+
+}
+
+.bridgeNode strong{ text-shadow:0 0 16px rgba(0,229,255,.45); }
+
+@keyframes vxBridgeSweep{0%{transform:translateX(-55%);opacity:0}15%,85%{opacity:1}100%{transform:translateX(55%);opacity:0}}
+
+@keyframes vxBridgeCore{0%,100%{transform:scale(.985);box-shadow:0 0 28px rgba(108,59,255,.25),0 0 55px rgba(0,229,255,.1),inset 0 0 32px rgba(108,59,255,.16)}50%{transform:scale(1.035);box-shadow:0 0 48px rgba(108,59,255,.52),0 0 90px rgba(0,229,255,.2),inset 0 0 48px rgba(0,229,255,.18)}}
+
+@keyframes vxBridgeRing{0%{transform:scale(.88);opacity:.9}75%,100%{transform:scale(1.3);opacity:0}}
+
+/* Earn reward orb: layered core, rotating energy rings and moving light points */
+
+.earnVisual{isolation:isolate}
+
+.earnVisual:before{
+
+content:"";position:absolute;inset:4%;border-radius:50%;pointer-events:none;z-index:0;
+
+background:
+
+radial-gradient(circle at 18% 28%,#00E5FF 0 1.5px,transparent 3px),
+
+radial-gradient(circle at 82% 36%,#9b7aff 0 2px,transparent 4px),
+
+radial-gradient(circle at 73% 82%,#00E5FF 0 1.5px,transparent 3px),
+
+radial-gradient(circle at 28% 76%,#6C3BFF 0 2px,transparent 4px);
+
+filter:drop-shadow(0 0 7px #00E5FF);
+
+animation:vxEarnParticles 8s linear infinite;
+
+}
+
+.earnOrb{
+
+position:relative;z-index:2;
+
+border:1px solid rgba(0,229,255,.48);
+
+background:radial-gradient(circle at 50% 42%,rgba(166,132,255,.38),rgba(108,59,255,.22) 34%,rgba(7,8,16,.92) 68%,rgba(0,229,255,.08) 100%);
+
+box-shadow:0 0 42px rgba(108,59,255,.42),0 0 100px rgba(108,59,255,.25),0 0 145px rgba(0,229,255,.1),inset 0 0 45px rgba(108,59,255,.24);
+
+animation:vxEarnPulse 3.4s ease-in-out infinite;
+
+}
+
+.earnOrb:before,.earnOrb:after{
+
+content:"";position:absolute;inset:-15px;border-radius:50%;pointer-events:none;
+
+border:1px solid rgba(108,59,255,.78);
+
+box-shadow:0 0 18px rgba(108,59,255,.4);
+
+animation:vxEarnRing 5.5s linear infinite;
+
+}
+
+.earnOrb:after{inset:-29px;border-color:rgba(0,229,255,.48);border-style:dashed;animation-duration:12s;animation-direction:reverse}
+
+.earnAmount{text-shadow:0 0 24px rgba(154,124,255,.5)}
+
+.earnLine{
+
+height:2px;z-index:1;
+
+background:linear-gradient(90deg,transparent,rgba(108,59,255,.65),rgba(0,229,255,.9),rgba(108,59,255,.65),transparent);
+
+box-shadow:0 0 12px rgba(0,229,255,.28);
+
+}
+
+.earnLine:after{
+
+content:"";position:absolute;left:0;top:-2px;width:7px;height:6px;border-radius:50%;
+
+background:#fff;box-shadow:0 0 9px #fff,0 0 18px #00E5FF,0 0 28px #6C3BFF;
+
+animation:vxEarnTravel 4.8s linear infinite;
+
+}
+
+.l1{animation:vxEarnOrbit1 24s linear infinite}
+
+.l2{animation:vxEarnOrbit2 30s linear infinite}
+
+.l3{animation:vxEarnOrbit3 36s linear infinite}
+
+@keyframes vxEarnPulse{0%,100%{transform:scale(.97);filter:brightness(.94)}50%{transform:scale(1.045);filter:brightness(1.22)}}
+
+@keyframes vxEarnRing{from{transform:rotate(0deg) scale(.98)}to{transform:rotate(360deg) scale(.98)}}
+
+@keyframes vxEarnTravel{0%{left:0;opacity:0}12%,85%{opacity:1}100%{left:100%;opacity:0}}
+
+@keyframes vxEarnOrbit1{from{transform:rotate(24deg)}to{transform:rotate(384deg)}}
+
+@keyframes vxEarnOrbit2{from{transform:rotate(-28deg)}to{transform:rotate(-388deg)}}
+
+@keyframes vxEarnOrbit3{from{transform:rotate(90deg)}to{transform:rotate(450deg)}}
+
+@keyframes vxEarnParticles{0%{transform:rotate(0) scale(.96);opacity:.45}50%{opacity:.9}100%{transform:rotate(360deg) scale(1.04);opacity:.45}}
+
+/* Glass depth for the existing cards and visual panels; content and layout untouched */
+
+:where(.card,.step,.projectPanel,.mobileLead,.buildHero,.buildItem,.archVisual,.map,.bridgeVisual,.socialContactRail a,.ruleGrid>div,.earnNode,.accountBox,.accountStat,.refBox,.faqItem){
+
+backdrop-filter:blur(16px) saturate(125%);
+
+-webkit-backdrop-filter:blur(16px) saturate(125%);
+
+border-color:rgba(139,92,255,.22);
+
+box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 16px 42px rgba(0,0,0,.22);
+
+}
+
+:where(.card,.step,.projectPanel,.mobileLead,.buildItem,.archVisual,.map,.accountBox,.accountStat,.faqItem){
+
+background-color:rgba(10,11,16,.78);
+
+}
+
+:where(.card,.step,.projectPanel,.mobileLead,.buildItem,.socialContactRail a,.accountBox,.accountStat,.faqItem){
+
+transition:border-color .3s ease,box-shadow .3s ease,transform .3s ease,background-color .3s ease;
+
+}
+
+:where(.card,.step,.projectPanel,.mobileLead,.buildItem,.socialContactRail a,.accountBox,.accountStat,.faqItem):hover{
+
+border-color:rgba(0,229,255,.34);
+
+box-shadow:inset 0 1px 0 rgba(255,255,255,.075),0 18px 48px rgba(0,229,255,.055),0 18px 48px rgba(108,59,255,.10);
+
+}
+
+@media(prefers-reduced-motion:reduce){
+
+.bridgeNode,.bridgeNode:before,.bridgeNode:after,.bridgeLine:before,.bridgeLine:after,
+
+.earnOrb,.earnOrb:before,.earnOrb:after,.earnLine,.earnLine:after,.earnVisual:before{animation:none!important}
+
+}
+
+</style>
+
+
+
+
+
+<style id="vx-cyber-hero-upgrade">
+
+/* VOLTERAX cyberpunk hero atmosphere — additive visual layer */
+
+.hero>img{
+
+opacity:.20;
+
+filter:saturate(.72) contrast(1.18) brightness(.52);
+
+}
+
+.hero:after{
+
+background:
+
+linear-gradient(90deg,rgba(5,6,7,.94) 0%,rgba(5,6,7,.72) 42%,rgba(5,6,7,.28) 100%),
+
+linear-gradient(0deg,#050607 0%,rgba(5,6,7,.18) 48%,rgba(5,6,7,.2) 100%);
+
+}
+
+.vx-hero-atmosphere{
+
+z-index:1;
+
+opacity:1;
+
+background:
+
+radial-gradient(ellipse at 74% 42%,rgba(108,59,255,.20),transparent 48%),
+
+radial-gradient(ellipse at 58% 82%,rgba(0,229,255,.11),transparent 46%),
+
+linear-gradient(135deg,rgba(5,6,14,.10),rgba(5,6,7,.28));
+
+mask-image:none;
+
+}
+
+.vx-hero-canvas{
+
+position:absolute;inset:0;width:100%;height:100%;display:block;
+
+opacity:.88;pointer-events:none;
+
+}
+
+.hero h1{
+
+text-shadow:0 0 2px rgba(255,255,255,.35),0 0 24px rgba(108,59,255,.25),0 10px 48px rgba(0,0,0,.9);
+
+animation:vxHeroHeadingIn 1.15s cubic-bezier(.16,1,.3,1) .18s both;
+
+}
+
+.heroText .eyebrow{ text-shadow:0 0 16px rgba(0,229,255,.28); }
+
+@keyframes vxHeroHeadingIn{
+
+from{opacity:0;transform:translate3d(0,24px,0);filter:blur(9px);text-shadow:0 0 0 transparent}
+
+to{opacity:1;transform:translate3d(0,0,0);filter:blur(0);text-shadow:0 0 2px rgba(255,255,255,.35),0 0 24px rgba(108,59,255,.25),0 10px 48px rgba(0,0,0,.9)}
+
+}
+
+@media(prefers-reduced-motion:reduce){
+
+.hero h1{animation:none!important;opacity:1!important;filter:none!important}
+
+}
+
+</style>
+
+
+
+<style>
+
+/* Dedicated standalone button style for PROJECTS STORE in top nav */
+
+.nav-projects-btn {
+
+display: inline-flex !important;
+
+align-items: center !important;
+
+gap: 8px !important;
+
+padding: 10px 18px !important;
+
+background: linear-gradient(135deg, rgba(108,59,255,.35), rgba(0,229,255,.2)) !important;
+
+border: 1px solid rgba(0,229,255,.75) !important;
+
+border-radius: 999px !important;
+
+color: #00E5FF !important;
+
+font: 700 11px/1 monospace !important;
+
+letter-spacing: .15em !important;
+
+box-shadow: 0 0 20px rgba(0,229,255,.25), 0 0 35px rgba(108,59,255,.35), inset 0 0 12px rgba(0,229,255,.15) !important;
+
+transition: transform .22s ease, box-shadow .22s ease, background .22s ease !important;
+
+}
+
+.nav-projects-btn:hover {
+
+transform: translateY(-2px) !important;
+
+background: linear-gradient(135deg, rgba(108,59,255,.55), rgba(0,229,255,.35)) !important;
+
+border-color: #00E5FF !important;
+
+box-shadow: 0 0 30px rgba(0,229,255,.45), 0 0 50px rgba(108,59,255,.55), inset 0 0 18px rgba(0,229,255,.25) !important;
+
+color: #fff !important;
+
+}
+
+</style>
+
+
+
+
+<style id="volterax-mobile-navigation-and-hero-fix">
+/* Mobile navigation: compact header + tap-to-open full vertical menu.
+   No horizontal scrolling is required to reach any navigation item. */
+@media (max-width: 820px) {
+  .nav {
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:12px !important;
+    padding:9px 15px !important;
+    min-height:60px !important;
+    background:linear-gradient(180deg,rgba(5,6,7,.99),rgba(5,6,7,.94)) !important;
+    border-bottom:1px solid rgba(139,92,255,.22);
+    -webkit-backdrop-filter:blur(18px);
+    backdrop-filter:blur(18px);
+  }
+  .logoWrap { order:1; gap:7px !important; min-height:40px; }
+  .brandMark { width:40px !important;height:40px !important;flex:0 0 40px !important; }
+  .navWord { display:inline !important;font-size:10px !important;letter-spacing:.12em !important; }
+  .mobileMenu {
+    display:flex !important;
+    order:2;
+    flex:0 0 42px !important;
+    width:42px !important;height:42px !important;
+    border:1px solid rgba(139,92,255,.48) !important;
+    border-radius:12px !important;
+    background:rgba(108,59,255,.10) !important;
+    box-shadow:0 0 18px rgba(108,59,255,.12);
+  }
+  .navlinks {
+    order:3;
+    position:absolute !important;
+    top:calc(100% + 7px) !important;
+    left:12px !important;right:12px !important;
+    display:none !important;
+    flex:none !important;
+    width:auto !important;max-width:none !important;
+    max-height:calc(100svh - 100px) !important;
+    overflow-y:auto !important;overflow-x:hidden !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    gap:5px !important;
+    white-space:normal !important;
+    padding:10px !important;margin:0 !important;
+    border:1px solid rgba(139,92,255,.32) !important;
+    border-radius:16px !important;
+    background:rgba(7,8,13,.97) !important;
+    box-shadow:0 18px 50px rgba(0,0,0,.62),0 0 28px rgba(108,59,255,.12) !important;
+    -webkit-backdrop-filter:blur(22px) !important;
+    backdrop-filter:blur(22px) !important;
+    scrollbar-width:thin;
+  }
+  .navlinks.open { display:flex !important; }
+  .navlinks a {
+    display:flex !important;
+    align-items:center !important;justify-content:flex-start !important;
+    flex:0 0 auto !important;width:100% !important;
+    min-height:42px !important;
+    padding:12px 14px !important;margin:0 !important;
+    border:1px solid rgba(255,255,255,.09) !important;
+    border-radius:10px !important;
+    background:rgba(255,255,255,.035) !important;
+    color:#e4e5eb !important;
+    font:700 10px/1.2 monospace !important;
+    letter-spacing:.13em !important;
+    opacity:1 !important;
+  }
+  .navlinks a.nav-projects-btn {
+    color:#00e5ff !important;
+    border-color:rgba(0,229,255,.4) !important;
+    background:rgba(0,229,255,.07) !important;
+  }
+  .navlinks a[style*="color"] { color:#bca8ff !important; }
+  .navlinks a.accountLink {
+    display:flex !important;
+    padding:12px 14px !important;
+    border:1px solid rgba(255,255,255,.14) !important;
+    background:rgba(255,255,255,.045) !important;
+  }
+
+  /* Compact the hero so the logo, headline and CTAs fit a phone viewport. */
+  .hero {
+    height:auto !important;
+    min-height:100svh !important;
+    padding:132px 0 92px !important;
+  }
+  .heroText {
+    position:relative !important;
+    inset:auto !important;
+    left:auto !important;
+    right:auto !important;
+    bottom:auto !important;
+    width:auto !important;
+    max-width:none !important;
+    margin:0 6vw !important;
+    padding:0 !important;
+  }
+  .heroLogo {
+    width:clamp(88px,25vw,118px) !important;
+    height:clamp(88px,25vw,118px) !important;
+    flex-basis:auto !important;
+    max-width:100% !important;
+    margin:0 0 16px !important;
+    object-fit:contain !important;
+  }
+  .heroText .eyebrow {
+    font-size:9px !important;
+    line-height:1.55 !important;
+    letter-spacing:.14em !important;
+    margin:0 0 15px !important;
+  }
+  .heroText h1 {
+    font-size:clamp(48px,13vw,68px) !important;
+    line-height:.88 !important;
+    letter-spacing:-.075em !important;
+    margin:0 !important;
+  }
+  .heroText p {
+    max-width:600px !important;
+    font-size:14px !important;
+    line-height:1.55 !important;
+    margin:17px 0 20px !important;
+  }
+  .heroText .btn {
+    min-height:46px;
+    padding:13px 17px !important;
+    font-size:10px !important;
+  }
+  .hero:before { right:3vw !important;font-size:7px !important;opacity:.38 !important; }
+  .scroll { bottom:24px !important;right:6vw !important;font-size:8px !important; }
+}
+@media (max-width:380px) {
+  .nav { padding-left:10px !important;padding-right:10px !important; }
+  .navWord { font-size:9px !important; }
+  .navlinks { left:10px !important;right:10px !important; }
+  .hero { padding-top:126px !important; }
+  .heroText { margin-left:5vw !important;margin-right:5vw !important; }
+}
+</style>
+
+
+<style id="volterax-projects-store-floating-cta">
+/* High-visibility store shortcut for customers; desktop navigation remains unchanged. */
+.vx-projects-float{display:none}
+@media(max-width:820px){
+  .vx-projects-float{
+    display:flex;position:fixed;z-index:75;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));
+    transform:translateX(-50%);width:min(520px,calc(100vw - 28px));min-height:64px;
+    align-items:center;gap:12px;padding:10px 16px;border-radius:17px;
+    color:#fff;text-decoration:none;
+    background:linear-gradient(110deg,rgba(108,59,255,.98),rgba(43,29,111,.98) 55%,rgba(0,116,139,.98));
+    border:1px solid rgba(0,229,255,.72);
+    box-shadow:0 9px 32px rgba(0,0,0,.55),0 0 24px rgba(108,59,255,.42),inset 0 1px 0 rgba(255,255,255,.22);
+    -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+    transition:transform .2s ease,box-shadow .2s ease;
+  }
+  .vx-projects-float:active{transform:translateX(-50%) scale(.975)}
+  .vx-projects-float-icon{width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;
+    border-radius:12px;background:rgba(255,255,255,.15);font-size:25px;color:#8ff7ff;
+    border:1px solid rgba(255,255,255,.22)}
+  .vx-projects-float-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}
+  .vx-projects-float-copy strong{font:900 14px/1.1 Arial,Helvetica,sans-serif;letter-spacing:.13em}
+  .vx-projects-float-copy small{font:700 8px/1.2 monospace;letter-spacing:.13em;color:rgba(255,255,255,.78)}
+  .vx-projects-float-arrow{font:26px/1 Arial,sans-serif;color:#8ff7ff;padding-left:5px}
+  /* Give the fixed shortcut its own breathing room at the end of the page. */
+  body{padding-bottom:88px}
+  .navlinks.open~.vx-projects-float{display:none}
+  body.vx-menu-open .vx-projects-float{opacity:0;pointer-events:none}
+}
+@media(max-width:360px){
+ .vx-projects-float{min-height:58px;padding:8px 12px;gap:9px}
+ .vx-projects-float-copy strong{font-size:12px}
+ .vx-projects-float-copy small{font-size:7px}
+ .vx-projects-float-icon{width:36px;height:36px;flex-basis:36px}
+}
+</style>
+
+</head>
+
+<body><div id="boot"><div class="boot-grid"></div><div class="boot-corner"></div><div class="boot-core"><img class="boot-logo" src="/assets/volterax-logo.png" alt="VOLTERAX logo" width="320" height="320" decoding="async"><div class="boot-trace"></div><div class="boot-line"></div><div><div class="boot-brand">VOLTERAX</div><div class="boot-sub">POWER BEYOND LIMITS · ENGINEERING SYSTEMS</div></div></div><div class="boot-status">INITIALIZING / HARDWARE / CONTROL / CONNECTIVITY</div><button id="skipBoot" aria-label="Skip intro">ENTER VOLTERAX ↗</button></div>
+
+<div class="grain"></div>
+
+<nav class="nav"><div class="logoWrap" aria-label="VOLTERAX"><img class="brandMark" src="/assets/volterax-logo.png" alt="VOLTERAX" width="44" height="44" decoding="async"> <span class="brandFallback">VOLTERAX</span><span class="navWord">VOLTERAX</span></div><button class="mobileMenu" type="button" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button><div class="navlinks"><a href="#systems">CAPABILITIES</a><a href="#architecture">ENGINEERING</a><a href="#origin">ORIGIN</a><a href="#bridge">HOW WE WORK</a><a href="#connect">CONNECT</a><a class="nav-projects-btn" href="projects.html">📦 PROJECTS STORE ↗</a><a href="#accountModal" onclick="window.volteraxOrderProject&&window.volteraxOrderProject(); return false;" style="color:#a855f7;font-weight:700">ORDER BUILD ↗</a><a class="accountLink" href="#accountModal" onclick="window.volteraxOpenAccount&&window.volteraxOpenAccount(); return false;">ACCOUNT ↗</a></div></nav>
+
+<!-- Persistent customer shortcut: Projects Store -->
+<a class="vx-projects-float" href="projects.html" aria-label="Explore the VOLTERAX Projects Store">
+  <span class="vx-projects-float-icon" aria-hidden="true">▦</span>
+  <span class="vx-projects-float-copy"><strong>PROJECTS STORE</strong><small>EXPLORE READY-MADE PROJECTS</small></span>
+  <span class="vx-projects-float-arrow" aria-hidden="true">↗</span>
+</a>
+
+<section class="hero"><div class="heroTopline"><span>VOLTERAX / POWER BEYOND LIMITS</span><span>DIRECT ENGINEERING CHANNEL</span></div>
+
+<img src="https://images.unsplash.com/photo-1676764589917-e1e659bd9774?auto=format&fit=crop&fm=jpg&q=82&w=2400" alt="Electronics robot prototype" fetchpriority="high" decoding="async">
+
+<div class="vx-hero-atmosphere" aria-hidden="true"><canvas class="vx-hero-canvas"></canvas></div>
+
+<div class="heroText"><img class="heroLogo" src="/assets/volterax-logo.png" alt="VOLTERAX logo" width="480" height="480" fetchpriority="high" decoding="async"><div class="eyebrow">KARNATAKA / INDIA · ELECTRONICS · ROBOTICS · AUTOMATION</div><h1>BUILD<br>WHAT'S<br>NEXT.</h1><p>VOLTERAX turns electronics, embedded intelligence and mechanical systems into working technology — from first circuit to real prototype.</p><a class="btn" href="#connect">START A BUILD ↗</a></div><div class="scroll">SCROLL TO EXPLORE ↓</div>
+
+</section>
+
+<section class="intro"><h2>Not a project.<br>A system.</h2><p>Inspired by the confidence of India’s deep-tech companies, VOLTERAX tells the story through the hardware itself. Real boards. Real mechanisms. Real engineering decisions. The website should feel like opening a technology company’s workshop — not a generic template.</p></section>
+
+<section class="fullImage"><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1768861812598-33dfaec89765?auto=format&fit=crop&fm=jpg&q=82&w=2400" alt="Real PCB close-up"><div class="caption"><small>01 / EMBEDDED HARDWARE</small><h2>Every signal<br>has a job.</h2></div></section>
+
+<section class="systems" id="systems"><div class="sectionTop"><h2>THE<br>STACK.</h2><p>Hardware-first engineering across embedded electronics, robotics, IoT and automation. Visuals use real electronics photography rather than abstract stock laboratory scenes.</p></div>
+
+<div class="grid">
+
+<article class="card"><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1640955785023-1854685dae05?auto=format&fit=crop&fm=jpg&q=82&w=1400" alt="RP2040 microcontroller on PCB"><div class="cardText"><div class="num">01 / EMBEDDED</div><h3>Embedded Systems</h3><p>Microcontrollers, sensor interfaces, power, communication and firmware working as one machine.</p><div class="spec"><span>MCU</span><span>PCB</span><span>FIRMWARE</span></div></div></article>
+
+<article class="card"><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1611663806011-b37e091090f0?auto=format&fit=crop&fm=jpg&q=82&w=1400" alt="Raspberry Pi Pico board"><div class="cardText"><div class="num">02 / CONTROL</div><h3>Robotics</h3><p>Motion systems that sense, decide and act — from small autonomous machines to custom mechanisms.</p><div class="spec"><span>SENSORS</span><span>MOTION</span><span>CONTROL</span></div></div></article>
+
+<article class="card"><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1774553988130-ccda57774818?auto=format&fit=crop&fm=jpg&q=82&w=1400" alt="Drone internal electronics"><div class="cardText"><div class="num">03 / AUTONOMY</div><h3>Connected Machines</h3><p>IoT, telemetry and automation layers that connect physical hardware to intelligent software.</p><div class="spec"><span>IOT</span><span>TELEMETRY</span><span>AUTOMATION</span></div></div></article>
+
+</div></section>
+
+
+
+<section class="buildShowcase" id="builds">
+
+<div class="buildHead"><div><div class="eyebrow">02 / WHAT WE BUILD</div><h2>REAL<br>SYSTEMS.</h2></div><p>Not a wall of service cards. These are the physical layers VOLTERAX works with — machines, boards, connected hardware and intelligent prototypes.</p></div>
+
+<div class="buildStage">
+
+<div class="buildHero"><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1676764589917-e1e659bd9774?auto=format&fit=crop&fm=jpg&q=82&w=2200" alt="Robotics and electronics system"><div class="buildOverlay"><div class="tag">01 / ROBOTICS</div><h3>Machines that sense.<br>Machines that move.</h3><p>Autonomous motion, sensors, motor control and physical decision-making engineered into working systems.</p></div></div>
+
+<div class="buildRail">
+
+<article class="buildItem"><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1640955785023-1854685dae05?auto=format&fit=crop&fm=jpg&q=80&w=1200" alt="Embedded electronics board"><div class="buildItemContent"><small>02 / EMBEDDED</small><h3>Embedded Electronics</h3></div><span class="arrow">↗</span></article>
+
+<article class="buildItem"><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1611663806011-b37e091090f0?auto=format&fit=crop&fm=jpg&q=80&w=1200" alt="Microcontroller board"><div class="buildItemContent"><small>03 / IoT + AUTOMATION</small><h3>Connected Machines</h3></div><span class="arrow">↗</span></article>
+
+<article class="buildItem"><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1774553988130-ccda57774818?auto=format&fit=crop&fm=jpg&q=80&w=1200" alt="Drone electronics and control hardware"><div class="buildItemContent"><small>04 / AI + VISION</small><h3>Intelligent Perception</h3></div><span class="arrow">↗</span></article>
+
+<article class="buildItem"><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1768861812598-33dfaec89765?auto=format&fit=crop&fm=jpg&q=80&w=1200" alt="Custom prototype electronics"><div class="buildItemContent"><small>05 / PROTOTYPES</small><h3>Custom Builds</h3></div><span class="arrow">↗</span></article>
+
+</div>
+
+</div>
+
+</section>
+
+<section class="architecture" id="architecture"><div class="arch"><div class="archVisual"><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1676764589917-e1e659bd9774?auto=format&fit=crop&fm=jpg&q=70&w=1800" alt="electronics robot"><div class="flow"><div class="flowrow"><div class="node">SENSE</div><div class="line"></div><div class="node">PROCESS</div></div><div class="flowrow"><div class="node">DECIDE</div><div class="line"></div><div class="node">ACT</div></div><div class="flowrow"><div class="node">MEASURE</div><div class="line"></div><div class="node">ITERATE</div></div></div></div><div><div class="eyebrow">02 / ENGINEERING LOOP</div><h2>IDEA → CIRCUIT → MACHINE.</h2><p>We build from the physical layer upward. Components become circuits. Circuits become controllers. Controllers become machines. Machines become products.</p><p>That is the VOLTERAX approach: engineering that can be seen, tested and used.</p></div></div></section>
+
+<section class="fullImage"><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1640955785023-1854685dae05?auto=format&fit=crop&fm=jpg&q=78&w=2400" alt="Microcontroller engineering detail"><div class="caption"><small>03 / HARDWARE DETAIL</small><h2>Small boards.<br>Big intent.</h2></div></section>
+
+<section class="origin" id="origin"><div class="originGrid"><div class="map"><img loading="lazy" decoding="async" src="https://upload.wikimedia.org/wikipedia/commons/b/b6/Karnataka_outline_shape.svg" alt="Karnataka state outline map"><div class="mapLabel">VOLTERAX ORIGIN · KARNATAKA · INDIA</div></div><div><div class="eyebrow">04 / ORIGIN</div><h2>BORN IN KARNATAKA.<br>BUILT OUTWARD.</h2><p>VOLTERAX is a Karnataka technology brand building from electronics and engineering toward robotics, automation and original products.</p><a class="btn" href="#bridge" style="margin-top:28px">SEE HOW WE CONNECT ↗</a></div></div></section>
+
+<section class="bridge" id="bridge"><div class="bridgeHead"><h2>THE BRIDGE<br>BETWEEN AN IDEA<br>AND A MACHINE.</h2><p>You bring the problem, idea or rough concept. VOLTERAX brings the engineering path. No complicated customer handoff — one direct channel from <b>your idea</b> to <b>our engineering</b> to a <b>working system</b>.</p></div><div class="bridgeVisual"><div class="bridgeLine"></div><div class="bridgeSide left"><b>YOU</b><span>IDEA / PROBLEM<br>REQUIREMENT<br>VISION</span></div><div class="bridgeNode"><strong>VOLTERAX</strong><small>ENGINEERING BRIDGE</small></div><div class="bridgeSide right"><b>YOU GET</b><span>PROTOTYPE<br>TESTED SYSTEM<br>READY TO USE</span></div></div><div class="steps"><div class="step"><div class="stepNo">01 / TELL US</div><h3>Start the conversation.</h3><p>WhatsApp, call or send the project brief. Explain what you want — even if the idea is still rough.</p></div><div class="step"><div class="stepNo">02 / DEFINE</div><h3>Turn it into a system.</h3><p>We break the idea into electronics, firmware, mechanics, communication and control.</p></div><div class="step"><div class="stepNo">03 / BUILD</div><h3>Prototype the real thing.</h3><p>Components become circuits, circuits become hardware, and hardware becomes a working prototype.</p></div><div class="step"><div class="stepNo">04 / DELIVER</div><h3>Test. Refine. Connect.</h3><p>We iterate the system and move it toward a usable project, product or automation solution.</p></div></div></section>
+
+<section class="promise"><div class="promiseGrid"><h2>WHY<br>VOLTERAX?</h2><div class="promiseList"><div class="promiseItem"><span>01</span><div><h3>One direct channel.</h3><p>Less distance between customer and engineering. Your requirement stays connected to the build.</p></div></div><div class="promiseItem"><span>02</span><div><h3>Hardware first.</h3><p>We show the physical system — boards, sensors, mechanisms and interfaces — not just a concept screen.</p></div></div><div class="promiseItem"><span>03</span><div><h3>Built around the problem.</h3><p>No forced package. The architecture follows what the system actually needs.</p></div></div><div class="promiseItem"><span>04</span><div><h3>From student build to product.</h3><p>Projects can start small and evolve into robust prototypes, automation systems or original technology.</p></div></div></div></div></section>
+
+
+
+
+
+
+
+<style id="vx-feedback-section">
+
+.vx-feedback{position:relative;padding:110px 6vw 100px;background:linear-gradient(180deg,rgba(108,59,255,.045),rgba(0,0,0,0));overflow:hidden;}
+
+.vx-feedback:before{content:"FEEDBACK / CUSTOMER VOICE";position:absolute;top:34px;right:6vw;font:600 10px/1 monospace;letter-spacing:.18em;opacity:.42;}
+
+.vx-feedback-grid{display:grid;grid-template-columns:1.05fr 1.45fr;gap:48px;max-width:1250px;margin:auto;}
+
+.vx-feedback h2{font-size:clamp(42px,6vw,86px);line-height:.9;letter-spacing:-.055em;margin:16px 0 24px;}
+
+.vx-feedback-intro{max-width:520px;color:rgba(255,255,255,.66);font-size:16px;line-height:1.7;}
+
+.vx-feedback-note{margin-top:32px;padding:18px 20px;border-left:2px solid #8b5cff;background:rgba(255,255,255,.025);color:rgba(255,255,255,.62);font-size:13px;}
+
+.vx-feedback-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
+
+.vx-feedback-card{min-height:190px;padding:24px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.035);backdrop-filter:blur(12px);position:relative;}
+
+.vx-feedback-stars{font-size:20px;letter-spacing:3px;margin-bottom:22px;}
+
+.vx-feedback-card p{font-size:15px;line-height:1.65;color:rgba(255,255,255,.76);margin:0 0 22px;}
+
+.vx-feedback-card strong{font-size:12px;letter-spacing:.12em;text-transform:uppercase;}
+
+.vx-feedback-form{grid-column:1/-1;margin-top:18px;padding:28px;border:1px solid rgba(139,92,255,.28);background:rgba(108,59,255,.055);}
+
+.vx-feedback-form h3{font-size:24px;margin:0 0 18px;}
+
+.vx-feedback-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+.vx-feedback-fields input,.vx-feedback-fields textarea,.vx-feedback-fields select{width:100%;box-sizing:border-box;background:#08080d;border:1px solid rgba(255,255,255,.14);color:#fff;padding:14px 15px;font:inherit;outline:none;}
+
+.vx-feedback-fields textarea{grid-column:1/-1;min-height:105px;resize:vertical;}
+
+.vx-feedback-fields select{appearance:auto;}
+
+.vx-feedback-submit{margin-top:12px;padding:15px 20px;border:0;background:#8b5cff;color:#fff;font-weight:800;letter-spacing:.08em;cursor:pointer;}
+
+.vx-feedback-status{display:inline-block;margin-left:14px;font-size:12px;color:rgba(255,255,255,.65);}
+
+@media(max-width:760px){.vx-feedback{padding:88px 20px 78px}.vx-feedback:before{right:20px}.vx-feedback-grid{grid-template-columns:1fr;gap:30px}.vx-feedback-cards{grid-template-columns:1fr}.vx-feedback-form{grid-column:auto}.vx-feedback-fields{grid-template-columns:1fr}.vx-feedback-fields textarea{grid-column:auto}.vx-feedback-submit{width:100%}.vx-feedback-status{display:block;margin:12px 0 0}}
+
+</style>
+
+<section class="vx-feedback" id="feedback" aria-label="Customer feedback">
+
+<div class="vx-feedback-grid">
+
+<div>
+
+<div class="eyebrow">06 / CUSTOMER FEEDBACK</div>
+
+<h2>BUILT.<br>TESTED.<br>HEARD.</h2>
+
+<p class="vx-feedback-intro">Your feedback helps VOLTERAX improve every build — from the first idea to the final working prototype. Tell us what you liked, what can be better, or what you want us to build next.</p>
+
+<div class="vx-feedback-note">REAL PROJECTS. REAL FEEDBACK. ONE ENGINEERING JOURNEY.<br><br>Every response helps shape the next VOLTERAX build.</div>
+
+</div>
+
+<div>
+
+<div class="vx-feedback-cards">
+
+<article class="vx-feedback-card"><div class="vx-feedback-stars">★★★★★</div><p>“Clean work, good communication and the project was explained properly.”</p><strong>— VOLTERAX CUSTOMER</strong></article>
+
+<article class="vx-feedback-card"><div class="vx-feedback-stars">★★★★★</div><p>“I had only an idea. VOLTERAX helped turn it into something practical.”</p><strong>— PROJECT USER</strong></article>
+
+<article class="vx-feedback-card"><div class="vx-feedback-stars">★★★★★</div><p>“The focus on testing and working output made the difference.”</p><strong>— EARLY BUILDER</strong></article>
+
+<article class="vx-feedback-card"><div class="vx-feedback-stars">★★★★★</div><p>“Looking forward to seeing what the next prototype becomes.”</p><strong>— VOLTERAX COMMUNITY</strong></article>
+
+<form class="vx-feedback-form" id="vxFeedbackForm">
+
+<h3>LEAVE YOUR FEEDBACK ↗</h3>
+
+<div class="vx-feedback-fields">
+
+<input id="vxFbName" required maxlength="60" placeholder="YOUR NAME">
+
+<select id="vxFbRating" required><option value="">RATING</option><option value="5">★★★★★ 5 / 5</option><option value="4">★★★★☆ 4 / 5</option><option value="3">★★★☆☆ 3 / 5</option><option value="2">★★☆☆☆ 2 / 5</option><option value="1">★☆☆☆☆ 1 / 5</option></select>
+
+<textarea id="vxFbMessage" required maxlength="500" placeholder="TELL US ABOUT YOUR EXPERIENCE..."></textarea>
+
+</div>
+
+<button class="vx-feedback-submit" type="submit">SUBMIT FEEDBACK ↗</button><span class="vx-feedback-status" id="vxFbStatus" aria-live="polite"></span>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<script>
+
+(function() {
+
+const f = document.getElementById('vxFeedbackForm');
+
+if (!f) return;
+
+f.addEventListener('submit', async function(e) {
+
+e.preventDefault();
+
+const n = document.getElementById('vxFbName').value.trim();
+
+const r = document.getElementById('vxFbRating').value;
+
+const m = document.getElementById('vxFbMessage').value.trim();
+
+const status = document.getElementById('vxFbStatus');
+
+const btn = f.querySelector('button[type="submit"]');
+
+
+
+if (!n || !r || !m) {
+
+status.textContent = 'Please fill out all fields.';
+
+return;
+
+}
+
+
+
+status.textContent = 'Submitting feedback to VolteraX…';
+
+if (btn) btn.disabled = true;
+
+
+
+try {
+
+const res = await fetch('/api/customer/feedback', {
+
+method: 'POST',
+
+headers: { 'Content-Type': 'application/json' },
+
+credentials: 'same-origin',
+
+body: JSON.stringify({ name: n, rating: Number(r), feedbackText: m })
+
+});
+
+const data = await res.json();
+
+if (!res.ok) throw new Error(data.error || 'Could not submit feedback.');
+
+
+
+status.textContent = '✓ Verified! Your feedback has been recorded in the VolteraX database.';
+
+f.reset();
+
+} catch (err) {
+
+status.textContent = '✕ ' + err.message;
+
+} finally {
+
+if (btn) btn.disabled = false;
+
+}
+
+});
+
+})();
+
+</script>
+
+<section class="earnHero" id="earn">
+
+<div class="earnGlow"></div>
+
+<div class="earnGrid">
+
+<div>
+
+<div class="eyebrow">VOLTERAX / STUDENT & CUSTOMER PROGRAM</div>
+
+<h2>REFER.<br><span>EARN.</span><br>BUILD TOGETHER.</h2>
+
+<p>Bring genuine students, creators or customers to VOLTERAX. When a qualifying order is verified, the referrer can receive a reward.</p>
+
+<div class="earnBtns"><button class="earnPrimary" onclick="document.querySelector('.accountLink')?.click()">JOIN & START EARNING ↗</button><a class="earnSecondary" href="#earnRules">VIEW EARNING RULES ↓</a></div>
+
+</div>
+
+<div class="earnVisual">
+
+<div class="earnOrb"><div class="earnAmount">₹</div><small>VERIFIED<br>REWARD</small></div>
+
+<div class="earnLine l1"></div><div class="earnLine l2"></div><div class="earnLine l3"></div>
+
+<div class="earnNode n1">REFER</div><div class="earnNode n2">ORDER</div><div class="earnNode n3">EARN</div>
+
+</div>
+
+</div>
+
+<div class="earnRules" id="earnRules">
+
+<div class="eyebrow">EARNING RULES</div>
+
+<h3>Simple. Verified. No fake referrals.</h3>
+
+<div class="ruleGrid">
+
+<div><b>01</b><strong>CREATE YOUR ACCOUNT</strong><p>Sign in to get your unique VOLTERAX referral code.</p></div>
+
+<div><b>02</b><strong>SHARE YOUR CODE</strong><p>Share it with genuine students or customers who actually need VOLTERAX.</p></div>
+
+<div><b>03</b><strong>QUALIFYING ORDER</strong><p>The referred customer must place a genuine eligible order and complete the required payment.</p></div>
+
+<div><b>04</b><strong>VERIFICATION</strong><p>Reward is marked pending until the order is verified. Cancelled, refunded or fraudulent orders do not qualify.</p></div>
+
+<div><b>05</b><strong>REWARD</strong><p>Once verified, the applicable referral reward becomes available according to the active VOLTERAX offer.</p></div>
+
+<div><b>06</b><strong>FAIR-USE POLICY</strong><p>No self-referrals, duplicate accounts, fake orders or manipulation. VOLTERAX can reject abusive referrals.</p></div>
+
+</div>
+
+<div class="earnNote">ⓘ <b>Important:</b> Referral rewards are not guaranteed income. Reward amount, eligible services, verification period and withdrawal conditions will be shown by VOLTERAX when the live referral program is activated.</div>
+
+</div>
+
+</section>
+
+
+
+<section class="faq" id="faq"><div class="faqGrid"><div><div class="eyebrow">06 / FAQ</div><h2>QUESTIONS.<br>ANSWERED.</h2><p class="faqIntro">Thinking about a build? Start here. If your question is not listed, contact VOLTERAX directly and explain what you want to create.</p></div><div class="faqList">
+
+<div class="faqItem"><button class="faqQ"><span>Can you build custom electronics?</span><span>+</span></button><div class="faqA">Yes. VOLTERAX can help turn a requirement into a custom electronics system covering controllers, sensors, power, communication, firmware and the surrounding prototype.</div></div>
+
+<div class="faqItem"><button class="faqQ"><span>Can I bring only an idea?</span><span>+</span></button><div class="faqA">Absolutely. You do not need to know the exact components. Bring the problem, desired behaviour or rough idea and we can work through the engineering requirements with you.</div></div>
+
+<div class="faqItem"><button class="faqQ"><span>Do you provide prototypes?</span><span>+</span></button><div class="faqA">Yes. Prototype development can include electronics, firmware, mechanics, sensors, communication and integration depending on the system.</div></div>
+
+<div class="faqItem"><button class="faqQ"><span>Can you modify an existing project?</span><span>+</span></button><div class="faqA">Yes. Share the current project, its problem and what you want changed. We can assess the existing hardware or architecture and plan the next build step.</div></div>
+
+<div class="faqItem"><button class="faqQ"><span>Do you deliver across Karnataka?</span><span>+</span></button><div class="faqA">VOLTERAX is based in Karnataka and can discuss project delivery or support requirements across Karnataka. Exact logistics depend on the project.</div></div>
+
+<div class="faqItem"><button class="faqQ"><span>How do I start?</span><span>+</span></button><div class="faqA">Start with a WhatsApp message, direct call, email, or the project brief on this website. Tell us what you want the system to do — even if the idea is still rough.</div></div>
+
+</div></div></section>
+
+<section class="project"><div class="projectGrid"><div><div class="eyebrow">06 / PROJECT BRIEF</div><h2>BRING THE<br>PROBLEM.</h2><p>Don't know the exact components? That's okay. Tell us what you want the machine to do, and we'll help translate the requirement into an engineering plan.</p></div><form class="projectPanel" onsubmit="event.preventDefault(); window.volteraxSubmitProject&&window.volteraxSubmitProject();"><label>YOUR NAME</label><input id="projectName" name="name" required placeholder="Name"><label>YOUR MOBILE NUMBER</label><input id="projectMobile" type="tel" inputmode="numeric" pattern="[0-9+()\- ]{10,18}" required placeholder="+91 XXXXX XXXXX"><label>WHAT DO YOU WANT TO BUILD?</label><textarea id="idea" required placeholder="Example: I want a machine that detects obstacles and automatically sorts objects..."></textarea><button type="submit">SEND PROJECT TO VOLTERAX ↗</button><div class="tiny">Direct project channel · WhatsApp opens with your brief</div></form></div></section>
+
+<section class="connect" id="connect"><div class="eyebrow">07 / DIRECT PROJECT CHANNEL</div><h2>HAVE A MACHINE<br>IN YOUR HEAD?</h2><p>Tell VOLTERAX what you want to build. Start with the idea — we can work through electronics, firmware, mechanics and automation together.</p><div class="contactRail socialContactRail">
+
+<a href="mailto:VolteraX.360@gmail.com" aria-label="Email VolteraX">
+
+<span class="socialIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 5.5h18v13H3z"/><path d="m3.5 6 8.5 7 8.5-7"/></svg></span>
+
+<small>01 / DIRECT INQUIRIES</small><strong>EMAIL ↗</strong><span>VolteraX.360@gmail.com</span>
+
+</a>
+
+<a href="https://www.instagram.com/volterax.in/?hl=en" target="_blank" rel="noopener noreferrer" aria-label="Visit VolteraX on Instagram">
+
+<span class="socialIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.7" r="1" class="iconFill"/></svg></span>
+
+<small>02 / FOLLOW THE BUILD</small><strong>INSTAGRAM ↗</strong><span>@volterax.in</span>
+
+</a>
+
+<a href="https://youtube.com/channel/UCRmd2CSyHmT3WOj4IPOIvoQ" target="_blank" rel="noopener noreferrer" aria-label="Visit VolteraX on YouTube">
+
+<span class="socialIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="4"/><path d="m10 9 5 3-5 3z" class="iconFill"/></svg></span>
+
+<small>03 / WATCH &amp; EXPLORE</small><strong>YOUTUBE ↗</strong><span>VOLTERAX TECH</span>
+
+</a>
+
+</div><div class="mobileLead" id="mobileLead"><h3>Leave your mobile number.</h3><p>Tell us where to reach you. Your number is used only for project communication.</p><div class="contactLock" style="display:none" id="contactLock"><div class="lockIcon">🔒</div><div><strong>LOGIN REQUIRED</strong><span>Sign in to your VOLTERAX account before sharing your number for direct project contact.</span></div><button type="button" id="unlockMobile">LOGIN / CREATE ACCOUNT ↗</button></div><form id="mobileContactForm" class="lockedContactForm unlocked" onsubmit="event.preventDefault(); window.volteraxSubmitMobile&&window.volteraxSubmitMobile();"><div class="mobileLeadRow"><input id="customerMobile" type="tel" inputmode="numeric" pattern="[0-9+()\- ]{10,18}" required placeholder="+91 XXXXX XXXXX" aria-label="Customer mobile number" ><button type="submit">SEND MY NUMBER ↗</button></div><div class="note">MOBILE NUMBER · UNLOCKED AFTER ACCOUNT LOGIN</div><div class="securityNote">🔒 Official VOLTERAX contact only. Never share OTPs, UPI PINs, card PINs or passwords over WhatsApp or a call.</div></form></div></section>
+
+<div class="accountModal" id="accountModal" aria-hidden="true">
+
+<div class="accountShell">
+
+<div class="accountTop"><div><div class="eyebrow">VOLTERAX / CUSTOMER PLATFORM</div><strong style="letter-spacing:.14em">ACCOUNT HUB</strong></div><button class="accountClose" id="accountClose">CLOSE ✕</button></div>
+
+<div class="accountGrid" id="accountLoginGrid">
+
+<div class="accountBox"><div class="eyebrow">01 / CUSTOMER LOGIN</div><h2>YOUR BUILD.<br>YOUR HUB.</h2><p class="accountMuted">Create your VOLTERAX customer profile, keep your referral identity, and access your project relationship from one place.</p></div>
+
+<div class="accountBox"><h3>Secure customer access</h3><p class="accountMuted">Your customer data is stored server-side. Choose create account for a new profile or sign in to an existing one.</p><div class="refActions" style="margin-top:16px"><button type="button" id="accModeCreate">CREATE ACCOUNT</button><button type="button" id="accModeLogin">SIGN IN</button></div><form id="accountAuthForm" novalidate><div id="accCreateFields"><label class="accountLabel">YOUR NAME</label><input class="accountInput" id="accName" placeholder="Your name"><label class="accountLabel">MOBILE NUMBER</label><input class="accountInput" id="accMobile" inputmode="numeric" placeholder="+91 XXXXX XXXXX"><label class="accountLabel">PASSWORD</label><input class="accountInput" id="accPassword" type="password" autocomplete="new-password" placeholder="8+ chars, letter + number"><label class="accountLabel">REFERRAL CODE (OPTIONAL)</label><input class="accountInput" id="accRef" placeholder="VXCHANDAN25"></div><div id="accLoginFields" style="display:none"><label class="accountLabel">MOBILE NUMBER</label><input class="accountInput" id="accLoginMobile" inputmode="numeric" placeholder="+91 XXXXX XXXXX"><label class="accountLabel">PASSWORD</label><input class="accountInput" id="accLoginPassword" type="password" autocomplete="current-password" placeholder="Your password"></div><button class="accountBtn" id="accLogin" type="submit">CREATE SECURE ACCOUNT ↗</button><div id="accAuthMsg" class="accountNotice" aria-live="polite">🔒 Never share your password, OTP, UPI PIN or card PIN with anyone claiming to be VOLTERAX.</div></form></div>
+
+</div>
+
+<div class="accountDash" id="accountDash">
+
+<button class="accountLogout" id="accLogout">LOG OUT</button><div class="eyebrow">02 / CUSTOMER DASHBOARD</div><h3 style="font-size:30px;margin:0">WELCOME, <span id="accUser">CUSTOMER</span>.</h3>
+
+<div class="accountStats"><div class="accountStat"><small>VOLTERAX ID</small><div class="accountBig" id="accId">VX-000000</div></div><div class="accountStat"><small>REFERRALS</small><div class="accountBig" id="accRefs">0</div></div><div class="accountStat"><small>REFERRED BY</small><div class="accountBig" id="accBy">—</div></div><div class="accountStat"><small>AVAILABLE EARNINGS</small><div class="accountBig" id="accEarn">₹0</div></div></div>
+
+<div class="refBox"><div class="eyebrow">03 / REFER & EARN</div><h3>Bring a real customer. Earn a verified reward.</h3><p class="accountMuted">Share your unique referral code. Rewards should unlock only after a qualifying order is verified.</p><div class="refCode" id="accCode">VX000000</div><div class="refActions"><button id="copyRef">COPY CODE</button><button id="shareRef">SHARE REFERRAL ↗</button></div></div>
+
+<div class="accountGrid" style="margin-top:12px"><div class="accountBox"><h3>MY PROJECTS / ORDERS</h3><div id="accOrders" class="accountMuted">Loading your orders…</div></div><div class="accountBox"><h3>MY REFERRALS</h3><div id="accReferralList" class="accountMuted">Loading your referrals…</div></div></div>
+
+<div class="accountGrid" style="margin-top:12px">
+
+<div class="accountBox" id="accOrderBox">
+
+<div class="eyebrow">04 / COMMISSION A BUILD</div>
+
+<h3>Place Project Order</h3>
+
+<p class="accountMuted">Submit your project or hardware requirements. Direct server-backed order saved to your customer record.</p>
+
+<form id="accOrderForm" novalidate style="margin-top:12px">
+
+<label class="accountLabel">PROJECT TITLE / SYSTEM</label>
+
+<input class="accountInput" id="newOrderTitle" placeholder="e.g. Autonomous Telemetry Flight Controller" required>
+
+<label class="accountLabel">ESTIMATED BUDGET (₹ INR)</label>
+
+<input class="accountInput" id="newOrderAmount" type="number" placeholder="e.g. 25000" min="0">
+
+<label class="accountLabel">ENGINEERING REQUIREMENTS / SPECIFICATIONS</label>
+
+<textarea class="accountInput" id="newOrderDetails" style="min-height:80px;resize:vertical;font-family:inherit" placeholder="Microcontroller specs, motor drivers, telemetry, deliverables, timeline..." required></textarea>
+
+<button class="accountBtn" id="btnPlaceOrder" type="submit" style="margin-top:10px">SUBMIT PROJECT ORDER ↗</button>
+
+<div id="orderStatusMsg" class="accountNotice" style="display:none;margin-top:8px" aria-live="polite"></div>
+
+</form>
+
+</div>
+
+<div class="accountBox" id="accProfileBox">
+
+<div class="eyebrow">05 / PROFILE MANAGEMENT</div>
+
+<h3>Customer Profile</h3>
+
+<p class="accountMuted">Manage your personal details for official build communication and invoice updates.</p>
+
+<form id="accProfileForm" novalidate style="margin-top:12px">
+
+<label class="accountLabel">FULL NAME</label>
+
+<input class="accountInput" id="profileName" placeholder="Your full name" required>
+
+<label class="accountLabel">EMAIL ADDRESS</label>
+
+<input class="accountInput" id="profileEmail" type="email" placeholder="name@company.in">
+
+<label class="accountLabel">REGISTERED MOBILE (VERIFIED)</label>
+
+<input class="accountInput" id="profileMobile" disabled style="opacity:.6;cursor:not-allowed">
+
+<button class="accountBtn" id="btnSaveProfile" type="submit" style="margin-top:10px">SAVE PROFILE DETAILS ↗</button>
+
+<div id="profileStatusMsg" class="accountNotice" style="display:none;margin-top:8px" aria-live="polite"></div>
+
+</form>
+
+</div>
+
+</div>
+
+<div class="accountNotice">🔐 Server-backed customer account. Verified rewards are controlled by VOLTERAX owner-side records; never trust browser values for money or permissions.</div>
+
+</div>
+
+</div>
+
+</div><footer class="footer"><span>VOLTERAX — POWER BEYOND LIMITS.</span><span>KARNATAKA / INDIA</span></footer>
+
+
+
+
+
+<script>
+
+(function(){
+
+document.querySelectorAll('.faqQ').forEach(btn=>btn.addEventListener('click',()=>{
+
+const item=btn.parentElement;
+
+document.querySelectorAll('.faqItem.open').forEach(x=>{if(x!==item)x.classList.remove('open')});
+
+item.classList.toggle('open');
+
+}));
+
+})();
+
+</script>
+
+<script>
+
+(function() {
+
+const parts = ['91', '99999', '99999'];
+
+const official = parts.join('');
+
+let currentAccount = null;
+
+
+
+window.openWhatsApp = function(message) {
+
+const url = 'https://wa.me/' + official + '?text=' + encodeURIComponent(message);
+
+window.open(url, '_blank', 'noopener,noreferrer');
+
+};
+
+
+
+async function loadSession() {
+
+try {
+
+const r = await fetch('/api/customer/me', { credentials: 'same-origin' });
+
+if (!r.ok) { currentAccount = null; return null; }
+
+const d = await r.json();
+
+currentAccount = d;
+
+window.volteraxAccountData = d;
+
+return d;
+
+} catch (e) {
+
+currentAccount = null;
+
+return null;
+
+}
+
+}
+
+
+
+window.volteraxSetAccount = function(a) {
+
+currentAccount = a;
+
+window.volteraxAccountData = a;
+
+window.volteraxRefreshContactGate && window.volteraxRefreshContactGate();
+
+};
+
+
+
+window.volteraxHasAccount = function() {
+
+return !!currentAccount;
+
+};
+
+
+
+window.volteraxRefreshContactGate = function() {
+
+const user = currentAccount?.user;
+
+if (user) {
+
+const mobileInput = document.getElementById('customerMobile');
+
+if (mobileInput && !mobileInput.value) mobileInput.value = user.mobile;
+
+const projMobile = document.getElementById('projectMobile');
+
+if (projMobile && !projMobile.value) projMobile.value = user.mobile;
+
+const nameInput = document.querySelector('.projectPanel input:not(#projectMobile)');
+
+if (nameInput && !nameInput.value) nameInput.value = user.name;
+
+}
+
+};
+
+
+
+// Direct WhatsApp & Call
+
+document.querySelectorAll('[data-contact="whatsapp"]').forEach(a => a.addEventListener('click', e => {
+
+e.preventDefault();
+
+const user = currentAccount?.user;
+
+const msg = user ?
+
+`Hi VOLTERAX, I am customer ${user.name} (${user.mobile}). I want to discuss an engineering project.` :
+
+'Hi VOLTERAX, I want to discuss a technology engineering project.';
+
+openWhatsApp(msg);
+
+}));
+
+
+
+document.querySelectorAll('[data-contact="call"]').forEach(a => a.addEventListener('click', e => {
+
+e.preventDefault();
+
+window.location.href = 'tel:+' + official;
+
+}));
+
+
+
+// Public Lead Submissions
+
+window.volteraxSubmitMobile = async function() {
+
+const mobileInput = document.getElementById('customerMobile');
+
+const n = (mobileInput?.value || '').replace(/\D/g, '');
+
+if (!/^\d{10}$/.test(n)) {
+
+alert('Please enter a valid 10-digit mobile number.');
+
+return;
+
+}
+
+const user = currentAccount?.user;
+
+try {
+
+const r = await fetch('/api/customer/lead', {
+
+method: 'POST',
+
+headers: { 'Content-Type': 'application/json' },
+
+credentials: 'same-origin',
+
+body: JSON.stringify({
+
+name: user ? user.name : 'Prospective Client',
+
+mobile: n,
+
+message: 'Client requested direct contact callback regarding an engineering project.'
+
+})
+
+});
+
+const d = await r.json();
+
+if (!r.ok) throw new Error(d.error || 'Could not save contact request.');
+
+alert('✓ Your number +' + n + ' has been received. VOLTERAX engineering team will connect with you shortly.');
+
+openWhatsApp('Hi VOLTERAX, my mobile number is ' + n + '. I want to discuss a technology project.');
+
+} catch (e) {
+
+alert(e.message);
+
+}
+
+};
+
+
+
+window.volteraxSubmitProject = async function() {
+
+const nameInput = document.querySelector('.projectPanel input:not(#projectMobile)');
+
+const name = nameInput ? nameInput.value.trim() : '';
+
+const mobile = (document.getElementById('projectMobile')?.value || '').replace(/\D/g, '');
+
+const idea = (document.getElementById('idea')?.value || '').trim();
+
+
+
+if (!/^\d{10}$/.test(mobile)) {
+
+alert('Please enter a valid 10-digit mobile number.');
+
+return;
+
+}
+
+if (!idea || idea.length < 5) {
+
+alert('Please describe what you want to build (at least 5 characters).');
+
+return;
+
+}
+
+
+
+try {
+
+const r = await fetch('/api/customer/lead', {
+
+method: 'POST',
+
+headers: { 'Content-Type': 'application/json' },
+
+credentials: 'same-origin',
+
+body: JSON.stringify({
+
+name: name || 'Prospective Client',
+
+mobile: mobile,
+
+message: (name ? 'Name: ' + name + '\n' : '') + 'Project Brief: ' + idea
+
+})
+
+});
+
+const d = await r.json();
+
+if (!r.ok) throw new Error(d.error || 'Could not save project brief.');
+
+alert('✓ Project brief submitted successfully to VolteraX engineering team.');
+
+openWhatsApp('Hi VOLTERAX, I want to build:\n\n' + idea + '\n\nMy mobile number: ' + mobile);
+
+} catch (e) {
+
+alert(e.message);
+
+}
+
+};
+
+
+
+const params = new URLSearchParams(location.search);
+
+const ref = params.get('ref');
+
+if (ref) {
+
+try { sessionStorage.setItem('volteraxIncomingReferral', ref.trim().toUpperCase()); } catch (e) {}
+
+}
+
+
+
+loadSession().then(a => {
+
+if (a) window.volteraxSetAccount(a);
+
+else window.volteraxRefreshContactGate();
+
+});
+
+})();
+
+</script>
+
+<script>
+
+(function() {
+
+function initBoot() {
+
+const b = document.getElementById('boot');
+
+if (!b) return;
+
+const skip = document.getElementById('skipBoot');
+
+const seen = sessionStorage.getItem('vx_boot_seen');
+
+if (seen) {
+
+b.classList.add('hide');
+
+b.style.display = 'none';
+
+return;
+
+}
+
+sessionStorage.setItem('vx_boot_seen', '1');
+
+let closed = false;
+
+const close = () => {
+
+if (closed) return;
+
+closed = true;
+
+b.classList.add('hide');
+
+setTimeout(() => { b.style.display = 'none'; }, 400);
+
+};
+
+if (skip) skip.addEventListener('click', close, { once: true });
+
+window.addEventListener('keydown', e => {
+
+if (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter') close();
+
+}, { once: true });
+
+setTimeout(close, 1200);
+
+}
+
+if (document.readyState === 'loading') {
+
+document.addEventListener('DOMContentLoaded', initBoot, { once: true });
+
+} else {
+
+initBoot();
+
+}
+
+})();
+
+</script><script>
+
+(function(){
+
+const menu=document.querySelector('.mobileMenu'), links=document.querySelector('.navlinks');
+
+if(menu&&links){
+
+menu.addEventListener('click',()=>{
+
+const open=links.classList.toggle('open'); menu.classList.toggle('open',open); menu.setAttribute('aria-expanded',String(open)); document.body.classList.toggle('vx-menu-open',open);
+
+});
+
+links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.classList.remove('open');menu.classList.remove('open');menu.setAttribute('aria-expanded','false');document.body.classList.remove('vx-menu-open')}));
+
+}
+
+})();
+
+</script>
+
+<script id="volterax-account-js">
+
+(function() {
+
+const modal = document.getElementById('accountModal');
+
+const loginGrid = document.getElementById('accountLoginGrid');
+
+const dash = document.getElementById('accountDash');
+
+let mode = 'create';
+
+
+
+function escapeHtml(str) {
+
+return String(str ?? '').replace(/[&<>"']/g, c => ({
+
+'&': '&amp;',
+
+'<': '&lt;',
+
+'>': '&gt;',
+
+'"': '&quot;',
+
+"'": '&#39;'
+
+}[c]));
+
+}
+
+
+
+function show(d) {
+
+const a = d.user || d;
+
+loginGrid.style.display = 'none';
+
+dash.classList.add('show');
+
+dash.style.display = 'block';
+
+document.getElementById('accUser').textContent = (a.name || 'CUSTOMER').split(' ')[0].toUpperCase();
+
+document.getElementById('accId').textContent = a.id;
+
+document.getElementById('accCode').textContent = a.ref;
+
+document.getElementById('accBy').textContent = a.referredBy || '—';
+
+document.getElementById('accRefs').textContent = (d.referrals || []).length;
+
+document.getElementById('accEarn').textContent = '₹' + ((d.earningsPaise || 0) / 100).toFixed(2);
+
+
+
+const nameInput = document.getElementById('profileName');
+
+const emailInput = document.getElementById('profileEmail');
+
+const mobileInput = document.getElementById('profileMobile');
+
+if (nameInput) nameInput.value = a.name || '';
+
+if (emailInput) emailInput.value = a.email || '';
+
+if (mobileInput) mobileInput.value = a.mobile || '';
+
+
+
+const statusColors = {
+
+pending: '#f59e0b',
+
+confirmed: '#3b82f6',
+
+processing: '#8b5cf6',
+
+completed: '#10b981',
+
+cancelled: '#ef4444'
+
+};
+
+
+
+const orders = d.orders || [];
+
+document.getElementById('accOrders').innerHTML = orders.length ?
+
+orders.map(o => {
+
+const col = statusColors[o.status] || '#94a3b8';
+
+return '<div style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08)"><b>' + escapeHtml(o.order_id || o.id) + '</b><br><strong style="font-size:15px">' + escapeHtml(o.title || 'Project') + '</strong><br><span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid ' + col + ';color:' + col + ';margin:4px 0">' + escapeHtml((o.status || 'pending').toUpperCase()) + '</span> · ₹' + ((o.amount_paise || 0) / 100).toLocaleString('en-IN', {minimumFractionDigits:2}) + (o.details ? '<br><span style="opacity:.7;font-size:12px">' + escapeHtml(o.details.slice(0, 200)) + '</span>' : '') + '</div>';
+
+}).join('') :
+
+'No orders yet.';
+
+
+
+const refs = d.referrals || [];
+
+document.getElementById('accReferralList').innerHTML = refs.length ?
+
+refs.map(r => '<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08)"><b>' + escapeHtml(r.name) + '</b><br><span style="opacity:.7;font-size:12px">' + escapeHtml(r.status) + '</span></div>').join('') :
+
+'No referrals yet.';
+
+}
+
+
+
+function runPendingAction() {
+
+const fn = window.volteraxPendingContactAction;
+
+window.volteraxPendingContactAction = null;
+
+if (typeof fn === 'function') setTimeout(() => fn(window.volteraxAccountData?.user || {}), 0);
+
+}
+
+
+
+function open(preferredMode) {
+
+if (preferredMode) setMode(preferredMode);
+
+modal.classList.add('open');
+
+modal.setAttribute('aria-hidden', 'false');
+
+document.body.style.overflow = 'hidden';
+
+if (window.volteraxHasAccount && window.volteraxHasAccount() && window.volteraxAccountData) {
+
+show(window.volteraxAccountData);
+
+} else {
+
+loginGrid.style.display = 'grid';
+
+dash.classList.remove('show');
+
+dash.style.display = 'none';
+
+if (!preferredMode) setMode('create');
+
+}
+
+setTimeout(() => {
+
+const el = document.getElementById(mode === 'create' ? 'accName' : 'accLoginMobile');
+
+el?.focus();
+
+}, 80);
+
+}
+
+
+
+function close() {
+
+modal.classList.remove('open');
+
+modal.setAttribute('aria-hidden', 'true');
+
+document.body.style.overflow = '';
+
+}
+
+
+
+function setMode(m) {
+
+mode = m;
+
+loginGrid.style.display = 'grid';
+
+dash.classList.remove('show');
+
+dash.style.display = 'none';
+
+document.getElementById('accCreateFields').style.display = m === 'create' ? 'block' : 'none';
+
+document.getElementById('accLoginFields').style.display = m === 'login' ? 'block' : 'none';
+
+document.getElementById('accLogin').textContent = m === 'create' ? 'CREATE SECURE ACCOUNT ↗' : 'SIGN IN SECURELY ↗';
+
+document.getElementById('accAuthMsg').textContent = '🔒 Secure server-side authentication. Never share your password or OTP with anyone.';
+
+}
+
+
+
+window.volteraxOpenAccount = open;
+
+window.volteraxCloseAccount = close;
+
+
+
+document.querySelectorAll('.accountLink').forEach(a => {
+
+a.setAttribute('href', '#accountModal');
+
+a.addEventListener('click', e => {
+
+e.preventDefault();
+
+open();
+
+});
+
+});
+
+
+
+const closeBtn = document.getElementById('accountClose');
+
+if (closeBtn) closeBtn.onclick = close;
+
+modal.addEventListener('click', e => {
+
+if (e.target === modal) close();
+
+});
+
+
+
+document.getElementById('accModeCreate').onclick = () => setMode('create');
+
+document.getElementById('accModeLogin').onclick = () => setMode('login');
+
+
+
+// Submit Handler for Signup & Login
+
+document.getElementById('accountAuthForm').addEventListener('submit', async e => {
+
+e.preventDefault();
+
+const msg = document.getElementById('accAuthMsg');
+
+const btn = document.getElementById('accLogin');
+
+msg.textContent = 'SECURING YOUR ACCOUNT…';
+
+btn.disabled = true;
+
+
+
+try {
+
+if (mode === 'create') {
+
+const name = document.getElementById('accName').value.trim();
+
+const mobile = document.getElementById('accMobile').value.replace(/\D/g, '');
+
+const password = document.getElementById('accPassword').value;
+
+const ref = (document.getElementById('accRef').value.trim() || sessionStorage.getItem('volteraxIncomingReferral') || '').toUpperCase();
+
+
+
+if (name.length < 2) throw new Error('Please enter your full name (2+ characters).');
+
+if (!/^\d{10}$/.test(mobile)) throw new Error('Please enter a valid 10-digit mobile number.');
+
+if (password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
+
+throw new Error('Password must be at least 8 characters with letters and numbers.');
+
+}
+
+
+
+const res = await fetch('/api/customer/signup', {
+
+method: 'POST',
+
+headers: { 'Content-Type': 'application/json' },
+
+credentials: 'same-origin',
+
+body: JSON.stringify({ name, mobile, password, ref })
+
+});
+
+const data = await res.json();
+
+if (!res.ok) throw new Error(data.error || 'Registration failed.');
+
+
+
+window.volteraxAccountData = data;
+
+if (window.volteraxSetAccount) window.volteraxSetAccount(data);
+
+show(data);
+
+runPendingAction();
+
+} else {
+
+const mobile = document.getElementById('accLoginMobile').value.replace(/\D/g, '');
+
+const password = document.getElementById('accLoginPassword').value;
+
+
+
+if (!/^\d{10}$/.test(mobile)) throw new Error('Please enter your registered 10-digit mobile number.');
+
+if (!password) throw new Error('Please enter your password.');
+
+
+
+const res = await fetch('/api/customer/login', {
+
+method: 'POST',
+
+headers: { 'Content-Type': 'application/json' },
+
+credentials: 'same-origin',
+
+body: JSON.stringify({ mobile, password })
+
+});
+
+const data = await res.json();
+
+if (!res.ok) throw new Error(data.error || 'Login failed.');
+
+
+
+window.volteraxAccountData = data;
+
+if (window.volteraxSetAccount) window.volteraxSetAccount(data);
+
+show(data);
+
+runPendingAction();
+
+}
+
+} catch (err) {
+
+msg.textContent = '✕ ' + err.message;
+
+} finally {
+
+btn.disabled = false;
+
+}
+
+});
+
+
+
+// Logout Handler
+
+const logoutBtn = document.getElementById('accLogout');
+
+if (logoutBtn) {
+
+logoutBtn.onclick = async () => {
+
+try {
+
+await fetch('/api/customer/logout', { method: 'POST', credentials: 'same-origin' });
+
+} catch (_) {}
+
+window.volteraxAccountData = null;
+
+if (window.volteraxSetAccount) window.volteraxSetAccount(null);
+
+setMode('login');
+
+loginGrid.style.display = 'grid';
+
+dash.classList.remove('show');
+
+dash.style.display = 'none';
+
+document.getElementById('accAuthMsg').textContent = 'You have logged out successfully.';
+
+};
+
+}
+
+
+
+// Copy and Share Referral Code
+
+document.getElementById('copyRef')?.addEventListener('click', () => {
+
+const code = document.getElementById('accCode').textContent;
+
+navigator.clipboard?.writeText(code);
+
+alert('Referral code ' + code + ' copied to clipboard!');
+
+});
+
+
+
+document.getElementById('shareRef')?.addEventListener('click', () => {
+
+const code = document.getElementById('accCode').textContent;
+
+const shareUrl = location.origin + '/?ref=' + encodeURIComponent(code);
+
+if (navigator.share) {
+
+navigator.share({ title: 'VOLTERAX', text: 'Build your hardware engineering prototype with VOLTERAX. Use my referral code: ' + code, url: shareUrl }).catch(() => {});
+
+} else {
+
+navigator.clipboard?.writeText(shareUrl);
+
+alert('Referral link copied to clipboard:\n' + shareUrl);
+
+}
+
+});
+
+
+
+// Place Project Order Handler
+
+const orderForm = document.getElementById('accOrderForm');
+
+if (orderForm) {
+
+orderForm.addEventListener('submit', async e => {
+
+e.preventDefault();
+
+const title = document.getElementById('newOrderTitle').value.trim();
+
+const amount = Number(document.getElementById('newOrderAmount').value || 0);
+
+const details = document.getElementById('newOrderDetails').value.trim();
+
+const msg = document.getElementById('orderStatusMsg');
+
+const btn = document.getElementById('btnPlaceOrder');
+
+
+
+if (!title || title.length < 2) {
+
+msg.style.display = 'block';
+
+msg.style.color = '#ef4444';
+
+msg.textContent = 'Please enter a project title (at least 2 characters).';
+
+return;
+
+}
+
+
+
+msg.style.display = 'block';
+
+msg.style.color = '#784cff';
+
+msg.textContent = 'Submitting project order to VolteraX…';
+
+btn.disabled = true;
+
+
+
+try {
+
+const res = await fetch('/api/customer/order', {
+
+method: 'POST',
+
+headers: { 'Content-Type': 'application/json' },
+
+credentials: 'same-origin',
+
+body: JSON.stringify({
+
+title,
+
+amount_paise: Math.round(amount * 100),
+
+details
+
+})
+
+});
+
+const data = await res.json();
+
+if (!res.ok) throw new Error(data.error || 'Failed to submit order.');
+
+
+
+msg.style.color = '#10b981';
+
+msg.textContent = '✓ Order ' + (data.order?.order_id || '') + ' placed successfully! Our engineering team will review it.';
+
+document.getElementById('newOrderTitle').value = '';
+
+document.getElementById('newOrderAmount').value = '';
+
+document.getElementById('newOrderDetails').value = '';
+
+
+
+// Re-fetch customer bundle to refresh orders
+
+const meRes = await fetch('/api/customer/me', { credentials: 'same-origin' });
+
+if (meRes.ok) {
+
+const freshData = await meRes.json();
+
+window.volteraxAccountData = freshData;
+
+show(freshData);
+
+}
+
+} catch (err) {
+
+msg.style.color = '#ef4444';
+
+msg.textContent = '✕ ' + err.message;
+
+} finally {
+
+btn.disabled = false;
+
+}
+
+});
+
+}
+
+
+
+// Profile Update Handler
+
+const profileForm = document.getElementById('accProfileForm');
+
+if (profileForm) {
+
+profileForm.addEventListener('submit', async e => {
+
+e.preventDefault();
+
+const name = document.getElementById('profileName').value.trim();
+
+const email = document.getElementById('profileEmail').value.trim();
+
+const msg = document.getElementById('profileStatusMsg');
+
+const btn = document.getElementById('btnSaveProfile');
+
+
+
+if (name.length < 2) {
+
+msg.style.display = 'block';
+
+msg.style.color = '#ef4444';
+
+msg.textContent = 'Name must be at least 2 characters.';
+
+return;
+
+}
+
+
+
+msg.style.display = 'block';
+
+msg.style.color = '#784cff';
+
+msg.textContent = 'Saving profile details…';
+
+btn.disabled = true;
+
+
+
+try {
+
+const res = await fetch('/api/customer/profile', {
+
+method: 'PATCH',
+
+headers: { 'Content-Type': 'application/json' },
+
+credentials: 'same-origin',
+
+body: JSON.stringify({ name, email })
+
+});
+
+const data = await res.json();
+
+if (!res.ok) throw new Error(data.error || 'Failed to update profile.');
+
+
+
+msg.style.color = '#10b981';
+
+msg.textContent = '✓ Profile details saved successfully!';
+
+window.volteraxAccountData = data;
+
+show(data);
+
+} catch (err) {
+
+msg.style.color = '#ef4444';
+
+msg.textContent = '✕ ' + err.message;
+
+} finally {
+
+btn.disabled = false;
+
+}
+
+});
+
+}
+
+
+
+window.volteraxOrderProject = function(presetTitle) {
+
+open();
+
+if (presetTitle) {
+
+setTimeout(() => {
+
+const t = document.getElementById('newOrderTitle');
+
+if (t) {
+
+t.value = presetTitle;
+
+t.scrollIntoView({ behavior: 'smooth' });
+
+t.focus();
+
+}
+
+}, 150);
+
+}
+
+};
+
+})();
+
+</script>
+
+<style id="volterax-secure-contact-style">
+
+.contactLock{display:flex;align-items:center;gap:16px;margin-top:20px;padding:18px 20px;border:1px solid rgba(139,92,255,.38);border-radius:18px;background:linear-gradient(135deg,rgba(18,14,30,.92),rgba(8,8,14,.88));box-shadow:0 18px 55px rgba(0,0,0,.25)}
+
+.contactLock .lockIcon{font-size:24px;width:44px;height:44px;display:grid;place-items:center;border-radius:12px;background:rgba(139,92,255,.10)}
+
+.contactLock div:nth-child(2){display:flex;flex-direction:column;gap:5px;flex:1}.contactLock strong{font-size:11px;letter-spacing:.14em}.contactLock span{font-size:12px;line-height:1.55;opacity:.68}.contactLock button{border:1px solid rgba(139,92,255,.65);background:#0d0b15;color:#fff;border-radius:999px;padding:12px 16px;font:800 10px/1 system-ui;letter-spacing:.09em;cursor:pointer}.lockedContactForm{display:none}.lockedContactForm.unlocked{display:block}.lockedContactForm.unlocked~*{}
+
+@media(max-width:640px){.contactLock{align-items:flex-start;flex-wrap:wrap;padding:16px}.contactLock button{width:100%;margin-top:4px}}
+
+</style>
+
+<style id="volterax-floating-earn-style">
+
+.vx-float-earn {
+
+position: fixed;
+
+right: 22px;
+
+bottom: 22px;
+
+z-index: 9999;
+
+display: inline-flex;
+
+align-items: center;
+
+gap: 10px;
+
+padding: 13px 18px;
+
+border: 1px solid rgba(139,92,255,.75);
+
+border-radius: 999px;
+
+color: #fff;
+
+text-decoration: none;
+
+font: 800 12px/1 system-ui, -apple-system, Segoe UI, sans-serif;
+
+letter-spacing: .12em;
+
+text-transform: uppercase;
+
+background: rgba(10,8,18,.82);
+
+box-shadow: 0 10px 35px rgba(0,0,0,.35), 0 0 28px rgba(108,59,255,.18);
+
+backdrop-filter: blur(14px);
+
+-webkit-backdrop-filter: blur(14px);
+
+transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+
+}
+
+.vx-float-earn:hover {
+
+transform: translateY(-3px);
+
+background: rgba(20,15,35,.94);
+
+box-shadow: 0 14px 42px rgba(0,0,0,.42), 0 0 34px rgba(108,59,255,.28);
+
+}
+
+.vx-float-earn .vx-earn-dot {
+
+width: 8px; height: 8px; border-radius: 50%;
+
+background: #8b5cff;
+
+box-shadow: 0 0 14px #8b5cff;
+
+animation: vxEarnPulse 1.8s ease-in-out infinite;
+
+}
+
+.vx-float-earn .vx-earn-arrow { font-size: 15px; opacity: .9; }
+
+@keyframes vxEarnPulse { 0%,100%{transform:scale(.85);opacity:.65} 50%{transform:scale(1.15);opacity:1} }
+
+@media (max-width: 640px) {
+
+.vx-float-earn { right: 12px; bottom: 12px; padding: 12px 14px; font-size: 10px; letter-spacing: .09em; }
+
+.vx-float-earn .vx-earn-dot { width: 7px; height: 7px; }
+
+}
+
+@media (prefers-reduced-motion: reduce) { .vx-float-earn .vx-earn-dot { animation: none; } .vx-float-earn { transition:none; } }
+
+</style>
+
+<a class="vx-float-earn" href="#earn" aria-label="Enter Refer and Earn section">
+
+<span class="vx-earn-dot"></span>
+
+<span>REFER &amp; EARN</span>
+
+<span class="vx-earn-arrow">↗</span>
+
+</a>
+
+
+
+<style id="vx-feedback-float-fix">
+
+/* VOLTERAX floating Refer & Earn — never cover feedback/contact UI */
+
+.vx-float-earn{bottom:88px !important;}
+
+.vx-float-earn.vx-near-feedback{bottom:calc(24px + env(safe-area-inset-bottom,0px)) !important;}
+
+@media(max-width:640px){
+
+.vx-float-earn{right:12px !important;bottom:78px !important;}
+
+.vx-float-earn.vx-near-feedback{bottom:14px !important;}
+
+}
+
+</style>
+
+<script id="vx-feedback-float-fix-js">
+
+(function(){
+
+function setup(){
+
+const floater = document.querySelector('.vx-float-earn');
+
+const feedback = document.getElementById('feedback');
+
+if (!floater || !feedback) return false;
+
+if (window.__vxFeedbackObserver) window.__vxFeedbackObserver.disconnect();
+
+window.__vxFeedbackObserver = new IntersectionObserver(entries => {
+
+const visible = entries.some(e => e.isIntersecting && e.intersectionRatio > 0.03);
+
+floater.classList.toggle('vx-near-feedback', visible);
+
+}, { threshold: [0, 0.03, 0.15] });
+
+window.__vxFeedbackObserver.observe(feedback);
+
+return true;
+
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup, { once: true }); else setup();
+
+const mo = new MutationObserver(() => { if (setup()) mo.disconnect(); });
+
+mo.observe(document.documentElement, { childList: true, subtree: true });
+
+setTimeout(() => mo.disconnect(), 10000);
+
+})();
+
+</script>
+
+
+
+<script id="vx-ultra-premium-reveal-js">
+
+(function(){
+
+'use strict';
+
+const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const targets = [
+
+'.intro', '.fullImage', '.systems', '.buildShowcase', '.architecture',
+
+'.origin', '.bridge', '.promise', '.vx-feedback', '.earnHero', '.faq',
+
+'.project', '.connect', '.card', '.buildItem', '.step', '.promiseItem', '.faqItem'
+
+].join(',');
+
+function init(){
+
+if(reduced || !('IntersectionObserver' in window)) return;
+
+const elements = Array.from(document.querySelectorAll(targets));
+
+if(!elements.length) return;
+
+document.documentElement.classList.add('vx-reveal-ready');
+
+const observer = new IntersectionObserver((entries, obs) => {
+
+entries.forEach(entry => {
+
+if(!entry.isIntersecting) return;
+
+entry.target.classList.add('is-visible');
+
+obs.unobserve(entry.target);
+
+});
+
+}, {threshold:0.12, rootMargin:'0px 0px -48px 0px'});
+
+elements.forEach((el,index) => {
+
+if(el.classList.contains('reveal')) return;
+
+el.classList.add('reveal');
+
+if(el.matches('.card,.buildItem,.step,.promiseItem,.faqItem')){
+
+const siblingIndex = Array.from(el.parentElement.children).indexOf(el);
+
+el.dataset.revealDelay = String(Math.min(3,siblingIndex));
+
+}
+
+observer.observe(el);
+
+});
+
+}
+
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded',init,{once:true});
+
+else init();
+
+})();
+
+</script>
+
+
+
+<script id="vx-cyber-hero-engine">
+
+(()=>{
+
+const canvas=document.querySelector('.vx-hero-canvas');
+
+const hero=canvas&&canvas.closest('.hero');
+
+if(!canvas||!hero)return;
+
+const ctx=canvas.getContext('2d',{alpha:true});
+
+if(!ctx)return;
+
+const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let w=0,h=0,dpr=1,last=0,raf=0,particles=[],phase=0;
+
+const rand=(a,b)=>a+Math.random()*(b-a);
+
+function resize(){
+
+const r=hero.getBoundingClientRect();
+
+w=Math.max(1,r.width);h=Math.max(1,r.height);
+
+dpr=Math.min(window.devicePixelRatio||1,1.6);
+
+canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+
+ctx.setTransform(dpr,0,0,dpr,0,0);
+
+const count=Math.max(24,Math.min(58,Math.round(w/24)));
+
+particles=Array.from({length:count},()=>({
+
+x:rand(0,w),y:rand(0,h),r:rand(.7,1.8),vx:rand(-.12,.12),vy:rand(-.18,-.035),
+
+p:rand(0,Math.PI*2),tone:Math.random()>.52?'blue':'purple'
+
+}));
+
+draw(0);
+
+}
+
+function glowLine(x1,y1,x2,y2,color,alpha,width=1){
+
+ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);
+
+ctx.strokeStyle=color;ctx.globalAlpha=alpha;ctx.lineWidth=width;ctx.stroke();
+
+}
+
+function draw(t){
+
+ctx.clearRect(0,0,w,h);
+
+const horizon=h*.36;
+
+const wash=ctx.createRadialGradient(w*.72,h*.43,0,w*.72,h*.43,Math.max(w,h)*.72);
+
+wash.addColorStop(0,'rgba(108,59,255,.10)');wash.addColorStop(.55,'rgba(0,229,255,.025)');wash.addColorStop(1,'rgba(0,0,0,0)');
+
+ctx.fillStyle=wash;ctx.fillRect(0,0,w,h);
+
+// Perspective floor grid, receding toward a luminous horizon.
+
+const drift=(phase*.18)%58;
+
+for(let i=0;i<15;i++){
+
+const q=i/14, y=horizon+Math.pow(q,1.72)*(h-horizon+24);
+
+glowLine(0,y,w,y,'#6C3BFF',.055+q*.09,.6+q*.45);
+
+}
+
+const vanishX=w*.66;
+
+for(let i=-15;i<=15;i++){
+
+const bottomX=vanishX+i*w*.105;
+
+glowLine(vanishX,horizon,bottomX,h,'#00E5FF',.045+Math.min(1,Math.abs(i)/15)*.035,.8);
+
+}
+
+// Upper technical scan grid, softly masked by distance from center.
+
+const step=66, offset=(phase*.10)%step;
+
+for(let x=-step+offset;x<w+step;x+=step)
+
+glowLine(x,0,x,horizon+8,'#6C3BFF',.045,.6);
+
+for(let y=28+offset;y<horizon;y+=step)
+
+glowLine(0,y,w,y,'#00E5FF',.035,.6);
+
+// Drifting light nodes with restrained bloom.
+
+particles.forEach(p=>{
+
+p.x+=p.vx*(reduce?0:1);p.y+=p.vy*(reduce?0:1);
+
+if(p.y<-8){p.y=h+8;p.x=rand(0,w)}
+
+if(p.x<-8)p.x=w+8;if(p.x>w+8)p.x=-8;
+
+const pulse=.45+.45*Math.sin(phase*.035+p.p);
+
+const color=p.tone==='blue'?'0,229,255':'108,59,255';
+
+ctx.beginPath();ctx.arc(p.x,p.y,p.r*(.7+pulse*.55),0,Math.PI*2);
+
+ctx.fillStyle=`rgba(${color},${.28+pulse*.52})`;
+
+ctx.shadowColor=`rgba(${color},.9)`;ctx.shadowBlur=5+pulse*8;ctx.fill();ctx.shadowBlur=0;
+
+});
+
+// Sparse links between nearby nodes create a subtle circuit-network feel.
+
+for(let i=0;i<particles.length;i++)for(let j=i+1;j<particles.length;j++){
+
+const a=particles[i],b=particles[j],dx=a.x-b.x,dy=a.y-b.y,dist=Math.hypot(dx,dy);
+
+if(dist<112){
+
+glowLine(a.x,a.y,b.x,b.y,'#00E5FF',(1-dist/112)*.12,.55);
+
+}
+
+}
+
+ctx.globalAlpha=1;
+
+}
+
+function frame(now){
+
+if(document.hidden){raf=0;return}
+
+if(now-last>32){last=now;phase+=reduce?0:1;draw(now)}
+
+if(!reduce)raf=requestAnimationFrame(frame);
+
+}
+
+resize();
+
+if(!reduce)raf=requestAnimationFrame(frame);
+
+window.addEventListener('resize',resize,{passive:true});
+
+document.addEventListener('visibilitychange',()=>{
+
+if(document.hidden){if(raf)cancelAnimationFrame(raf);raf=0}
+
+else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
+
+});
+
+})();
+
+</script>
+
+
+
+
+<script id="vx-project-order-login-route">
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('volteraxLogin') !== '1') return;
+  const projectName = params.get('project');
+  if (projectName) {
+    try { sessionStorage.setItem('vxPendingProjectOrder', projectName); } catch(e) {}
+  }
+  function openLogin(){
+    if (typeof window.volteraxOpenAccount === 'function') {
+      window.volteraxOpenAccount('login');
+    } else {
+      setTimeout(openLogin, 80);
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', openLogin, {once:true});
+  else openLogin();
+})();
+</script>
+
+</body></html> 
