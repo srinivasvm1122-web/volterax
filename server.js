@@ -8,11 +8,36 @@ const ADMIN_PASSWORD=process.env.ADMIN_PASSWORD||'CHANGE_THIS_ADMIN_PASSWORD';
 const SESSION_TTL=1000*60*60*24*7;
 const MONGODB_URI=process.env.MONGODB_URI||'';
 const MONGODB_DB=process.env.MONGODB_DB||'volterax';
-const mongoClient=new MongoClient(MONGODB_URI);
+const mongoClient=MONGODB_URI?new MongoClient(MONGODB_URI):null;
 let db,storeDoc;
 function blank(){return {users:[],orders:[],feedback:[],leads:[],sessions:{},adminSessions:{}}}
-async function initDb(){if(!MONGODB_URI)throw new Error('MONGODB_URI is required.');await mongoClient.connect();const col=mongoClient.db(MONGODB_DB).collection('volterax_store');storeDoc=await col.findOne({_id:'main'});if(!storeDoc){db=blank();await col.insertOne({_id:'main',data:db,updatedAt:new Date()})}else{db=storeDoc.data||blank();for(const k of Object.keys(blank()))if(db[k]==null)db[k]=blank()[k];await col.replaceOne({_id:'main'},{_id:'main',data:db,updatedAt:new Date()},{upsert:true})}globalThis.__vxStore=col}
-let saveQueue=Promise.resolve();function save(){const snapshot=JSON.parse(JSON.stringify(db));saveQueue=saveQueue.then(()=>globalThis.__vxStore.replaceOne({_id:'main'},{_id:'main',data:snapshot,updatedAt:new Date()},{upsert:true})).catch(e=>console.error('MongoDB save error:',e));return saveQueue}
+async function initDb(){
+  if(!MONGODB_URI){
+    console.log('[VolteraX] No MONGODB_URI provided. Running in offline mode with volterax-local-db.json fallback.');
+    const localDbPath=path.join(__dirname,'volterax-local-db.json');
+    if(fs.existsSync(localDbPath)){try{db=JSON.parse(fs.readFileSync(localDbPath,'utf8'))}catch(_){db=blank()}}
+    else{db=blank();try{fs.writeFileSync(localDbPath,JSON.stringify(db,null,2))}catch(_){}}
+    for(const k of Object.keys(blank()))if(db[k]==null)db[k]=blank()[k];
+    return;
+  }
+  await mongoClient.connect();
+  const col=mongoClient.db(MONGODB_DB).collection('volterax_store');
+  storeDoc=await col.findOne({_id:'main'});
+  if(!storeDoc){db=blank();await col.insertOne({_id:'main',data:db,updatedAt:new Date()})}
+  else{db=storeDoc.data||blank();for(const k of Object.keys(blank()))if(db[k]==null)db[k]=blank()[k];await col.replaceOne({_id:'main'},{_id:'main',data:db,updatedAt:new Date()},{upsert:true})}
+  globalThis.__vxStore=col;
+}
+let saveQueue=Promise.resolve();
+function save(){
+  const snapshot=JSON.parse(JSON.stringify(db));
+  if(!MONGODB_URI){
+    const localDbPath=path.join(__dirname,'volterax-local-db.json');
+    try{fs.writeFileSync(localDbPath,JSON.stringify(snapshot,null,2))}catch(e){console.error('Local DB save error:',e)}
+    return Promise.resolve();
+  }
+  saveQueue=saveQueue.then(()=>globalThis.__vxStore.replaceOne({_id:'main'},{_id:'main',data:snapshot,updatedAt:new Date()},{upsert:true})).catch(e=>console.error('MongoDB save error:',e));
+  return saveQueue;
+}
 function id(prefix){return prefix+crypto.randomBytes(5).toString('hex').toUpperCase()}
 function now(){return new Date().toISOString()}
 function hashPassword(p,salt=crypto.randomBytes(16).toString('hex')){const h=crypto.scryptSync(p,salt,64).toString('hex');return {salt,hash:h}}
