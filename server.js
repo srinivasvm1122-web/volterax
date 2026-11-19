@@ -11,33 +11,40 @@ const SESSION_TTL=1000*60*60*24*7;
 const MONGODB_URI=process.env.MONGODB_URI||'';
 const MONGODB_DB=process.env.MONGODB_DB||'volterax';
 const DATABASE_URL=process.env.DATABASE_URL||process.env.SUPABASE_DB_URL||DEFAULT_DB;
-const pgPool=DATABASE_URL&&PgPool?new PgPool({connectionString:DATABASE_URL,ssl:{rejectUnauthorized:false}}):null;
+const pgPool=DATABASE_URL&&PgPool?new PgPool({connectionString:DATABASE_URL,ssl:{rejectUnauthorized:false},connectionTimeoutMillis:5000,idleTimeoutMillis:10000}):null;
 const mongoClient=MONGODB_URI?new MongoClient(MONGODB_URI):null;
-let db,storeDoc;
+let db=blank(),storeDoc;
 function blank(){return {users:[],orders:[],feedback:[],leads:[],sessions:{},adminSessions:{}}}
 async function initDb(){
   if(pgPool){
-    console.log('[VolteraX] Connected to Supabase PostgreSQL adapter.');
-    await pgPool.query(`CREATE TABLE IF NOT EXISTS volterax_store (id VARCHAR(64) PRIMARY KEY, data JSONB NOT NULL, updated_at TIMESTAMPTZ DEFAULT NOW());`);
-    const r=await pgPool.query(`SELECT data FROM volterax_store WHERE id = 'main'`);
-    if(r.rows.length===0){db=blank();await pgPool.query(`INSERT INTO volterax_store (id, data, updated_at) VALUES ('main', $1, NOW())`,[JSON.stringify(db)])}
-    else{db=r.rows[0].data||blank();for(const k of Object.keys(blank()))if(db[k]==null)db[k]=blank()[k]}
-    return;
+    try{
+      console.log('[VolteraX] Connecting to Supabase PostgreSQL...');
+      await pgPool.query(`CREATE TABLE IF NOT EXISTS volterax_store (id VARCHAR(64) PRIMARY KEY, data JSONB NOT NULL, updated_at TIMESTAMPTZ DEFAULT NOW());`);
+      const r=await pgPool.query(`SELECT data FROM volterax_store WHERE id = 'main'`);
+      if(r.rows.length===0){await pgPool.query(`INSERT INTO volterax_store (id, data, updated_at) VALUES ('main', $1, NOW())`,[JSON.stringify(db)])}
+      else{db=r.rows[0].data||blank();for(const k of Object.keys(blank()))if(db[k]==null)db[k]=blank()[k]}
+      console.log('[VolteraX] Supabase PostgreSQL connected and store loaded!');
+      return;
+    }catch(err){
+      console.error('[VolteraX] Supabase init failed, running with memory store:', err.message);
+    }
   }
-  if(!MONGODB_URI){
-    console.log('[VolteraX] No MONGODB_URI or DATABASE_URL provided. Running in offline mode with volterax-local-db.json fallback.');
-    const localDbPath=path.join(__dirname,'volterax-local-db.json');
-    if(fs.existsSync(localDbPath)){try{db=JSON.parse(fs.readFileSync(localDbPath,'utf8'))}catch(_){db=blank()}}
-    else{db=blank();try{fs.writeFileSync(localDbPath,JSON.stringify(db,null,2))}catch(_){}}
-    for(const k of Object.keys(blank()))if(db[k]==null)db[k]=blank()[k];
-    return;
+  if(MONGODB_URI){
+    try{
+      await mongoClient.connect();
+      const col=mongoClient.db(MONGODB_DB).collection('volterax_store');
+      storeDoc=await col.findOne({_id:'main'});
+      if(!storeDoc){db=blank();await col.insertOne({_id:'main',data:db,updatedAt:new Date()})}
+      else{db=storeDoc.data||blank();for(const k of Object.keys(blank()))if(db[k]==null)db[k]=blank()[k];await col.replaceOne({_id:'main'},{_id:'main',data:db,updatedAt:new Date()},{upsert:true})}
+      globalThis.__vxStore=col;
+      return;
+    }catch(err){
+      console.error('[VolteraX] MongoDB init failed:', err.message);
+    }
   }
-  await mongoClient.connect();
-  const col=mongoClient.db(MONGODB_DB).collection('volterax_store');
-  storeDoc=await col.findOne({_id:'main'});
-  if(!storeDoc){db=blank();await col.insertOne({_id:'main',data:db,updatedAt:new Date()})}
-  else{db=storeDoc.data||blank();for(const k of Object.keys(blank()))if(db[k]==null)db[k]=blank()[k];await col.replaceOne({_id:'main'},{_id:'main',data:db,updatedAt:new Date()},{upsert:true})}
-  globalThis.__vxStore=col;
+  const localDbPath=path.join(__dirname,'volterax-local-db.json');
+  if(fs.existsSync(localDbPath)){try{db=JSON.parse(fs.readFileSync(localDbPath,'utf8'))}catch(_){db=blank()}}
+  for(const k of Object.keys(blank()))if(db[k]==null)db[k]=blank()[k];
 }
 let saveQueue=Promise.resolve();
 function save(){
@@ -99,4 +106,7 @@ async function route(req,res){
  }catch(e){console.error(e);json(res,500,{error:'Server error.'})}
 }
 function serveFile(res,fp,type){if(!fs.existsSync(fp))return json(res,404,{error:'File not found'});const ext=path.extname(fp);const ct=type||({'.html':'text/html; charset=utf-8','.css':'text/css','.js':'application/javascript','.json':'application/json'}[ext]||'application/octet-stream');res.writeHead(200,{'Content-Type':ct,'Cache-Control':'no-cache'});fs.createReadStream(fp).pipe(res)}
-initDb().then(()=>http.createServer(route).listen(PORT,HOST,()=>console.log(`VOLTERAX platform running on http://${HOST==='0.0.0.0'?'localhost':HOST}:${PORT}`))).catch(e=>{console.error('MongoDB startup failed:',e);process.exit(1)});
+http.createServer(route).listen(PORT,HOST,()=>{
+  console.log(`VOLTERAX platform running on http://${HOST==='0.0.0.0'?'localhost':HOST}:${PORT}`);
+  initDb().catch(e=>console.error('[VolteraX] Startup DB error:',e.message));
+});
