@@ -2,18 +2,29 @@ const http=require('http');const fs=require('fs');const path=require('path');con
 // Load local .env without requiring dotenv
 try{const envPath=path.join(__dirname,'.env');if(fs.existsSync(envPath)){for(const line of fs.readFileSync(envPath,'utf8').split(/\r?\n/)){const m=line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/);if(m&&!process.env[m[1]]){let v=m[2].trim();if((v.startsWith('\"')&&v.endsWith('\"'))||(v.startsWith("'")&&v.endsWith("'")))v=v.slice(1,-1);process.env[m[1]]=v;}}}}catch(e){console.error('[VolteraX] Could not read .env:',e.message)}
 const {MongoClient}=require('mongodb');
+const {Pool:PgPool}=(()=>{try{return require('pg')}catch(_){return {Pool:null}}})();
 const PORT=Number(process.env.PORT||3000);const HOST=process.env.HOST||'0.0.0.0';
 const ADMIN_EMAIL=(process.env.ADMIN_EMAIL||'admin@volterax.in').toLowerCase();
 const ADMIN_PASSWORD=process.env.ADMIN_PASSWORD||'CHANGE_THIS_ADMIN_PASSWORD';
 const SESSION_TTL=1000*60*60*24*7;
 const MONGODB_URI=process.env.MONGODB_URI||'';
 const MONGODB_DB=process.env.MONGODB_DB||'volterax';
+const DATABASE_URL=process.env.DATABASE_URL||process.env.SUPABASE_DB_URL||'';
+const pgPool=DATABASE_URL&&PgPool?new PgPool({connectionString:DATABASE_URL,ssl:{rejectUnauthorized:false}}):null;
 const mongoClient=MONGODB_URI?new MongoClient(MONGODB_URI):null;
 let db,storeDoc;
 function blank(){return {users:[],orders:[],feedback:[],leads:[],sessions:{},adminSessions:{}}}
 async function initDb(){
+  if(pgPool){
+    console.log('[VolteraX] Connected to Supabase PostgreSQL adapter.');
+    await pgPool.query(`CREATE TABLE IF NOT EXISTS volterax_store (id VARCHAR(64) PRIMARY KEY, data JSONB NOT NULL, updated_at TIMESTAMPTZ DEFAULT NOW());`);
+    const r=await pgPool.query(`SELECT data FROM volterax_store WHERE id = 'main'`);
+    if(r.rows.length===0){db=blank();await pgPool.query(`INSERT INTO volterax_store (id, data, updated_at) VALUES ('main', $1, NOW())`,[JSON.stringify(db)])}
+    else{db=r.rows[0].data||blank();for(const k of Object.keys(blank()))if(db[k]==null)db[k]=blank()[k]}
+    return;
+  }
   if(!MONGODB_URI){
-    console.log('[VolteraX] No MONGODB_URI provided. Running in offline mode with volterax-local-db.json fallback.');
+    console.log('[VolteraX] No MONGODB_URI or DATABASE_URL provided. Running in offline mode with volterax-local-db.json fallback.');
     const localDbPath=path.join(__dirname,'volterax-local-db.json');
     if(fs.existsSync(localDbPath)){try{db=JSON.parse(fs.readFileSync(localDbPath,'utf8'))}catch(_){db=blank()}}
     else{db=blank();try{fs.writeFileSync(localDbPath,JSON.stringify(db,null,2))}catch(_){}}
@@ -30,6 +41,10 @@ async function initDb(){
 let saveQueue=Promise.resolve();
 function save(){
   const snapshot=JSON.parse(JSON.stringify(db));
+  if(pgPool){
+    saveQueue=saveQueue.then(()=>pgPool.query(`INSERT INTO volterax_store (id, data, updated_at) VALUES ('main', $1, NOW()) ON CONFLICT (id) DO UPDATE SET data = $1, updated_at = NOW();`,[JSON.stringify(snapshot)])).catch(e=>console.error('[Supabase Save Error]',e.message));
+    return saveQueue;
+  }
   if(!MONGODB_URI){
     const localDbPath=path.join(__dirname,'volterax-local-db.json');
     try{fs.writeFileSync(localDbPath,JSON.stringify(snapshot,null,2))}catch(e){console.error('Local DB save error:',e)}
@@ -74,6 +89,7 @@ async function route(req,res){
     if(req.method==='POST'&&p==='/api/admin/order'){const x=await body(req);const user=db.users.find(v=>v.id===x.userId||v.mobile===String(x.mobile||'').replace(/\D/g,''));if(!user)return json(res,404,{error:'Customer not found.'});const item={id:id('ORD'),order_id:String(x.order_id||id('VX-ORD-')),userId:user.id,title:String(x.title||'VOLTERAX PROJECT').slice(0,200),amount_paise:Number(x.amount_paise||0),status:String(x.status||'pending'),details:String(x.details||'').slice(0,5000),createdAt:now(),updatedAt:now()};db.orders.unshift(item);save();return json(res,201,{ok:true,order:item})}
     if(req.method==='PATCH'&&p.startsWith('/api/admin/order/')){const oid=p.split('/').pop();const x=await body(req);const o=db.orders.find(v=>v.id===oid||v.order_id===oid);if(!o)return json(res,404,{error:'Order not found.'});for(const k of ['title','status','details'])if(x[k]!==undefined)o[k]=String(x[k]);if(x.amount_paise!==undefined)o.amount_paise=Number(x.amount_paise);o.updatedAt=now();save();return json(res,200,{ok:true,order:o})}
     if(req.method==='PATCH'&&p.startsWith('/api/admin/feedback/')){const fid=p.split('/').pop();const x=await body(req);const f=db.feedback.find(v=>v.id===fid);if(!f)return json(res,404,{error:'Feedback not found.'});if(x.status)f.status=String(x.status);save();return json(res,200,{ok:true,feedback:f})}
+    if(req.method==='PATCH'&&p.startsWith('/api/admin/lead/')){const lid=p.split('/').pop();if(!lid||!/^LD[A-Za-z0-9_-]+$/.test(lid))return json(res,400,{error:'Invalid lead ID format.'});const x=await body(req);const allowed=['new','contacted','quoted','closed'];const status=String(x.status||'').toLowerCase().trim();if(!allowed.includes(status))return json(res,400,{error:'Invalid status. Allowed: '+allowed.join(', ')});const l=db.leads.find(v=>v.id===lid);if(!l)return json(res,404,{error:'Lead not found.'});l.status=status;l.updatedAt=now();save();return json(res,200,{ok:true,lead:l})}
   }
   if(req.method==='GET'&&p==='/admin'){return serveFile(res,path.join(__dirname,'public','admin.html'),'text/html; charset=utf-8')}
   if(req.method==='GET'&&p==='/admin/login'){return serveFile(res,path.join(__dirname,'public','admin.html'),'text/html; charset=utf-8')}
