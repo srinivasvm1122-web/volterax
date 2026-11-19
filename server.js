@@ -4,7 +4,7 @@ try{const envPath=path.join(__dirname,'.env');if(fs.existsSync(envPath)){for(con
 const {MongoClient}=require('mongodb');
 const {Pool:PgPool}=(()=>{try{return require('pg')}catch(_){return {Pool:null}}})();
 const PORT=Number(process.env.PORT||3000);const HOST=process.env.HOST||'0.0.0.0';
-const DEFAULT_DB = Buffer.from('cG9zdGdyZXNxbDovL3Bvc3RncmVzOnNyaW5pdmFzdm0xMTIyJTQwZ21haWwuY29tQGRiLmZlbXhyZXVjYm1xZnVuYWRsamFwLnN1cGFiYXNlLmNvOjU0MzIvcG9zdGdyZXM=','base64').toString('utf8');
+const DEFAULT_DB = Buffer.from('cG9zdGdyZXNxbDovL3Bvc3RncmVzOnNyaW5pdmFzdm0xMTIyJTQwZ21haWwuY29tQGRiLmZlbXhyZXVjYm1xZnVuYWRsamFwLnN1cGFiYXNlLmNvOjY1NDMvcG9zdGdyZXM=','base64').toString('utf8');
 const ADMIN_EMAIL=(process.env.ADMIN_EMAIL||'srinivasvm1122@gmail.com').toLowerCase();
 const ADMIN_PASSWORD=process.env.ADMIN_PASSWORD||Buffer.from('ODEwNTIyNzY0NA==','base64').toString('utf8');
 const SESSION_TTL=1000*60*60*24*7;
