@@ -75,6 +75,17 @@
     @media(max-width:520px){.logo-wrap img{width:42px;height:42px}.page-head{padding-left:6vw;padding-right:6vw;padding-bottom:35px}.page-head h1{font-size:16vw}.page-head p{font-size:14px}.project-grid{grid-template-columns:1fr 1fr;gap:9px}.project-visual{height:130px}.visual-symbol{font-size:48px}.card-info{padding:12px}.card-info h2{font-size:15px;min-height:52px}.card-info p{font-size:11px;min-height:78px}.card-meta{font-size:7px}.order-btn{padding:11px 9px;font-size:9px}.request-btn{padding:18px 15px;font-size:13px}.store-top{align-items:flex-start;flex-direction:column}.bottom-cta{padding:25px}.footer{padding:22px 6vw;gap:12px;flex-direction:column}}
     @media(max-width:360px){.project-grid{grid-template-columns:1fr}.project-visual{height:170px}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}
+  
+    .card-action{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}
+    .card-price{display:flex;flex-direction:column}
+    .card-price small{font:8px monospace;letter-spacing:.12em;color:#8f91a0;text-transform:uppercase}
+    .card-price .price-val{font-size:18px;font-weight:900;color:#00E5FF;letter-spacing:-.02em;font-family:Arial,Helvetica,sans-serif;text-shadow:0 0 12px rgba(0,229,255,.35)}
+    .order-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 14px;border:1px solid rgba(108,59,255,.65);background:rgba(108,59,255,.18);font:10px monospace;letter-spacing:.12em;font-weight:700;color:#fff;transition:all .2s ease;white-space:nowrap}
+    .order-btn span{color:var(--blue);font-size:14px;transition:transform .2s ease}
+    .order-btn:hover{background:var(--purple);border-color:var(--purple);box-shadow:0 0 20px rgba(108,59,255,.45);transform:translateY(-2px)}
+    .order-btn:hover span{color:#fff;transform:translateX(2px)}
+    @media(max-width:520px){.card-action{flex-direction:column;align-items:flex-start;gap:8px}.order-btn{width:100%}}
+
   </style>
 <style id="vx-project-photo-upgrade">
 .project-visual{isolation:isolate;background:#090d17}
@@ -109,7 +120,7 @@
 <div class="head-line"></div>
 </header>
 <main class="store">
-<div class="store-top"><div class="eyebrow">ENGINEERED IDEAS. REAL-WORLD BUILDS.</div><div class="store-count">30 PROJECT CONCEPTS / NO LISTED PRICES</div></div>
+<div class="store-top"><div class="eyebrow">ENGINEERED IDEAS. REAL-WORLD BUILDS.</div><div class="store-count">30 HARDWARE BUILDS / TRANSPARENT PRICING</div></div>
 <div class="request-wrap">
 <a class="request-btn" href="index.html#project">
 <span>REQUEST OTHER CUSTOMIZED PROJECT</span><span class="arrow">↗</span>
@@ -126,7 +137,13 @@
 <div class="card-meta"><span>PROJECT 01</span><span>ROBOTICS</span></div>
 <h2>Obstacle Avoiding Robot</h2>
 <p>A mobile robot that detects obstacles and navigates around them.</p>
-<a aria-label="Order Obstacle Avoiding Robot" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹6,500</div>
+  </div>
+  <a aria-label="Order Obstacle Avoiding Robot" class="order-btn" href="index.html?orderProject=Obstacle%20Avoiding%20Robot&orderPrice=6500">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -139,7 +156,13 @@
 <div class="card-meta"><span>PROJECT 02</span><span>ROBOTICS</span></div>
 <h2>Line Following Robot</h2>
 <p>A sensor-guided robot designed to follow a marked track.</p>
-<a aria-label="Order Line Following Robot" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹6,500</div>
+  </div>
+  <a aria-label="Order Line Following Robot" class="order-btn" href="index.html?orderProject=Line%20Following%20Robot&orderPrice=6500">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -152,7 +175,13 @@
 <div class="card-meta"><span>PROJECT 03</span><span>ROBOTICS</span></div>
 <h2>Bluetooth Controlled Robot</h2>
 <p>A mobile robot operated wirelessly from a smartphone.</p>
-<a aria-label="Order Bluetooth Controlled Robot" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹6,500</div>
+  </div>
+  <a aria-label="Order Bluetooth Controlled Robot" class="order-btn" href="index.html?orderProject=Bluetooth%20Controlled%20Robot&orderPrice=6500">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -165,7 +194,13 @@
 <div class="card-meta"><span>PROJECT 04</span><span>SAFETY SYSTEMS</span></div>
 <h2>Smart Fire Detection System</h2>
 <p>Detects smoke or abnormal heat and triggers an alert.</p>
-<a aria-label="Order Smart Fire Detection System" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹3,900</div>
+  </div>
+  <a aria-label="Order Smart Fire Detection System" class="order-btn" href="index.html?orderProject=Smart%20Fire%20Detection%20System&orderPrice=3900">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -178,7 +213,13 @@
 <div class="card-meta"><span>PROJECT 05</span><span>IOT &amp; AUTOMATION</span></div>
 <h2>IoT Home Automation</h2>
 <p>Control lights and appliances through a connected controller.</p>
-<a aria-label="Order IoT Home Automation" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹5,200</div>
+  </div>
+  <a aria-label="Order IoT Home Automation" class="order-btn" href="index.html?orderProject=IoT%20Home%20Automation&orderPrice=5200">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -191,7 +232,13 @@
 <div class="card-meta"><span>PROJECT 06</span><span>AGRI-TECH</span></div>
 <h2>Smart Irrigation System</h2>
 <p>Automates watering using soil-moisture sensing.</p>
-<a aria-label="Order Smart Irrigation System" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹4,800</div>
+  </div>
+  <a aria-label="Order Smart Irrigation System" class="order-btn" href="index.html?orderProject=Smart%20Irrigation%20System&orderPrice=4800">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -204,7 +251,13 @@
 <div class="card-meta"><span>PROJECT 07</span><span>SENSORS &amp; IOT</span></div>
 <h2>Water Quality Monitoring</h2>
 <p>Monitors selected water parameters using sensor inputs.</p>
-<a aria-label="Order Water Quality Monitoring" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹5,200</div>
+  </div>
+  <a aria-label="Order Water Quality Monitoring" class="order-btn" href="index.html?orderProject=Water%20Quality%20Monitoring&orderPrice=5200">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -217,7 +270,13 @@
 <div class="card-meta"><span>PROJECT 08</span><span>EMBEDDED SYSTEMS</span></div>
 <h2>RFID Attendance System</h2>
 <p>Records attendance using RFID cards or tags.</p>
-<a aria-label="Order RFID Attendance System" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹5,800</div>
+  </div>
+  <a aria-label="Order RFID Attendance System" class="order-btn" href="index.html?orderProject=RFID%20Attendance%20System&orderPrice=5800">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -230,7 +289,13 @@
 <div class="card-meta"><span>PROJECT 09</span><span>IOT &amp; AUTOMATION</span></div>
 <h2>Smart Dustbin</h2>
 <p>A sensor-enabled waste bin with automated lid control.</p>
-<a aria-label="Order Smart Dustbin" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹5,200</div>
+  </div>
+  <a aria-label="Order Smart Dustbin" class="order-btn" href="index.html?orderProject=Smart%20Dustbin&orderPrice=5200">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -243,7 +308,13 @@
 <div class="card-meta"><span>PROJECT 10</span><span>RENEWABLE ENERGY</span></div>
 <h2>Solar Tracking System</h2>
 <p>Adjusts a solar panel orientation toward stronger sunlight.</p>
-<a aria-label="Order Solar Tracking System" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹4,500</div>
+  </div>
+  <a aria-label="Order Solar Tracking System" class="order-btn" href="index.html?orderProject=Solar%20Tracking%20System&orderPrice=4500">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -256,7 +327,13 @@
 <div class="card-meta"><span>PROJECT 11</span><span>EMBEDDED SYSTEMS</span></div>
 <h2>Automatic Street Light</h2>
 <p>Controls street lighting based on ambient light conditions.</p>
-<a aria-label="Order Automatic Street Light" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹5,800</div>
+  </div>
+  <a aria-label="Order Automatic Street Light" class="order-btn" href="index.html?orderProject=Automatic%20Street%20Light&orderPrice=5800">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -269,7 +346,13 @@
 <div class="card-meta"><span>PROJECT 12</span><span>SECURITY SYSTEMS</span></div>
 <h2>Password Based Door Lock</h2>
 <p>Electronic access control using a keypad interface.</p>
-<a aria-label="Order Password Based Door Lock" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹4,500</div>
+  </div>
+  <a aria-label="Order Password Based Door Lock" class="order-btn" href="index.html?orderProject=Password%20Based%20Door%20Lock&orderPrice=4500">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -282,7 +365,13 @@
 <div class="card-meta"><span>PROJECT 13</span><span>SAFETY SYSTEMS</span></div>
 <h2>Gas Leakage Alert System</h2>
 <p>Detects selected combustible gases and raises an alarm.</p>
-<a aria-label="Order Gas Leakage Alert System" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹3,900</div>
+  </div>
+  <a aria-label="Order Gas Leakage Alert System" class="order-btn" href="index.html?orderProject=Gas%20Leakage%20Alert%20System&orderPrice=3900">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -295,7 +384,13 @@
 <div class="card-meta"><span>PROJECT 14</span><span>IOT &amp; SENSORS</span></div>
 <h2>Weather Monitoring Station</h2>
 <p>Collects and displays local environmental readings.</p>
-<a aria-label="Order Weather Monitoring Station" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹5,200</div>
+  </div>
+  <a aria-label="Order Weather Monitoring Station" class="order-btn" href="index.html?orderProject=Weather%20Monitoring%20Station&orderPrice=5200">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -308,7 +403,13 @@
 <div class="card-meta"><span>PROJECT 15</span><span>IOT &amp; AUTOMATION</span></div>
 <h2>Smart Parking System</h2>
 <p>Detects parking-slot occupancy and reports availability.</p>
-<a aria-label="Order Smart Parking System" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹5,200</div>
+  </div>
+  <a aria-label="Order Smart Parking System" class="order-btn" href="index.html?orderProject=Smart%20Parking%20System&orderPrice=5200">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -321,7 +422,13 @@
 <div class="card-meta"><span>PROJECT 16</span><span>ROBOTICS</span></div>
 <h2>Gesture Controlled Robot</h2>
 <p>Uses gesture input to control a mobile robotic platform.</p>
-<a aria-label="Order Gesture Controlled Robot" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹6,500</div>
+  </div>
+  <a aria-label="Order Gesture Controlled Robot" class="order-btn" href="index.html?orderProject=Gesture%20Controlled%20Robot&orderPrice=6500">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -334,7 +441,13 @@
 <div class="card-meta"><span>PROJECT 17</span><span>IOT &amp; AUTOMATION</span></div>
 <h2>Voice Controlled Appliances</h2>
 <p>Operates compatible appliances through voice commands.</p>
-<a aria-label="Order Voice Controlled Appliances" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹5,200</div>
+  </div>
+  <a aria-label="Order Voice Controlled Appliances" class="order-btn" href="index.html?orderProject=Voice%20Controlled%20Appliances&orderPrice=5200">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -347,7 +460,13 @@
 <div class="card-meta"><span>PROJECT 18</span><span>IOT &amp; AUTOMATION</span></div>
 <h2>Bluetooth Home Automation</h2>
 <p>Wireless appliance switching through a Bluetooth interface.</p>
-<a aria-label="Order Bluetooth Home Automation" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹5,200</div>
+  </div>
+  <a aria-label="Order Bluetooth Home Automation" class="order-btn" href="index.html?orderProject=Bluetooth%20Home%20Automation&orderPrice=5200">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -360,7 +479,13 @@
 <div class="card-meta"><span>PROJECT 19</span><span>EMBEDDED SYSTEMS</span></div>
 <h2>Digital Notice Board</h2>
 <p>Displays remotely updated messages on an electronic screen.</p>
-<a aria-label="Order Digital Notice Board" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹5,800</div>
+  </div>
+  <a aria-label="Order Digital Notice Board" class="order-btn" href="index.html?orderProject=Digital%20Notice%20Board&orderPrice=5800">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -373,7 +498,13 @@
 <div class="card-meta"><span>PROJECT 20</span><span>AGRI-TECH</span></div>
 <h2>Automatic Plant Watering</h2>
 <p>Waters plants when measured soil moisture falls below a set level.</p>
-<a aria-label="Order Automatic Plant Watering" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹4,800</div>
+  </div>
+  <a aria-label="Order Automatic Plant Watering" class="order-btn" href="index.html?orderProject=Automatic%20Plant%20Watering&orderPrice=4800">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -386,7 +517,13 @@
 <div class="card-meta"><span>PROJECT 21</span><span>ROBOTICS &amp; SENSORS</span></div>
 <h2>Radar Detection System</h2>
 <p>Scans nearby objects with a rotating distance sensor.</p>
-<a aria-label="Order Radar Detection System" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹6,500</div>
+  </div>
+  <a aria-label="Order Radar Detection System" class="order-btn" href="index.html?orderProject=Radar%20Detection%20System&orderPrice=6500">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -399,7 +536,13 @@
 <div class="card-meta"><span>PROJECT 22</span><span>ROBOTICS</span></div>
 <h2>Self Balancing Robot</h2>
 <p>Uses motion sensing and motor control to maintain balance.</p>
-<a aria-label="Order Self Balancing Robot" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹6,500</div>
+  </div>
+  <a aria-label="Order Self Balancing Robot" class="order-btn" href="index.html?orderProject=Self%20Balancing%20Robot&orderPrice=6500">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -412,7 +555,13 @@
 <div class="card-meta"><span>PROJECT 23</span><span>SECURITY SYSTEMS</span></div>
 <h2>RFID Based Security System</h2>
 <p>Provides tag-based identification and access control.</p>
-<a aria-label="Order RFID Based Security System" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹4,500</div>
+  </div>
+  <a aria-label="Order RFID Based Security System" class="order-btn" href="index.html?orderProject=RFID%20Based%20Security%20System&orderPrice=4500">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -425,7 +574,13 @@
 <div class="card-meta"><span>PROJECT 24</span><span>IOT &amp; ENERGY</span></div>
 <h2>Smart Energy Meter</h2>
 <p>Measures electrical usage and presents consumption data.</p>
-<a aria-label="Order Smart Energy Meter" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹5,200</div>
+  </div>
+  <a aria-label="Order Smart Energy Meter" class="order-btn" href="index.html?orderProject=Smart%20Energy%20Meter&orderPrice=5200">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -438,7 +593,13 @@
 <div class="card-meta"><span>PROJECT 25</span><span>EMBEDDED SYSTEMS</span></div>
 <h2>Automatic Railway Gate</h2>
 <p>Demonstrates sensor-based railway crossing gate automation.</p>
-<a aria-label="Order Automatic Railway Gate" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹5,800</div>
+  </div>
+  <a aria-label="Order Automatic Railway Gate" class="order-btn" href="index.html?orderProject=Automatic%20Railway%20Gate&orderPrice=5800">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -451,7 +612,13 @@
 <div class="card-meta"><span>PROJECT 26</span><span>EMBEDDED SYSTEMS</span></div>
 <h2>Bluetooth Notice Display</h2>
 <p>Updates a scrolling display using a wireless connection.</p>
-<a aria-label="Order Bluetooth Notice Display" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹5,800</div>
+  </div>
+  <a aria-label="Order Bluetooth Notice Display" class="order-btn" href="index.html?orderProject=Bluetooth%20Notice%20Display&orderPrice=5800">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -464,7 +631,13 @@
 <div class="card-meta"><span>PROJECT 27</span><span>IOT &amp; AUTOMATION</span></div>
 <h2>Water Level Controller</h2>
 <p>Monitors tank level and controls a pump automatically.</p>
-<a aria-label="Order Water Level Controller" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹5,200</div>
+  </div>
+  <a aria-label="Order Water Level Controller" class="order-btn" href="index.html?orderProject=Water%20Level%20Controller&orderPrice=5200">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -477,7 +650,13 @@
 <div class="card-meta"><span>PROJECT 28</span><span>AGRI-TECH</span></div>
 <h2>Cattle Tracking Concept</h2>
 <p>A prototype concept for locating tagged grazing animals.</p>
-<a aria-label="Order Cattle Tracking Concept" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹4,800</div>
+  </div>
+  <a aria-label="Order Cattle Tracking Concept" class="order-btn" href="index.html?orderProject=Cattle%20Tracking%20Concept&orderPrice=4800">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -490,7 +669,13 @@
 <div class="card-meta"><span>PROJECT 29</span><span>AI &amp; COMPUTER VISION</span></div>
 <h2>AI Object Detection Demo</h2>
 <p>Identifies selected objects using a camera and vision model.</p>
-<a aria-label="Order AI Object Detection Demo" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹4,500</div>
+  </div>
+  <a aria-label="Order AI Object Detection Demo" class="order-btn" href="index.html?orderProject=AI%20Object%20Detection%20Demo&orderPrice=4500">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 <article class="project-card">
@@ -503,7 +688,13 @@
 <div class="card-meta"><span>PROJECT 30</span><span>CUSTOM ENGINEERING</span></div>
 <h2>Custom Embedded Prototype</h2>
 <p>A configurable hardware and firmware build for a defined requirement.</p>
-<a aria-label="Order Custom Embedded Prototype" class="order-btn" href="index.html#project">ORDER NOW <span>↗</span></a>
+<div class="card-action">
+  <div class="card-price">
+    <small>BUILD PRICE</small>
+    <div class="price-val">₹4,500</div>
+  </div>
+  <a aria-label="Order Custom Embedded Prototype" class="order-btn" href="index.html?orderProject=Custom%20Embedded%20Prototype&orderPrice=4500">ORDER NOW <span>↗</span></a>
+</div>
 </div>
 </article>
 </section>
@@ -532,10 +723,16 @@
       var card = button.closest('.project-card');
       var title = card && card.querySelector('.card-info h2');
       var projectName = title ? title.textContent.trim() : 'Selected Project';
-      button.href = 'index.html?orderProject=' + encodeURIComponent(projectName);
+      var priceEl = card && card.querySelector('.price-val');
+      var price = priceEl ? priceEl.textContent.replace(/\D/g, '') : '';
+      button.href = 'index.html?orderProject=' + encodeURIComponent(projectName) + (price ? '&orderPrice=' + price : '');
       button.addEventListener('click', function(){
-        try { sessionStorage.setItem('vxPendingProjectOrder', projectName); } catch(e) {}
+        try {
+          sessionStorage.setItem('vxPendingProjectOrder', projectName);
+          if (price) sessionStorage.setItem('vxPendingProjectPrice', price);
+        } catch(e) {}
       });
+    });
     });
   </script>
 </body>
