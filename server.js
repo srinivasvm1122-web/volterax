@@ -26,6 +26,7 @@ async function initDb(){
       console.log('[VolteraX] Supabase PostgreSQL connected and store loaded!');
       return;
     }catch(err){
+      globalThis.__lastDbError = err.message + ' | stack: ' + err.stack;
       console.error('[VolteraX] Supabase init failed, running with memory store:', err.message);
     }
   }
@@ -81,6 +82,7 @@ async function route(req,res){
  try{
   await ensureDb();
   const u=new URL(req.url,'http://localhost');const p=u.pathname;
+  if(req.method==='GET'&&p==='/api/diag'){return json(res,200,{hasPgPool:!!pgPool,hasPgModule:!!PgPool,users:db.users.length,orders:db.orders.length,dbError:globalThis.__lastDbError||null})}
   if(req.method==='GET'&&p==='/api/customer/me'){const c=customer(req);return c?json(res,200,customerBundle(c)):json(res,401,{error:'Not logged in'})}
   if(req.method==='POST'&&p==='/api/customer/signup'){const x=await body(req);const name=String(x.name||'').trim(),mobile=String(x.mobile||'').replace(/\D/g,''),password=String(x.password||''),ref=String(x.ref||'').trim().toUpperCase();if(name.length<2||!/^[0-9]{10}$/.test(mobile)||password.length<8||!/[A-Za-z]/.test(password)||!/\d/.test(password))return json(res,400,{error:'Invalid signup details.'});if(db.users.some(v=>v.mobile===mobile))return json(res,409,{error:'Mobile already registered. Please sign in.'});if(ref&&!db.users.some(v=>v.ref===ref))return json(res,400,{error:'Referral code not found.'});const hp=hashPassword(password);const idv=id('VX');const user={id:idv,name,mobile,passwordHash:hp.hash,passwordSalt:hp.salt,ref:'VX'+crypto.randomBytes(4).toString('hex').toUpperCase(),referredBy:ref||null,createdAt:now(),lastLoginAt:now()};db.users.push(user);const sid=crypto.randomBytes(32).toString('hex');db.sessions[sid]={userId:idv,expires:Date.now()+SESSION_TTL};save();return json(res,200,customerBundle(user),{'Set-Cookie':cookie('vx_session',sid,SESSION_TTL/1000)})}
   if(req.method==='POST'&&p==='/api/customer/login'){const x=await body(req);const mobile=String(x.mobile||'').replace(/\D/g,''),password=String(x.password||'');const user=db.users.find(v=>v.mobile===mobile);if(!user||!checkPassword(password,user))return json(res,401,{error:'Incorrect mobile number or password.'});user.lastLoginAt=now();const sid=crypto.randomBytes(32).toString('hex');db.sessions[sid]={userId:user.id,expires:Date.now()+SESSION_TTL};save();return json(res,200,customerBundle(user),{'Set-Cookie':cookie('vx_session',sid,SESSION_TTL/1000)})}
