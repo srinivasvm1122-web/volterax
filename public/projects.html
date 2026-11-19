@@ -98,6 +98,7 @@
 <a href="index.html#origin">ORIGIN</a>
 <a class="active" href="projects.html">PROJECTS STORE</a>
 <a href="index.html#connect">CONNECT</a>
+<a class="accountLink" href="index.html?volteraxAccount=1" style="padding:10px 14px;border:1px solid rgba(0,229,255,.5);border-radius:999px;color:#00E5FF;font:10px monospace;letter-spacing:.14em;font-weight:700">ACCOUNT 👤</a>
 <a class="nav-cta" href="index.html#project">ORDER BUILD ↗</a>
 </div>
 </nav>
@@ -531,7 +532,7 @@
       var card = button.closest('.project-card');
       var title = card && card.querySelector('.card-info h2');
       var projectName = title ? title.textContent.trim() : 'Selected Project';
-      button.href = 'index.html?volteraxLogin=1&project=' + encodeURIComponent(projectName);
+      button.href = 'index.html?orderProject=' + encodeURIComponent(projectName);
       button.addEventListener('click', function(){
         try { sessionStorage.setItem('vxPendingProjectOrder', projectName); } catch(e) {}
       });

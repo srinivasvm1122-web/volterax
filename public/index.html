@@ -1412,7 +1412,11 @@ if (btn) btn.disabled = false;
 
 <div class="accountBox"><div class="eyebrow">01 / CUSTOMER LOGIN</div><h2>YOUR BUILD.<br>YOUR HUB.</h2><p class="accountMuted">Create your VOLTERAX customer profile, keep your referral identity, and access your project relationship from one place.</p></div>
 
-<div class="accountBox"><h3>Secure customer access</h3><p class="accountMuted">Your customer data is stored server-side. Choose create account for a new profile or sign in to an existing one.</p><div class="refActions" style="margin-top:16px"><button type="button" id="accModeCreate">CREATE ACCOUNT</button><button type="button" id="accModeLogin">SIGN IN</button></div><form id="accountAuthForm" novalidate><div id="accCreateFields"><label class="accountLabel">YOUR NAME</label><input class="accountInput" id="accName" placeholder="Your name"><label class="accountLabel">MOBILE NUMBER</label><input class="accountInput" id="accMobile" inputmode="numeric" placeholder="+91 XXXXX XXXXX"><label class="accountLabel">PASSWORD</label><input class="accountInput" id="accPassword" type="password" autocomplete="new-password" placeholder="8+ chars, letter + number"><label class="accountLabel">REFERRAL CODE (OPTIONAL)</label><input class="accountInput" id="accRef" placeholder="VXCHANDAN25"></div><div id="accLoginFields" style="display:none"><label class="accountLabel">MOBILE NUMBER</label><input class="accountInput" id="accLoginMobile" inputmode="numeric" placeholder="+91 XXXXX XXXXX"><label class="accountLabel">PASSWORD</label><input class="accountInput" id="accLoginPassword" type="password" autocomplete="current-password" placeholder="Your password"></div><button class="accountBtn" id="accLogin" type="submit">CREATE SECURE ACCOUNT ↗</button><div id="accAuthMsg" class="accountNotice" aria-live="polite">🔒 Never share your password, OTP, UPI PIN or card PIN with anyone claiming to be VOLTERAX.</div></form></div>
+<div class="accountBox"><h3>Secure customer access</h3><p class="accountMuted">Your customer data is stored server-side. Choose create account for a new profile or sign in to an existing one.</p><div class="refActions" style="margin-top:16px"><button type="button" id="accModeCreate">CREATE ACCOUNT</button><button type="button" id="accModeLogin">SIGN IN</button></div><div id="accPendingBanner" style="display:none;padding:12px 14px;background:linear-gradient(135deg,rgba(108,59,255,.25),rgba(0,229,255,.15));border:1px solid rgba(0,229,255,.5);border-radius:6px;margin:14px 0 16px;font-size:13px;color:#fff;line-height:1.5">
+  📦 <strong style="color:#00E5FF">Selected Project:</strong> <span id="accPendingTitle" style="font-weight:700"></span>
+  <div id="accPendingSub" style="font-size:11px;opacity:.85;margin-top:4px">Sign in or create your profile below to submit this order directly to the engineering team.</div>
+</div>
+<form id="accountAuthForm" novalidate><div id="accCreateFields"><label class="accountLabel">YOUR NAME</label><input class="accountInput" id="accName" placeholder="Your name"><label class="accountLabel">MOBILE NUMBER</label><input class="accountInput" id="accMobile" inputmode="numeric" placeholder="+91 XXXXX XXXXX"><label class="accountLabel">PASSWORD</label><input class="accountInput" id="accPassword" type="password" autocomplete="new-password" placeholder="8+ chars, letter + number"><label class="accountLabel">REFERRAL CODE (OPTIONAL)</label><input class="accountInput" id="accRef" placeholder="VXCHANDAN25"></div><div id="accLoginFields" style="display:none"><label class="accountLabel">MOBILE NUMBER</label><input class="accountInput" id="accLoginMobile" inputmode="numeric" placeholder="+91 XXXXX XXXXX"><label class="accountLabel">PASSWORD</label><input class="accountInput" id="accLoginPassword" type="password" autocomplete="current-password" placeholder="Your password"></div><button class="accountBtn" id="accLogin" type="submit">CREATE SECURE ACCOUNT ↗</button><div id="accAuthMsg" class="accountNotice" aria-live="polite">🔒 Never share your password, OTP, UPI PIN or card PIN with anyone claiming to be VOLTERAX.</div></form></div>
 
 </div>
 
@@ -1883,675 +1887,451 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
 </script>
 
 <script id="volterax-account-js">
-
 (function() {
-
-const modal = document.getElementById('accountModal');
-
-const loginGrid = document.getElementById('accountLoginGrid');
-
-const dash = document.getElementById('accountDash');
-
-let mode = 'create';
-
-
-
-function escapeHtml(str) {
-
-return String(str ?? '').replace(/[&<>"']/g, c => ({
-
-'&': '&amp;',
-
-'<': '&lt;',
-
-'>': '&gt;',
-
-'"': '&quot;',
-
-"'": '&#39;'
-
-}[c]));
-
-}
-
-
-
-function show(d) {
-
-const a = d.user || d;
-
-loginGrid.style.display = 'none';
-
-dash.classList.add('show');
-
-dash.style.display = 'block';
-
-document.getElementById('accUser').textContent = (a.name || 'CUSTOMER').split(' ')[0].toUpperCase();
-
-document.getElementById('accId').textContent = a.id;
-
-document.getElementById('accCode').textContent = a.ref;
-
-document.getElementById('accBy').textContent = a.referredBy || '—';
-
-document.getElementById('accRefs').textContent = (d.referrals || []).length;
-
-document.getElementById('accEarn').textContent = '₹' + ((d.earningsPaise || 0) / 100).toFixed(2);
-
-
-
-const nameInput = document.getElementById('profileName');
-
-const emailInput = document.getElementById('profileEmail');
-
-const mobileInput = document.getElementById('profileMobile');
-
-if (nameInput) nameInput.value = a.name || '';
-
-if (emailInput) emailInput.value = a.email || '';
-
-if (mobileInput) mobileInput.value = a.mobile || '';
-
-
-
-const statusColors = {
-
-pending: '#f59e0b',
-
-confirmed: '#3b82f6',
-
-processing: '#8b5cf6',
-
-completed: '#10b981',
-
-cancelled: '#ef4444'
-
-};
-
-
-
-const orders = d.orders || [];
-
-document.getElementById('accOrders').innerHTML = orders.length ?
-
-orders.map(o => {
-
-const col = statusColors[o.status] || '#94a3b8';
-
-return '<div style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08)"><b>' + escapeHtml(o.order_id || o.id) + '</b><br><strong style="font-size:15px">' + escapeHtml(o.title || 'Project') + '</strong><br><span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid ' + col + ';color:' + col + ';margin:4px 0">' + escapeHtml((o.status || 'pending').toUpperCase()) + '</span> · ₹' + ((o.amount_paise || 0) / 100).toLocaleString('en-IN', {minimumFractionDigits:2}) + (o.details ? '<br><span style="opacity:.7;font-size:12px">' + escapeHtml(o.details.slice(0, 200)) + '</span>' : '') + '</div>';
-
-}).join('') :
-
-'No orders yet.';
-
-
-
-const refs = d.referrals || [];
-
-document.getElementById('accReferralList').innerHTML = refs.length ?
-
-refs.map(r => '<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08)"><b>' + escapeHtml(r.name) + '</b><br><span style="opacity:.7;font-size:12px">' + escapeHtml(r.status) + '</span></div>').join('') :
-
-'No referrals yet.';
-
-}
-
-
-
-function runPendingAction() {
-
-const fn = window.volteraxPendingContactAction;
-
-window.volteraxPendingContactAction = null;
-
-if (typeof fn === 'function') setTimeout(() => fn(window.volteraxAccountData?.user || {}), 0);
-
-}
-
-
-
-function open(preferredMode) {
-
-if (preferredMode) setMode(preferredMode);
-
-modal.classList.add('open');
-
-modal.setAttribute('aria-hidden', 'false');
-
-document.body.style.overflow = 'hidden';
-
-if (window.volteraxHasAccount && window.volteraxHasAccount() && window.volteraxAccountData) {
-
-show(window.volteraxAccountData);
-
-} else {
-
-loginGrid.style.display = 'grid';
-
-dash.classList.remove('show');
-
-dash.style.display = 'none';
-
-if (!preferredMode) setMode('create');
-
-}
-
-setTimeout(() => {
-
-const el = document.getElementById(mode === 'create' ? 'accName' : 'accLoginMobile');
-
-el?.focus();
-
-}, 80);
-
-}
-
-
-
-function close() {
-
-modal.classList.remove('open');
-
-modal.setAttribute('aria-hidden', 'true');
-
-document.body.style.overflow = '';
-
-}
-
-
-
-function setMode(m) {
-
-mode = m;
-
-loginGrid.style.display = 'grid';
-
-dash.classList.remove('show');
-
-dash.style.display = 'none';
-
-document.getElementById('accCreateFields').style.display = m === 'create' ? 'block' : 'none';
-
-document.getElementById('accLoginFields').style.display = m === 'login' ? 'block' : 'none';
-
-document.getElementById('accLogin').textContent = m === 'create' ? 'CREATE SECURE ACCOUNT ↗' : 'SIGN IN SECURELY ↗';
-
-document.getElementById('accAuthMsg').textContent = '🔒 Secure server-side authentication. Never share your password or OTP with anyone.';
-
-}
-
-
-
-window.volteraxOpenAccount = open;
-
-window.volteraxCloseAccount = close;
-
-
-
-document.querySelectorAll('.accountLink').forEach(a => {
-
-a.setAttribute('href', '#accountModal');
-
-a.addEventListener('click', e => {
-
-e.preventDefault();
-
-open();
-
-});
-
-});
-
-
-
-const closeBtn = document.getElementById('accountClose');
-
-if (closeBtn) closeBtn.onclick = close;
-
-modal.addEventListener('click', e => {
-
-if (e.target === modal) close();
-
-});
-
-
-
-document.getElementById('accModeCreate').onclick = () => setMode('create');
-
-document.getElementById('accModeLogin').onclick = () => setMode('login');
-
-
-
-// Submit Handler for Signup & Login
-
-document.getElementById('accountAuthForm').addEventListener('submit', async e => {
-
-e.preventDefault();
-
-const msg = document.getElementById('accAuthMsg');
-
-const btn = document.getElementById('accLogin');
-
-msg.textContent = 'SECURING YOUR ACCOUNT…';
-
-btn.disabled = true;
-
-
-
-try {
-
-if (mode === 'create') {
-
-const name = document.getElementById('accName').value.trim();
-
-const mobile = document.getElementById('accMobile').value.replace(/\D/g, '');
-
-const password = document.getElementById('accPassword').value;
-
-const ref = (document.getElementById('accRef').value.trim() || sessionStorage.getItem('volteraxIncomingReferral') || '').toUpperCase();
-
-
-
-if (name.length < 2) throw new Error('Please enter your full name (2+ characters).');
-
-if (!/^\d{10}$/.test(mobile)) throw new Error('Please enter a valid 10-digit mobile number.');
-
-if (password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
-
-throw new Error('Password must be at least 8 characters with letters and numbers.');
-
-}
-
-
-
-const res = await fetch('/api/customer/signup', {
-
-method: 'POST',
-
-headers: { 'Content-Type': 'application/json' },
-
-credentials: 'same-origin',
-
-body: JSON.stringify({ name, mobile, password, ref })
-
-});
-
-const data = await res.json();
-
-if (!res.ok) throw new Error(data.error || 'Registration failed.');
-
-
-
-window.volteraxAccountData = data;
-
-if (window.volteraxSetAccount) window.volteraxSetAccount(data);
-
-show(data);
-
-runPendingAction();
-
-} else {
-
-const mobile = document.getElementById('accLoginMobile').value.replace(/\D/g, '');
-
-const password = document.getElementById('accLoginPassword').value;
-
-
-
-if (!/^\d{10}$/.test(mobile)) throw new Error('Please enter your registered 10-digit mobile number.');
-
-if (!password) throw new Error('Please enter your password.');
-
-
-
-const res = await fetch('/api/customer/login', {
-
-method: 'POST',
-
-headers: { 'Content-Type': 'application/json' },
-
-credentials: 'same-origin',
-
-body: JSON.stringify({ mobile, password })
-
-});
-
-const data = await res.json();
-
-if (!res.ok) throw new Error(data.error || 'Login failed.');
-
-
-
-window.volteraxAccountData = data;
-
-if (window.volteraxSetAccount) window.volteraxSetAccount(data);
-
-show(data);
-
-runPendingAction();
-
-}
-
-} catch (err) {
-
-msg.textContent = '✕ ' + err.message;
-
-} finally {
-
-btn.disabled = false;
-
-}
-
-});
-
-
-
-// Logout Handler
-
-const logoutBtn = document.getElementById('accLogout');
-
-if (logoutBtn) {
-
-logoutBtn.onclick = async () => {
-
-try {
-
-await fetch('/api/customer/logout', { method: 'POST', credentials: 'same-origin' });
-
-} catch (_) {}
-
-window.volteraxAccountData = null;
-
-if (window.volteraxSetAccount) window.volteraxSetAccount(null);
-
-setMode('login');
-
-loginGrid.style.display = 'grid';
-
-dash.classList.remove('show');
-
-dash.style.display = 'none';
-
-document.getElementById('accAuthMsg').textContent = 'You have logged out successfully.';
-
-};
-
-}
-
-
-
-// Copy and Share Referral Code
-
-document.getElementById('copyRef')?.addEventListener('click', () => {
-
-const code = document.getElementById('accCode').textContent;
-
-navigator.clipboard?.writeText(code);
-
-alert('Referral code ' + code + ' copied to clipboard!');
-
-});
-
-
-
-document.getElementById('shareRef')?.addEventListener('click', () => {
-
-const code = document.getElementById('accCode').textContent;
-
-const shareUrl = location.origin + '/?ref=' + encodeURIComponent(code);
-
-if (navigator.share) {
-
-navigator.share({ title: 'VOLTERAX', text: 'Build your hardware engineering prototype with VOLTERAX. Use my referral code: ' + code, url: shareUrl }).catch(() => {});
-
-} else {
-
-navigator.clipboard?.writeText(shareUrl);
-
-alert('Referral link copied to clipboard:\n' + shareUrl);
-
-}
-
-});
-
-
-
-// Place Project Order Handler
-
-const orderForm = document.getElementById('accOrderForm');
-
-if (orderForm) {
-
-orderForm.addEventListener('submit', async e => {
-
-e.preventDefault();
-
-const title = document.getElementById('newOrderTitle').value.trim();
-
-const amount = Number(document.getElementById('newOrderAmount').value || 0);
-
-const details = document.getElementById('newOrderDetails').value.trim();
-
-const msg = document.getElementById('orderStatusMsg');
-
-const btn = document.getElementById('btnPlaceOrder');
-
-
-
-if (!title || title.length < 2) {
-
-msg.style.display = 'block';
-
-msg.style.color = '#ef4444';
-
-msg.textContent = 'Please enter a project title (at least 2 characters).';
-
-return;
-
-}
-
-
-
-msg.style.display = 'block';
-
-msg.style.color = '#784cff';
-
-msg.textContent = 'Submitting project order to VolteraX…';
-
-btn.disabled = true;
-
-
-
-try {
-
-const res = await fetch('/api/customer/order', {
-
-method: 'POST',
-
-headers: { 'Content-Type': 'application/json' },
-
-credentials: 'same-origin',
-
-body: JSON.stringify({
-
-title,
-
-amount_paise: Math.round(amount * 100),
-
-details
-
-})
-
-});
-
-const data = await res.json();
-
-if (!res.ok) throw new Error(data.error || 'Failed to submit order.');
-
-
-
-msg.style.color = '#10b981';
-
-msg.textContent = '✓ Order ' + (data.order?.order_id || '') + ' placed successfully! Our engineering team will review it.';
-
-document.getElementById('newOrderTitle').value = '';
-
-document.getElementById('newOrderAmount').value = '';
-
-document.getElementById('newOrderDetails').value = '';
-
-
-
-// Re-fetch customer bundle to refresh orders
-
-const meRes = await fetch('/api/customer/me', { credentials: 'same-origin' });
-
-if (meRes.ok) {
-
-const freshData = await meRes.json();
-
-window.volteraxAccountData = freshData;
-
-show(freshData);
-
-}
-
-} catch (err) {
-
-msg.style.color = '#ef4444';
-
-msg.textContent = '✕ ' + err.message;
-
-} finally {
-
-btn.disabled = false;
-
-}
-
-});
-
-}
-
-
-
-// Profile Update Handler
-
-const profileForm = document.getElementById('accProfileForm');
-
-if (profileForm) {
-
-profileForm.addEventListener('submit', async e => {
-
-e.preventDefault();
-
-const name = document.getElementById('profileName').value.trim();
-
-const email = document.getElementById('profileEmail').value.trim();
-
-const msg = document.getElementById('profileStatusMsg');
-
-const btn = document.getElementById('btnSaveProfile');
-
-
-
-if (name.length < 2) {
-
-msg.style.display = 'block';
-
-msg.style.color = '#ef4444';
-
-msg.textContent = 'Name must be at least 2 characters.';
-
-return;
-
-}
-
-
-
-msg.style.display = 'block';
-
-msg.style.color = '#784cff';
-
-msg.textContent = 'Saving profile details…';
-
-btn.disabled = true;
-
-
-
-try {
-
-const res = await fetch('/api/customer/profile', {
-
-method: 'PATCH',
-
-headers: { 'Content-Type': 'application/json' },
-
-credentials: 'same-origin',
-
-body: JSON.stringify({ name, email })
-
-});
-
-const data = await res.json();
-
-if (!res.ok) throw new Error(data.error || 'Failed to update profile.');
-
-
-
-msg.style.color = '#10b981';
-
-msg.textContent = '✓ Profile details saved successfully!';
-
-window.volteraxAccountData = data;
-
-show(data);
-
-} catch (err) {
-
-msg.style.color = '#ef4444';
-
-msg.textContent = '✕ ' + err.message;
-
-} finally {
-
-btn.disabled = false;
-
-}
-
-});
-
-}
-
-
-
-window.volteraxOrderProject = function(presetTitle) {
-
-open();
-
-if (presetTitle) {
-
-setTimeout(() => {
-
-const t = document.getElementById('newOrderTitle');
-
-if (t) {
-
-t.value = presetTitle;
-
-t.scrollIntoView({ behavior: 'smooth' });
-
-t.focus();
-
-}
-
-}, 150);
-
-}
-
-};
-
+  const modal = document.getElementById('accountModal');
+  const loginGrid = document.getElementById('accountLoginGrid');
+  const dash = document.getElementById('accountDash');
+  let mode = 'create';
+
+  function escapeHtml(str) {
+    return String(str ?? '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  function cleanMobile(v) {
+    let m = String(v || '').replace(/\D/g, '');
+    if (m.length === 12 && m.startsWith('91')) m = m.slice(2);
+    if (m.length === 11 && m.startsWith('0')) m = m.slice(1);
+    return m;
+  }
+
+  function updateNavForUser(u) {
+    document.querySelectorAll('.accountLink').forEach(a => {
+      if (u) {
+        a.innerHTML = '👤 ' + escapeHtml(u.name.split(' ')[0].toUpperCase()) + ' ↗';
+        a.style.borderColor = '#00E5FF';
+        a.style.color = '#00E5FF';
+        a.style.boxShadow = '0 0 12px rgba(0,229,255,.25)';
+      } else {
+        a.innerHTML = 'ACCOUNT ↗';
+        a.style.borderColor = '';
+        a.style.color = '';
+        a.style.boxShadow = '';
+      }
+    });
+  }
+
+  function fillPendingProject() {
+    let pending = null, price = null;
+    try {
+      pending = sessionStorage.getItem('vxPendingProjectOrder');
+      price = sessionStorage.getItem('vxPendingProjectPrice');
+    } catch(e) {}
+    if (!pending) {
+      const p = new URLSearchParams(window.location.search);
+      pending = p.get('project') || p.get('orderProject');
+      price = p.get('price') || p.get('orderPrice');
+    }
+    if (pending) {
+      const titleInput = document.getElementById('newOrderTitle');
+      const amountInput = document.getElementById('newOrderAmount');
+      const detailsInput = document.getElementById('newOrderDetails');
+      if (titleInput) titleInput.value = pending;
+      if (amountInput && price) amountInput.value = price;
+      if (detailsInput && !detailsInput.value) detailsInput.value = 'Requesting custom engineering prototype for: ' + pending;
+
+      const orderBox = document.getElementById('accOrderBox');
+      if (orderBox) {
+        setTimeout(() => {
+          orderBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          orderBox.style.transition = 'box-shadow .4s';
+          orderBox.style.boxShadow = '0 0 35px rgba(0,229,255,.7), inset 0 0 20px rgba(108,59,255,.3)';
+          setTimeout(() => { orderBox.style.boxShadow = ''; }, 3000);
+        }, 250);
+      }
+      try {
+        sessionStorage.removeItem('vxPendingProjectOrder');
+        sessionStorage.removeItem('vxPendingProjectPrice');
+      } catch(e) {}
+    }
+  }
+
+  function show(d) {
+    const a = d.user || d;
+    loginGrid.style.display = 'none';
+    dash.classList.add('show');
+    dash.style.display = 'block';
+    document.getElementById('accUser').textContent = (a.name || 'CUSTOMER').split(' ')[0].toUpperCase();
+    document.getElementById('accId').textContent = a.id;
+    document.getElementById('accCode').textContent = a.ref;
+    document.getElementById('accBy').textContent = a.referredBy || '—';
+    document.getElementById('accRefs').textContent = (d.referrals || []).length;
+    document.getElementById('accEarn').textContent = '₹' + ((d.earningsPaise || 0) / 100).toFixed(2);
+
+    const nameInput = document.getElementById('profileName');
+    const emailInput = document.getElementById('profileEmail');
+    const mobileInput = document.getElementById('profileMobile');
+    if (nameInput) nameInput.value = a.name || '';
+    if (emailInput) emailInput.value = a.email || '';
+    if (mobileInput) mobileInput.value = a.mobile || '';
+
+    updateNavForUser(a);
+
+    const statusColors = {
+      pending: '#f59e0b',
+      confirmed: '#3b82f6',
+      processing: '#8b5cf6',
+      completed: '#10b981',
+      cancelled: '#ef4444'
+    };
+
+    const orders = d.orders || [];
+    document.getElementById('accOrders').innerHTML = orders.length ?
+      orders.map(o => {
+        const col = statusColors[o.status] || '#94a3b8';
+        return '<div style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08)"><b>' + escapeHtml(o.order_id || o.id) + '</b><br><strong style="font-size:15px">' + escapeHtml(o.title || 'Project') + '</strong><br><span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid ' + col + ';color:' + col + ';margin:4px 0">' + escapeHtml((o.status || 'pending').toUpperCase()) + '</span> · ₹' + ((o.amount_paise || 0) / 100).toLocaleString('en-IN', {minimumFractionDigits:2}) + (o.details ? '<br><span style="opacity:.7;font-size:12px">' + escapeHtml(o.details.slice(0, 200)) + '</span>' : '') + '</div>';
+      }).join('') :
+      'No orders yet. Place your first project order below!';
+
+    const refs = d.referrals || [];
+    document.getElementById('accReferralList').innerHTML = refs.length ?
+      refs.map(r => '<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08)"><b>' + escapeHtml(r.name) + '</b><br><span style="opacity:.7;font-size:12px">' + escapeHtml(r.status) + '</span></div>').join('') :
+      'No referrals yet.';
+
+    fillPendingProject();
+  }
+
+  function runPendingAction() {
+    const fn = window.volteraxPendingContactAction;
+    window.volteraxPendingContactAction = null;
+    if (typeof fn === 'function') setTimeout(() => fn(window.volteraxAccountData?.user || {}), 0);
+  }
+
+  function open(preferredMode) {
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+
+    let pending = null;
+    try { pending = sessionStorage.getItem('vxPendingProjectOrder'); } catch(e) {}
+    if (!pending) {
+      const p = new URLSearchParams(window.location.search);
+      pending = p.get('project') || p.get('orderProject');
+    }
+    const banner = document.getElementById('accPendingBanner');
+    const pTitle = document.getElementById('accPendingTitle');
+    if (banner && pTitle) {
+      if (pending && (!window.volteraxHasAccount || !window.volteraxHasAccount())) {
+        pTitle.textContent = pending;
+        banner.style.display = 'block';
+      } else {
+        banner.style.display = 'none';
+      }
+    }
+
+    if (window.volteraxHasAccount && window.volteraxHasAccount() && window.volteraxAccountData) {
+      show(window.volteraxAccountData);
+    } else {
+      loginGrid.style.display = 'grid';
+      dash.classList.remove('show');
+      dash.style.display = 'none';
+      setMode(preferredMode || 'create');
+    }
+
+    setTimeout(() => {
+      const el = document.getElementById(mode === 'create' ? 'accName' : 'accLoginMobile');
+      el?.focus();
+    }, 80);
+  }
+
+  function close() {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  function setMode(m) {
+    mode = m;
+    loginGrid.style.display = 'grid';
+    dash.classList.remove('show');
+    dash.style.display = 'none';
+    document.getElementById('accCreateFields').style.display = m === 'create' ? 'block' : 'none';
+    document.getElementById('accLoginFields').style.display = m === 'login' ? 'block' : 'none';
+
+    const btnCreate = document.getElementById('accModeCreate');
+    const btnLogin = document.getElementById('accModeLogin');
+    if (btnCreate && btnLogin) {
+      if (m === 'create') {
+        btnCreate.style.background = '#6C3BFF';
+        btnCreate.style.color = '#fff';
+        btnCreate.style.borderColor = '#00E5FF';
+        btnCreate.style.boxShadow = '0 0 16px rgba(108,59,255,.55)';
+        btnLogin.style.background = 'transparent';
+        btnLogin.style.color = '#9da0ad';
+        btnLogin.style.borderColor = 'rgba(255,255,255,.15)';
+        btnLogin.style.boxShadow = 'none';
+        document.getElementById('accLogin').textContent = 'CREATE SECURE ACCOUNT ↗';
+      } else {
+        btnLogin.style.background = '#6C3BFF';
+        btnLogin.style.color = '#fff';
+        btnLogin.style.borderColor = '#00E5FF';
+        btnLogin.style.boxShadow = '0 0 16px rgba(108,59,255,.55)';
+        btnCreate.style.background = 'transparent';
+        btnCreate.style.color = '#9da0ad';
+        btnCreate.style.borderColor = 'rgba(255,255,255,.15)';
+        btnCreate.style.boxShadow = 'none';
+        document.getElementById('accLogin').textContent = 'SIGN IN SECURELY ↗';
+      }
+    }
+  }
+
+  window.volteraxOpenAccount = open;
+  window.volteraxCloseAccount = close;
+
+  document.querySelectorAll('.accountLink').forEach(a => {
+    a.setAttribute('href', '#accountModal');
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      open();
+    });
+  });
+
+  const closeBtn = document.getElementById('accountClose');
+  if (closeBtn) closeBtn.onclick = close;
+  modal.addEventListener('click', e => {
+    if (e.target === modal) close();
+  });
+
+  document.getElementById('accModeCreate').onclick = () => setMode('create');
+  document.getElementById('accModeLogin').onclick = () => setMode('login');
+
+  // Submit Handler for Signup & Login
+  document.getElementById('accountAuthForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const msg = document.getElementById('accAuthMsg');
+    const btn = document.getElementById('accLogin');
+    msg.style.display = 'block';
+    msg.style.color = '#00E5FF';
+    msg.textContent = 'SECURING YOUR ACCOUNT…';
+    btn.disabled = true;
+
+    try {
+      if (mode === 'create') {
+        const name = document.getElementById('accName').value.trim();
+        const rawMobile = document.getElementById('accMobile').value;
+        const mobile = cleanMobile(rawMobile);
+        const password = document.getElementById('accPassword').value;
+        const ref = (document.getElementById('accRef').value.trim() || sessionStorage.getItem('volteraxIncomingReferral') || '').toUpperCase();
+
+        if (name.length < 2) throw new Error('Please enter your full name (2+ characters).');
+        if (!/^\d{10}$/.test(mobile)) throw new Error('Please enter a valid 10-digit mobile number (e.g. 9845012345).');
+        if (password.length < 6) throw new Error('Password must be at least 6 characters.');
+
+        const res = await fetch('/api/customer/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ name, mobile, password, ref })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Registration failed.');
+
+        msg.style.color = '#10b981';
+        msg.textContent = '✓ Account created successfully! Logging you in…';
+        setTimeout(() => {
+          window.volteraxAccountData = data;
+          if (window.volteraxSetAccount) window.volteraxSetAccount(data);
+          show(data);
+          runPendingAction();
+        }, 300);
+      } else {
+        const rawMobile = document.getElementById('accLoginMobile').value;
+        const mobile = cleanMobile(rawMobile);
+        const password = document.getElementById('accLoginPassword').value;
+
+        if (!/^\d{10}$/.test(mobile)) throw new Error('Please enter your registered 10-digit mobile number.');
+        if (!password) throw new Error('Please enter your password.');
+
+        const res = await fetch('/api/customer/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ mobile, password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Login failed. Please check your credentials.');
+
+        msg.style.color = '#10b981';
+        msg.textContent = '✓ Signed in successfully! Loading dashboard…';
+        setTimeout(() => {
+          window.volteraxAccountData = data;
+          if (window.volteraxSetAccount) window.volteraxSetAccount(data);
+          show(data);
+          runPendingAction();
+        }, 300);
+      }
+    } catch (err) {
+      msg.style.color = '#ef4444';
+      msg.textContent = '✕ ' + err.message;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // Logout Handler
+  const logoutBtn = document.getElementById('accLogout');
+  if (logoutBtn) {
+    logoutBtn.onclick = async () => {
+      try {
+        await fetch('/api/customer/logout', { method: 'POST', credentials: 'same-origin' });
+      } catch (_) {}
+      window.volteraxAccountData = null;
+      if (window.volteraxSetAccount) window.volteraxSetAccount(null);
+      updateNavForUser(null);
+      setMode('login');
+      loginGrid.style.display = 'grid';
+      dash.classList.remove('show');
+      dash.style.display = 'none';
+      document.getElementById('accAuthMsg').textContent = 'You have logged out successfully.';
+    };
+  }
+
+  // Copy and Share Referral Code
+  document.getElementById('copyRef')?.addEventListener('click', () => {
+    const code = document.getElementById('accCode').textContent;
+    navigator.clipboard?.writeText(code);
+    alert('Referral code ' + code + ' copied to clipboard!');
+  });
+
+  document.getElementById('shareRef')?.addEventListener('click', () => {
+    const code = document.getElementById('accCode').textContent;
+    const shareUrl = location.origin + '/?ref=' + encodeURIComponent(code);
+    if (navigator.share) {
+      navigator.share({ title: 'VOLTERAX', text: 'Build your hardware engineering prototype with VOLTERAX. Use my referral code: ' + code, url: shareUrl }).catch(() => {});
+    } else {
+      navigator.clipboard?.writeText(shareUrl);
+      alert('Referral link copied to clipboard:\n' + shareUrl);
+    }
+  });
+
+  // Place Project Order Handler
+  const orderForm = document.getElementById('accOrderForm');
+  if (orderForm) {
+    orderForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const title = document.getElementById('newOrderTitle').value.trim();
+      const amount = Number(document.getElementById('newOrderAmount').value || 0);
+      const details = (document.getElementById('newOrderDetails').value || '').trim();
+      const msg = document.getElementById('orderStatusMsg');
+      const btn = document.getElementById('btnPlaceOrder');
+
+      if (!title || title.length < 2) {
+        msg.style.display = 'block';
+        msg.style.color = '#ef4444';
+        msg.textContent = 'Please enter a project title (at least 2 characters).';
+        return;
+      }
+
+      msg.style.display = 'block';
+      msg.style.color = '#00E5FF';
+      msg.textContent = 'Submitting project order to VolteraX…';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/customer/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({
+            title,
+            amount_paise: Math.round(amount * 100),
+            details: details || ('Custom order for ' + title)
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to submit order.');
+
+        msg.style.color = '#10b981';
+        const orderId = data.order?.order_id || data.order?.id || 'SUBMITTED';
+        msg.innerHTML = '✓ <strong>Order ' + escapeHtml(orderId) + ' submitted successfully!</strong> Our engineering team will review it.';
+        document.getElementById('newOrderTitle').value = '';
+        document.getElementById('newOrderAmount').value = '';
+        document.getElementById('newOrderDetails').value = '';
+
+        const meRes = await fetch('/api/customer/me', { credentials: 'same-origin' });
+        if (meRes.ok) {
+          const freshData = await meRes.json();
+          window.volteraxAccountData = freshData;
+          show(freshData);
+        }
+      } catch (err) {
+        msg.style.color = '#ef4444';
+        msg.textContent = '✕ ' + err.message;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  }
+
+  // Profile Update Handler
+  const profileForm = document.getElementById('accProfileForm');
+  if (profileForm) {
+    profileForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const name = document.getElementById('profileName').value.trim();
+      const email = document.getElementById('profileEmail').value.trim();
+      const msg = document.getElementById('profileStatusMsg');
+      const btn = document.getElementById('btnSaveProfile');
+
+      if (name.length < 2) {
+        msg.style.display = 'block';
+        msg.style.color = '#ef4444';
+        msg.textContent = 'Name must be at least 2 characters.';
+        return;
+      }
+
+      msg.style.display = 'block';
+      msg.style.color = '#784cff';
+      msg.textContent = 'Saving profile details…';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/customer/profile', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ name, email })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to update profile.');
+
+        msg.style.color = '#10b981';
+        msg.textContent = '✓ Profile details saved successfully!';
+        window.volteraxAccountData = data;
+        show(data);
+      } catch (err) {
+        msg.style.color = '#ef4444';
+        msg.textContent = '✕ ' + err.message;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  }
+
+  window.volteraxOrderProject = function(presetTitle, presetPrice) {
+    if (presetTitle) {
+      try {
+        sessionStorage.setItem('vxPendingProjectOrder', presetTitle);
+        if (presetPrice) sessionStorage.setItem('vxPendingProjectPrice', presetPrice);
+      } catch(e) {}
+    }
+    open();
+    if (window.volteraxHasAccount && window.volteraxHasAccount()) {
+      fillPendingProject();
+    }
+  };
 })();
-
 </script>
 
 <style id="volterax-secure-contact-style">
@@ -2968,20 +2748,33 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
 <script id="vx-project-order-login-route">
 (function(){
   const params = new URLSearchParams(window.location.search);
-  if (params.get('volteraxLogin') !== '1') return;
-  const projectName = params.get('project');
-  if (projectName) {
-    try { sessionStorage.setItem('vxPendingProjectOrder', projectName); } catch(e) {}
+  const isLogin = params.get('volteraxLogin') === '1';
+  const isAccount = params.get('volteraxAccount') === '1';
+  const project = params.get('project') || params.get('orderProject');
+  const price = params.get('price') || params.get('orderPrice');
+
+  if (project) {
+    try {
+      sessionStorage.setItem('vxPendingProjectOrder', project);
+      if (price) sessionStorage.setItem('vxPendingProjectPrice', price);
+    } catch(e) {}
   }
-  function openLogin(){
-    if (typeof window.volteraxOpenAccount === 'function') {
-      window.volteraxOpenAccount('login');
-    } else {
-      setTimeout(openLogin, 80);
+
+  if (isLogin || isAccount || project) {
+    function launchModal(){
+      if (typeof window.volteraxOpenAccount === 'function') {
+        if (window.volteraxHasAccount && window.volteraxHasAccount()) {
+          window.volteraxOpenAccount();
+        } else {
+          window.volteraxOpenAccount(isLogin ? 'login' : 'create');
+        }
+      } else {
+        setTimeout(launchModal, 80);
+      }
     }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', launchModal, {once:true});
+    else launchModal();
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', openLogin, {once:true});
-  else openLogin();
 })();
 </script>
 
