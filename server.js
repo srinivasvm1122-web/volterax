@@ -10,12 +10,32 @@ const ADMIN_PASSWORD=process.env.ADMIN_PASSWORD||Buffer.from('ODEwNTIyNzY0NA==',
 const SESSION_TTL=1000*60*60*24*7;
 const MONGODB_URI=process.env.MONGODB_URI||'';
 const MONGODB_DB=process.env.MONGODB_DB||'volterax';
+const SUPABASE_URL=process.env.SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL||'https://femxreucbmqfunadljap.supabase.co';
+const SUPABASE_KEY=process.env.SUPABASE_ANON_KEY||process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||'sb_publishable_zkN2gnKmhUXwbGiuorYyKQ_-mURTLot';
 const DATABASE_URL=process.env.DATABASE_URL||process.env.SUPABASE_DB_URL||DEFAULT_DB;
-const pgPool=DATABASE_URL&&PgPool?new PgPool({connectionString:DATABASE_URL,ssl:{rejectUnauthorized:false},connectionTimeoutMillis:5000,idleTimeoutMillis:10000}):null;
+const pgPool=DATABASE_URL&&PgPool?new PgPool({connectionString:DATABASE_URL,ssl:{rejectUnauthorized:false},connectionTimeoutMillis:4000,idleTimeoutMillis:10000}):null;
 const mongoClient=MONGODB_URI?new MongoClient(MONGODB_URI):null;
 let db=blank(),storeDoc;
-function blank(){return {users:[],orders:[],feedback:[],leads:[],sessions:{},adminSessions:{}}}
+function blank(){return {users:[],orders:[],feedback:[],leads:[],sessions:{},adminSessions:{},projects:[]}}
 async function initDb(){
+  if(SUPABASE_URL&&SUPABASE_KEY){
+    try{
+      const res=await fetch(`${SUPABASE_URL}/rest/v1/volterax_store?id=eq.main&select=*`,{
+        headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}
+      });
+      if(res.ok){
+        const rows=await res.json();
+        if(rows&&rows.length>0&&rows[0].data){
+          db=rows[0].data;
+          for(const k of Object.keys(blank()))if(db[k]==null)db[k]=blank()[k];
+          console.log(`[VolteraX] Supabase REST connected! Users: ${db.users.length}, Orders: ${db.orders.length}, Projects: ${db.projects?.length||0}`);
+          return;
+        }
+      }
+    }catch(err){
+      console.error('[VolteraX] Supabase REST init failed:', err.message);
+    }
+  }
   if(pgPool){
     try{
       console.log('[VolteraX] Connecting to Supabase PostgreSQL...');
@@ -50,14 +70,25 @@ async function initDb(){
 let saveQueue=Promise.resolve();
 function save(){
   const snapshot=JSON.parse(JSON.stringify(db));
+  if(SUPABASE_URL&&SUPABASE_KEY){
+    saveQueue=saveQueue.then(()=>fetch(`${SUPABASE_URL}/rest/v1/volterax_store?id=eq.main`,{
+      method:'PATCH',
+      headers:{
+        'apikey':SUPABASE_KEY,
+        'Authorization':`Bearer ${SUPABASE_KEY}`,
+        'Content-Type':'application/json',
+        'Prefer':'return=minimal'
+      },
+      body:JSON.stringify({data:snapshot,updated_at:new Date().toISOString()})
+    })).catch(e=>console.error('[Supabase REST Save Error]',e.message));
+  }
   if(pgPool){
     saveQueue=saveQueue.then(()=>pgPool.query(`INSERT INTO volterax_store (id, data, updated_at) VALUES ('main', $1, NOW()) ON CONFLICT (id) DO UPDATE SET data = $1, updated_at = NOW();`,[JSON.stringify(snapshot)])).catch(e=>console.error('[Supabase Save Error]',e.message));
-    return saveQueue;
   }
   if(!MONGODB_URI){
     const localDbPath=path.join(__dirname,'volterax-local-db.json');
     try{fs.writeFileSync(localDbPath,JSON.stringify(snapshot,null,2))}catch(e){console.error('Local DB save error:',e)}
-    return Promise.resolve();
+    return saveQueue;
   }
   saveQueue=saveQueue.then(()=>globalThis.__vxStore.replaceOne({_id:'main'},{_id:'main',data:snapshot,updatedAt:new Date()},{upsert:true})).catch(e=>console.error('MongoDB save error:',e));
   return saveQueue;
@@ -94,7 +125,8 @@ async function route(req,res){
   if(req.method==='POST'&&p==='/api/admin/login'){const x=await body(req);if(String(x.email||'').toLowerCase()!==ADMIN_EMAIL||String(x.password||'')!==ADMIN_PASSWORD)return json(res,401,{error:'Invalid admin credentials.'});const sid=crypto.randomBytes(32).toString('hex');db.adminSessions[sid]={expires:Date.now()+SESSION_TTL};save();return json(res,200,{ok:true},{'Set-Cookie':cookie('vx_admin',sid,SESSION_TTL/1000)})}
   if(req.method==='POST'&&p==='/api/admin/logout'){const sid=cookies(req).vx_admin;if(sid)delete db.adminSessions[sid];save();return json(res,200,{ok:true},{'Set-Cookie':cookie('vx_admin','',0)})}
   if(p.startsWith('/api/admin/')){if(!requireAdmin(req,res))return;
-    if(req.method==='GET'&&p==='/api/admin/summary')return json(res,200,{customers:db.users.length,orders:db.orders.length,feedback:db.feedback.length,newFeedback:db.feedback.filter(x=>x.status==='new').length,leads:db.leads.length,newLeads:db.leads.filter(x=>x.status==='new').length,revenuePaise:db.orders.reduce((a,o)=>a+Number(o.amount_paise||0),0),updatedAt:now()});
+    if(req.method==='GET'&&p==='/api/admin/summary')return json(res,200,{customers:db.users.length,orders:db.orders.length,feedback:db.feedback.length,newFeedback:db.feedback.filter(x=>x.status==='new').length,leads:db.leads.length,newLeads:db.leads.filter(x=>x.status==='new').length,revenuePaise:db.orders.reduce((a,o)=>a+Number(o.amount_paise||0),0),projects:(db.projects||[]).length,updatedAt:now()});
+    if(req.method==='GET'&&p==='/api/admin/projects')return json(res,200,db.projects||[]);
     if(req.method==='GET'&&p==='/api/admin/customers')return json(res,200,db.users.map(safeUser));
     if(req.method==='GET'&&p==='/api/admin/orders')return json(res,200,db.orders.map(o=>({...o,user:db.users.find(u=>u.id===o.userId)?.name||'Unknown',mobile:db.users.find(u=>u.id===o.userId)?.mobile||''})));
     if(req.method==='GET'&&p==='/api/admin/feedback')return json(res,200,db.feedback.map(f=>({...f,customer:db.users.find(u=>u.id===f.userId)?.name||f.name,mobile:db.users.find(u=>u.id===f.userId)?.mobile||''})));
