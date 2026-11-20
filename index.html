@@ -2185,7 +2185,43 @@ if (btn) btn.disabled = false;
 
 <textarea class="accountInput" id="newOrderDetails" style="min-height:80px;resize:vertical;font-family:inherit" placeholder="Microcontroller specs, motor drivers, telemetry, deliverables, timeline..." required></textarea>
 
-<button class="accountBtn" id="btnPlaceOrder" type="submit" style="margin-top:10px">SUBMIT PROJECT ORDER ↗</button>
+<!-- DELIVERY / SHIPPING ADDRESS SECTION -->
+<div style="margin-top:14px;padding:16px;background:rgba(108,59,255,.08);border:1px solid rgba(108,59,255,.32);border-radius:14px">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+    <span style="font-size:15px">📍</span>
+    <strong style="font-size:11px;letter-spacing:1.5px;color:#00E5FF">DELIVERY / SHIPPING ADDRESS</strong>
+    <span style="font-size:10px;color:rgba(255,255,255,.5);margin-left:auto">(Hardware delivery location)</span>
+  </div>
+  <label class="accountLabel" style="margin-top:8px">HOUSE / FLAT / BUILDING & STREET ADDRESS *</label>
+  <input class="accountInput" id="newOrderStreet" placeholder="e.g. #42, 2nd Floor, Silicon Towers, 5th Cross" required>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
+    <div>
+      <label class="accountLabel" style="margin-top:6px">CITY / TOWN *</label>
+      <input class="accountInput" id="newOrderCity" placeholder="e.g. Bengaluru" required>
+    </div>
+    <div>
+      <label class="accountLabel" style="margin-top:6px">STATE *</label>
+      <input class="accountInput" id="newOrderState" value="Karnataka" placeholder="Karnataka" required>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
+    <div>
+      <label class="accountLabel" style="margin-top:6px">PINCODE (6-DIGIT) *</label>
+      <input class="accountInput" id="newOrderPincode" maxlength="6" placeholder="e.g. 560038" required>
+    </div>
+    <div>
+      <label class="accountLabel" style="margin-top:6px">CONTACT PHONE (OPTIONAL)</label>
+      <input class="accountInput" id="newOrderPhone" maxlength="10" placeholder="10-digit mobile number">
+    </div>
+  </div>
+
+  <label class="accountLabel" style="margin-top:6px">LANDMARK / DELIVERY INSTRUCTIONS (OPTIONAL)</label>
+  <input class="accountInput" id="newOrderLandmark" placeholder="e.g. Near Metro Station / Landmark">
+</div>
+
+<button class="accountBtn" id="btnPlaceOrder" type="submit" style="margin-top:14px">SUBMIT PROJECT ORDER ↗</button>
 
 <div id="orderStatusMsg" class="accountNotice" style="display:none;margin-top:8px" aria-live="polite"></div>
 
@@ -2231,6 +2267,60 @@ if (btn) btn.disabled = false;
 
 </div>
 
+</div>
+
+<!-- DEDICATED DELIVERY ADDRESS MODAL (POPUP FOR ENTERING ADDRESS AFTER ORDER OR EDITING) -->
+<div id="vxAddressModal" style="display:none;position:fixed;inset:0;z-index:200000;background:rgba(2,2,6,.92);backdrop-filter:blur(16px);overflow-y:auto;padding:18px;align-items:center;justify-content:center">
+  <div style="max-width:540px;width:100%;margin:5vh auto;background:linear-gradient(150deg,#12131e,#08090f);border:1px solid rgba(108,59,255,.45);border-radius:24px;padding:26px;box-shadow:0 30px 70px rgba(0,0,0,.85);position:relative;color:#fff">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+      <div>
+        <div style="font-family:monospace;font-size:10px;letter-spacing:2px;color:#00E5FF;margin-bottom:4px">HARDWARE DISPATCH HUB</div>
+        <h3 style="margin:0;font-size:22px;color:#fff">Enter Delivery Address</h3>
+      </div>
+      <button type="button" onclick="volteraxCloseAddressModal()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff;border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+    
+    <div id="vxModalOrderBadge" style="padding:10px 14px;background:rgba(108,59,255,.12);border:1px solid rgba(108,59,255,.3);border-radius:12px;font-size:12px;margin-bottom:16px;color:#cbd5e1">
+      Order: <strong id="vxModalOrderTitle" style="color:#00E5FF">Loading...</strong>
+    </div>
+
+    <form id="vxAddressForm" novalidate>
+      <input type="hidden" id="vxModalOrderId">
+      
+      <label class="accountLabel">HOUSE / FLAT / BUILDING & STREET ADDRESS *</label>
+      <textarea class="accountInput" id="vxModalStreet" style="min-height:65px;resize:vertical;font-family:inherit" placeholder="e.g. #42, 2nd Floor, Silicon Towers, 5th Cross" required></textarea>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
+        <div>
+          <label class="accountLabel" style="margin-top:6px">CITY / TOWN *</label>
+          <input class="accountInput" id="vxModalCity" placeholder="e.g. Bengaluru" required>
+        </div>
+        <div>
+          <label class="accountLabel" style="margin-top:6px">STATE *</label>
+          <input class="accountInput" id="vxModalState" value="Karnataka" placeholder="Karnataka" required>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
+        <div>
+          <label class="accountLabel" style="margin-top:6px">PINCODE (6-DIGIT) *</label>
+          <input class="accountInput" id="vxModalPincode" maxlength="6" placeholder="e.g. 560038" required>
+        </div>
+        <div>
+          <label class="accountLabel" style="margin-top:6px">CONTACT PHONE (OPTIONAL)</label>
+          <input class="accountInput" id="vxModalPhone" maxlength="10" placeholder="10-digit mobile number">
+        </div>
+      </div>
+
+      <label class="accountLabel" style="margin-top:6px">LANDMARK / DELIVERY INSTRUCTIONS (OPTIONAL)</label>
+      <input class="accountInput" id="vxModalLandmark" placeholder="e.g. Near Metro Station / Landmark">
+
+      <button class="accountBtn" id="btnSaveAddress" type="submit" style="margin-top:18px;background:linear-gradient(90deg,#7d55ff,#00E5FF);color:#050508;font-weight:900;letter-spacing:1px">
+        SAVE DELIVERY ADDRESS ↗
+      </button>
+      <div id="addressStatusMsg" class="accountNotice" style="display:none;margin-top:10px" aria-live="polite"></div>
+    </form>
+  </div>
 </div>
 
 <footer class="footer" role="contentinfo">
@@ -2872,11 +2962,54 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
       cancelled: '#ef4444'
     };
 
+    function formatOrderAddress(a) {
+      if (!a) return '';
+      if (typeof a === 'string') return a;
+      const parts = [];
+      if (a.street) parts.push(a.street);
+      if (a.city) parts.push(a.city);
+      if (a.state) parts.push(a.state);
+      if (a.pincode) parts.push('PIN: ' + a.pincode);
+      return parts.join(', ');
+    }
+
     const orders = d.orders || [];
     document.getElementById('accOrders').innerHTML = orders.length ?
       orders.map(o => {
         const col = statusColors[o.status] || '#94a3b8';
-        return '<div style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08)"><b>' + escapeHtml(o.order_id || o.id) + '</b><br><strong style="font-size:15px">' + escapeHtml(o.title || 'Project') + '</strong><br><span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid ' + col + ';color:' + col + ';margin:4px 0">' + escapeHtml((o.status || 'pending').toUpperCase()) + '</span> · ₹' + ((o.amount_paise || 0) / 100).toLocaleString('en-IN', {minimumFractionDigits:2}) + (o.details ? '<br><span style="opacity:.7;font-size:12px">' + escapeHtml(o.details.slice(0, 200)) + '</span>' : '') + '</div>';
+        const hasAddr = !!(o.shipping_address && (typeof o.shipping_address === 'string' ? o.shipping_address.trim() : (o.shipping_address.street || o.shipping_address.city)));
+        const addrFormatted = hasAddr ? formatOrderAddress(o.shipping_address) : '';
+        const orderKey = escapeHtml(o.order_id || o.id);
+        const orderTitle = escapeHtml(o.title || 'Project Build');
+        
+        return '<div style="padding:16px 0;border-bottom:1px solid rgba(255,255,255,.09)">' +
+          '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">' +
+            '<div>' +
+              '<b style="font-family:monospace;color:#00E5FF;font-size:13px">' + orderKey + '</b>' +
+              '<div style="font-size:16px;font-weight:800;color:#fff;margin-top:2px">' + orderTitle + '</div>' +
+            '</div>' +
+            '<div style="text-align:right">' +
+              '<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.8px;border:1px solid ' + col + ';color:' + col + ';margin-bottom:4px">' + escapeHtml((o.status || 'pending').toUpperCase()) + '</span>' +
+              '<div style="font-weight:700;color:#fff">₹' + ((o.amount_paise || 0) / 100).toLocaleString('en-IN', {minimumFractionDigits:2}) + '</div>' +
+            '</div>' +
+          '</div>' +
+          (o.details ? '<div style="margin:8px 0;opacity:.75;font-size:12px;line-height:1.5">' + escapeHtml(o.details.slice(0, 220)) + '</div>' : '') +
+          '<div style="margin-top:10px;padding:12px 14px;background:' + (hasAddr ? 'rgba(0,229,255,.04)' : 'rgba(245,158,11,.05)') + ';border:1px solid ' + (hasAddr ? 'rgba(0,229,255,.22)' : 'rgba(245,158,11,.32)') + ';border-radius:12px">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">' +
+              '<div style="font-size:11px;font-weight:800;letter-spacing:1px;color:' + (hasAddr ? '#00E5FF' : '#f59e0b') + '">' +
+                (hasAddr ? '📍 DELIVERY ADDRESS ✓' : '⚠️ DELIVERY ADDRESS REQUIRED') +
+              '</div>' +
+              '<button type="button" onclick="volteraxOpenAddressModal(\'' + escapeHtml(o.id || o.order_id) + '\')" style="background:transparent;border:1px solid ' + (hasAddr ? 'rgba(0,229,255,.4)' : '#f59e0b') + ';color:' + (hasAddr ? '#00E5FF' : '#fcd34d') + ';border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer">' +
+                (hasAddr ? '✏️ EDIT ADDRESS' : '📍 + ADD ADDRESS') +
+              '</button>' +
+            '</div>' +
+            '<div style="margin-top:6px;font-size:12px;line-height:1.5;color:' + (hasAddr ? '#e2e8f0' : '#94a3b8') + '">' +
+              (hasAddr ? escapeHtml(addrFormatted) : 'No delivery address saved yet. Enter your address so our engineering team can dispatch your build.') +
+              (hasAddr && typeof o.shipping_address === 'object' && o.shipping_address.landmark ? '<br><span style="font-size:11px;opacity:.7">Landmark: ' + escapeHtml(o.shipping_address.landmark) + '</span>' : '') +
+              (hasAddr && typeof o.shipping_address === 'object' && o.shipping_address.phone ? '<br><span style="font-size:11px;color:#34D399">Phone: ' + escapeHtml(o.shipping_address.phone) + '</span>' : '') +
+            '</div>' +
+          '</div>' +
+        '</div>';
       }).join('') :
       'No orders yet. Place your first project order below!';
 
@@ -3242,6 +3375,14 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
       const title = document.getElementById('newOrderTitle').value.trim();
       const amount = Number(document.getElementById('newOrderAmount').value || 0);
       const details = (document.getElementById('newOrderDetails').value || '').trim();
+
+      const street = (document.getElementById('newOrderStreet')?.value || '').trim();
+      const city = (document.getElementById('newOrderCity')?.value || '').trim();
+      const state = (document.getElementById('newOrderState')?.value || 'Karnataka').trim();
+      const pincode = (document.getElementById('newOrderPincode')?.value || '').replace(/\D/g, '').trim();
+      const phone = (document.getElementById('newOrderPhone')?.value || '').replace(/\D/g, '').trim();
+      const landmark = (document.getElementById('newOrderLandmark')?.value || '').trim();
+
       const msg = document.getElementById('orderStatusMsg');
       const btn = document.getElementById('btnPlaceOrder');
 
@@ -3250,6 +3391,29 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
         msg.style.color = '#ef4444';
         msg.textContent = 'Please enter a project title (at least 2 characters).';
         return;
+      }
+
+      let shipping_address = null;
+      if (street || city || pincode) {
+        if (!street || street.length < 4) {
+          msg.style.display = 'block';
+          msg.style.color = '#ef4444';
+          msg.textContent = 'Please enter your complete house/flat and street address.';
+          return;
+        }
+        if (!city || city.length < 2) {
+          msg.style.display = 'block';
+          msg.style.color = '#ef4444';
+          msg.textContent = 'Please enter your city / town.';
+          return;
+        }
+        if (!pincode || pincode.length !== 6) {
+          msg.style.display = 'block';
+          msg.style.color = '#ef4444';
+          msg.textContent = 'Please enter a valid 6-digit postal PIN code.';
+          return;
+        }
+        shipping_address = { street, city, state, pincode, phone, landmark };
       }
 
       msg.style.display = 'block';
@@ -3265,7 +3429,8 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
           body: JSON.stringify({
             title,
             amount_paise: Math.round(amount * 100),
-            details: details || ('Custom order for ' + title)
+            details: details || ('Custom order for ' + title),
+            shipping_address
           })
         });
         const data = await res.json();
@@ -3273,10 +3438,17 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
 
         msg.style.color = '#10b981';
         const orderId = data.order?.order_id || data.order?.id || 'SUBMITTED';
-        msg.innerHTML = '✓ <strong>Order ' + escapeHtml(orderId) + ' submitted successfully!</strong> Our engineering team will review it.';
+        msg.innerHTML = '✓ <strong>Order ' + escapeHtml(orderId) + ' submitted successfully!</strong>' + 
+          (shipping_address ? ' Delivery address saved.' : ' Our engineering team will review it.');
+        
         document.getElementById('newOrderTitle').value = '';
         document.getElementById('newOrderAmount').value = '';
         document.getElementById('newOrderDetails').value = '';
+        if (document.getElementById('newOrderStreet')) document.getElementById('newOrderStreet').value = '';
+        if (document.getElementById('newOrderCity')) document.getElementById('newOrderCity').value = '';
+        if (document.getElementById('newOrderPincode')) document.getElementById('newOrderPincode').value = '';
+        if (document.getElementById('newOrderPhone')) document.getElementById('newOrderPhone').value = '';
+        if (document.getElementById('newOrderLandmark')) document.getElementById('newOrderLandmark').value = '';
 
         const meRes = await fetch('/api/customer/me', { credentials: 'same-origin' });
         if (meRes.ok) {
@@ -3284,6 +3456,127 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
           window.volteraxAccountData = freshData;
           show(freshData);
         }
+
+        // If no address was entered upfront, automatically open the delivery address modal right after ordering!
+        if (!shipping_address && data.order) {
+          setTimeout(() => {
+            volteraxOpenAddressModal(data.order.id || data.order.order_id);
+          }, 500);
+        }
+      } catch (err) {
+        msg.style.color = '#ef4444';
+        msg.textContent = '✕ ' + err.message;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  }
+
+  // Delivery Address Modal Open / Close / Submit Handlers
+  window.volteraxOpenAddressModal = function(orderId) {
+    const orders = window.volteraxAccountData?.orders || [];
+    const order = orders.find(o => o.id === orderId || o.order_id === orderId);
+    if (!order) return;
+
+    const modal = document.getElementById('vxAddressModal');
+    if (!modal) return;
+
+    document.getElementById('vxModalOrderId').value = order.id || order.order_id;
+    document.getElementById('vxModalOrderTitle').textContent = (order.order_id || order.id) + ' — ' + (order.title || 'Project');
+
+    const sa = order.shipping_address;
+    if (sa && typeof sa === 'object') {
+      document.getElementById('vxModalStreet').value = sa.street || sa.address || '';
+      document.getElementById('vxModalCity').value = sa.city || '';
+      document.getElementById('vxModalState').value = sa.state || 'Karnataka';
+      document.getElementById('vxModalPincode').value = sa.pincode || '';
+      document.getElementById('vxModalPhone').value = sa.phone || window.volteraxAccountData?.user?.mobile || '';
+      document.getElementById('vxModalLandmark').value = sa.landmark || '';
+    } else {
+      document.getElementById('vxModalStreet').value = typeof sa === 'string' ? sa : '';
+      document.getElementById('vxModalCity').value = '';
+      document.getElementById('vxModalState').value = 'Karnataka';
+      document.getElementById('vxModalPincode').value = '';
+      document.getElementById('vxModalPhone').value = window.volteraxAccountData?.user?.mobile || '';
+      document.getElementById('vxModalLandmark').value = '';
+    }
+
+    const msg = document.getElementById('addressStatusMsg');
+    if (msg) {
+      msg.style.display = 'none';
+      msg.textContent = '';
+    }
+
+    modal.style.display = 'flex';
+  };
+
+  window.volteraxCloseAddressModal = function() {
+    const modal = document.getElementById('vxAddressModal');
+    if (modal) modal.style.display = 'none';
+  };
+
+  // Address Modal Form Submission
+  const addressForm = document.getElementById('vxAddressForm');
+  if (addressForm) {
+    addressForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const orderId = document.getElementById('vxModalOrderId').value;
+      const street = document.getElementById('vxModalStreet').value.trim();
+      const city = document.getElementById('vxModalCity').value.trim();
+      const state = document.getElementById('vxModalState').value.trim() || 'Karnataka';
+      const pincode = document.getElementById('vxModalPincode').value.replace(/\D/g, '').trim();
+      const phone = document.getElementById('vxModalPhone').value.replace(/\D/g, '').trim();
+      const landmark = document.getElementById('vxModalLandmark').value.trim();
+      const msg = document.getElementById('addressStatusMsg');
+      const btn = document.getElementById('btnSaveAddress');
+
+      if (!street || street.length < 4) {
+        msg.style.display = 'block';
+        msg.style.color = '#ef4444';
+        msg.textContent = 'Please enter your complete house/flat and street address.';
+        return;
+      }
+      if (!city || city.length < 2) {
+        msg.style.display = 'block';
+        msg.style.color = '#ef4444';
+        msg.textContent = 'Please enter your city / town.';
+        return;
+      }
+      if (!pincode || pincode.length !== 6) {
+        msg.style.display = 'block';
+        msg.style.color = '#ef4444';
+        msg.textContent = 'Please enter a valid 6-digit postal PIN code.';
+        return;
+      }
+
+      msg.style.display = 'block';
+      msg.style.color = '#00E5FF';
+      msg.textContent = 'Saving delivery address…';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/customer/order/' + encodeURIComponent(orderId) + '/address', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ street, city, state, pincode, phone, landmark, orderId })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to save address.');
+
+        msg.style.color = '#10b981';
+        msg.textContent = '✓ Delivery address saved successfully!';
+
+        const meRes = await fetch('/api/customer/me', { credentials: 'same-origin' });
+        if (meRes.ok) {
+          const freshData = await meRes.json();
+          window.volteraxAccountData = freshData;
+          show(freshData);
+        }
+
+        setTimeout(() => {
+          volteraxCloseAddressModal();
+        }, 1100);
       } catch (err) {
         msg.style.color = '#ef4444';
         msg.textContent = '✕ ' + err.message;

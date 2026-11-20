@@ -206,6 +206,9 @@ async function initDb(){
     try{
       console.log('[VolteraX] Connecting to Supabase PostgreSQL (arwwwcfgxiuhrkqevdov)...');
       await pgPool.query(`CREATE TABLE IF NOT EXISTS volterax_store (id VARCHAR(64) PRIMARY KEY, data JSONB NOT NULL, updated_at TIMESTAMPTZ DEFAULT NOW());`);
+      try {
+        await pgPool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_address JSONB;`);
+      } catch(_) {}
       const r=await pgPool.query(`SELECT data FROM volterax_store WHERE id = 'main'`);
       if(r.rows.length===0){
         await pgPool.query(`INSERT INTO volterax_store (id, data, updated_at) VALUES ('main', $1, NOW())`,[JSON.stringify(db)]);
@@ -274,16 +277,31 @@ async function syncRelational(type, item) {
             referral_code = EXCLUDED.referral_code;
         `, [item.id, item.name, item.email || null, item.mobile || null, item.ref, item.referredBy || null, item.createdAt || new Date()]);
       } else if (type === 'order') {
-        await pgPool.query(`
-          INSERT INTO orders (id, order_id, user_id, title, amount_paise, status, details, created_at, updated_at)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-          ON CONFLICT (id) DO UPDATE SET
-            title = EXCLUDED.title,
-            amount_paise = EXCLUDED.amount_paise,
-            status = EXCLUDED.status,
-            details = EXCLUDED.details,
-            updated_at = NOW();
-        `, [item.id, item.order_id || item.id, item.userId, item.title, Number(item.amount_paise || 0), item.status || 'pending', item.details || '', item.createdAt || new Date(), item.updatedAt || new Date()]);
+        const addrJson = item.shipping_address ? JSON.stringify(item.shipping_address) : null;
+        try {
+          await pgPool.query(`
+            INSERT INTO orders (id, order_id, user_id, title, amount_paise, status, details, shipping_address, created_at, updated_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            ON CONFLICT (id) DO UPDATE SET
+              title = EXCLUDED.title,
+              amount_paise = EXCLUDED.amount_paise,
+              status = EXCLUDED.status,
+              details = EXCLUDED.details,
+              shipping_address = EXCLUDED.shipping_address,
+              updated_at = NOW();
+          `, [item.id, item.order_id || item.id, item.userId, item.title, Number(item.amount_paise || 0), item.status || 'pending', item.details || '', addrJson, item.createdAt || new Date(), item.updatedAt || new Date()]);
+        } catch(pgErr) {
+          await pgPool.query(`
+            INSERT INTO orders (id, order_id, user_id, title, amount_paise, status, details, created_at, updated_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            ON CONFLICT (id) DO UPDATE SET
+              title = EXCLUDED.title,
+              amount_paise = EXCLUDED.amount_paise,
+              status = EXCLUDED.status,
+              details = EXCLUDED.details,
+              updated_at = NOW();
+          `, [item.id, item.order_id || item.id, item.userId, item.title, Number(item.amount_paise || 0), item.status || 'pending', item.details || '', item.createdAt || new Date(), item.updatedAt || new Date()]);
+        }
       } else if (type === 'lead') {
         await pgPool.query(`
           INSERT INTO leads (id, user_id, name, mobile, message, status, created_at)
@@ -737,7 +755,97 @@ async function route(req,res){
     syncRelational('lead', item);
     return json(res,201,{ok:true,id:item.id});
   }
-  if(req.method==='POST'&&p==='/api/customer/order'){const c=requireCustomer(req,res);if(!c)return;const x=await body(req);const title=String(x.title||'VOLTERAX PROJECT').slice(0,200).trim();if(!title)return json(res,400,{error:'Project title is required.'});const item={id:id('ORD'),order_id:String(x.order_id||id('VX-ORD-')),userId:c.id,title:title,amount_paise:Number(x.amount_paise||0),status:String(x.status||'pending'),details:String(x.details||'Custom commissioned hardware prototype').slice(0,5000),createdAt:now(),updatedAt:now()};db.orders.unshift(item);save();syncRelational('order', item);return json(res,201,{ok:true,order:item})}
+  if(req.method==='POST'&&p==='/api/customer/order'){
+    const c=requireCustomer(req,res);
+    if(!c)return;
+    const x=await body(req);
+    const title=String(x.title||'VOLTERAX PROJECT').slice(0,200).trim();
+    if(!title)return json(res,400,{error:'Project title is required.'});
+
+    let shipping_address = null;
+    if(x.shipping_address && typeof x.shipping_address === 'object'){
+      const sa = x.shipping_address;
+      shipping_address = {
+        street: String(sa.street || sa.address || '').slice(0, 500).trim(),
+        city: String(sa.city || '').slice(0, 100).trim(),
+        state: String(sa.state || 'Karnataka').slice(0, 100).trim(),
+        pincode: String(sa.pincode || '').replace(/\D/g, '').slice(0, 6),
+        phone: String(sa.phone || c.mobile || '').replace(/\D/g, '').slice(0, 10),
+        landmark: String(sa.landmark || '').slice(0, 200).trim(),
+        updatedAt: now()
+      };
+    } else if(typeof x.shipping_address === 'string' && x.shipping_address.trim()){
+      shipping_address = {
+        street: x.shipping_address.trim(),
+        city: '',
+        state: 'Karnataka',
+        pincode: '',
+        phone: c.mobile || '',
+        landmark: '',
+        updatedAt: now()
+      };
+    }
+
+    const item={
+      id:id('ORD'),
+      order_id:String(x.order_id||id('VX-ORD-')),
+      userId:c.id,
+      title:title,
+      amount_paise:Number(x.amount_paise||0),
+      status:String(x.status||'pending'),
+      details:String(x.details||'Custom commissioned hardware prototype').slice(0,5000),
+      shipping_address: shipping_address,
+      createdAt:now(),
+      updatedAt:now()
+    };
+    db.orders.unshift(item);
+    save();
+    syncRelational('order', item);
+    return json(res,201,{ok:true,order:item});
+  }
+
+  // Customer Delivery Address Update Endpoint
+  if((req.method==='PATCH'||req.method==='POST') && (p.startsWith('/api/customer/order/') || p==='/api/customer/order/address')){
+    if(p.endsWith('/address') || p==='/api/customer/order/address'){
+      const c=requireCustomer(req,res);
+      if(!c)return;
+      const x=await body(req);
+      let targetOid = x.orderId || x.order_id || x.id;
+      if(!targetOid && p.startsWith('/api/customer/order/')){
+        const segs = p.split('/');
+        targetOid = segs[4]; // /api/customer/order/:orderId/address
+      }
+      if(!targetOid) return json(res, 400, { error: 'Order ID is required.' });
+
+      const order = db.orders.find(o => (o.id === targetOid || o.order_id === targetOid) && o.userId === c.id);
+      if(!order) return json(res, 404, { error: 'Order not found or unauthorized.' });
+
+      const street = String(x.street || x.address || '').slice(0, 500).trim();
+      const city = String(x.city || '').slice(0, 100).trim();
+      const state = String(x.state || 'Karnataka').slice(0, 100).trim();
+      const pincode = String(x.pincode || '').replace(/\D/g, '').slice(0, 6);
+      const phone = String(x.phone || c.mobile || '').replace(/\D/g, '').slice(0, 10);
+      const landmark = String(x.landmark || '').slice(0, 200).trim();
+
+      if(!street || street.length < 4) return json(res, 400, { error: 'Please enter your complete house/flat and street address.' });
+      if(!city || city.length < 2) return json(res, 400, { error: 'Please enter your city or town name.' });
+      if(!pincode || pincode.length !== 6) return json(res, 400, { error: 'Please enter a valid 6-digit postal PIN code.' });
+
+      order.shipping_address = {
+        street,
+        city,
+        state,
+        pincode,
+        phone,
+        landmark,
+        updatedAt: now()
+      };
+      order.updatedAt = now();
+      save();
+      syncRelational('order', order);
+      return json(res, 200, { ok: true, order, message: 'Delivery address saved successfully.' });
+    }
+  }
   // Admin
   if(req.method==='POST'&&p==='/api/admin/login'){const x=await body(req);if(String(x.email||'').toLowerCase()!==ADMIN_EMAIL||String(x.password||'')!==ADMIN_PASSWORD)return json(res,401,{error:'Invalid admin credentials.'});const sid=crypto.randomBytes(32).toString('hex');db.adminSessions[sid]={expires:Date.now()+SESSION_TTL};save();return json(res,200,{ok:true},{'Set-Cookie':cookie('vx_admin',sid,SESSION_TTL/1000)})}
   if(req.method==='POST'&&p==='/api/admin/logout'){const sid=cookies(req).vx_admin;if(sid)delete db.adminSessions[sid];save();return json(res,200,{ok:true},{'Set-Cookie':cookie('vx_admin','',0)})}
@@ -798,8 +906,8 @@ async function route(req,res){
     if(req.method==='GET'&&p==='/api/admin/orders')return json(res,200,db.orders.map(o=>({...o,user:db.users.find(u=>u.id===o.userId)?.name||'Unknown',mobile:db.users.find(u=>u.id===o.userId)?.mobile||''})));
     if(req.method==='GET'&&p==='/api/admin/feedback')return json(res,200,db.feedback.map(f=>({...f,customer:db.users.find(u=>u.id===f.userId)?.name||f.name,mobile:db.users.find(u=>u.id===f.userId)?.mobile||''})));
     if(req.method==='GET'&&p==='/api/admin/leads')return json(res,200,db.leads.map(l=>({...l,customer:db.users.find(u=>u.id===l.userId)?.name||l.name})));
-    if(req.method==='POST'&&p==='/api/admin/order'){const x=await body(req);const user=db.users.find(v=>v.id===x.userId||v.mobile===String(x.mobile||'').replace(/\D/g,''));if(!user)return json(res,404,{error:'Customer not found.'});const item={id:id('ORD'),order_id:String(x.order_id||id('VX-ORD-')),userId:user.id,title:String(x.title||'VOLTERAX PROJECT').slice(0,200),amount_paise:Number(x.amount_paise||0),status:String(x.status||'pending'),details:String(x.details||'').slice(0,5000),createdAt:now(),updatedAt:now()};db.orders.unshift(item);save();syncRelational('order', item);return json(res,201,{ok:true,order:item})}
-    if(req.method==='PATCH'&&p.startsWith('/api/admin/order/')){const oid=p.split('/').pop();const x=await body(req);const o=db.orders.find(v=>v.id===oid||v.order_id===oid);if(!o)return json(res,404,{error:'Order not found.'});for(const k of ['title','status','details'])if(x[k]!==undefined)o[k]=String(x[k]);if(x.amount_paise!==undefined)o.amount_paise=Number(x.amount_paise);o.updatedAt=now();save();syncRelational('order', o);return json(res,200,{ok:true,order:o})}
+    if(req.method==='POST'&&p==='/api/admin/order'){const x=await body(req);const user=db.users.find(v=>v.id===x.userId||v.mobile===String(x.mobile||'').replace(/\D/g,''));if(!user)return json(res,404,{error:'Customer not found.'});const item={id:id('ORD'),order_id:String(x.order_id||id('VX-ORD-')),userId:user.id,title:String(x.title||'VOLTERAX PROJECT').slice(0,200),amount_paise:Number(x.amount_paise||0),status:String(x.status||'pending'),details:String(x.details||'').slice(0,5000),shipping_address:x.shipping_address||null,createdAt:now(),updatedAt:now()};db.orders.unshift(item);save();syncRelational('order', item);return json(res,201,{ok:true,order:item})}
+    if(req.method==='PATCH'&&p.startsWith('/api/admin/order/')){const oid=p.split('/').pop();const x=await body(req);const o=db.orders.find(v=>v.id===oid||v.order_id===oid);if(!o)return json(res,404,{error:'Order not found.'});for(const k of ['title','status','details'])if(x[k]!==undefined)o[k]=String(x[k]);if(x.amount_paise!==undefined)o.amount_paise=Number(x.amount_paise);if(x.shipping_address!==undefined)o.shipping_address=x.shipping_address;o.updatedAt=now();save();syncRelational('order', o);return json(res,200,{ok:true,order:o})}
     if(req.method==='PATCH'&&p.startsWith('/api/admin/feedback/')){const fid=p.split('/').pop();const x=await body(req);const f=db.feedback.find(v=>v.id===fid);if(!f)return json(res,404,{error:'Feedback not found.'});if(x.status)f.status=String(x.status);save();syncRelational('feedback', f);return json(res,200,{ok:true,feedback:f})}
     if(req.method==='PATCH'&&p.startsWith('/api/admin/lead/')){const lid=p.split('/').pop();if(!lid||!/^LD[A-Za-z0-9_-]+$/.test(lid))return json(res,400,{error:'Invalid lead ID format.'});const x=await body(req);const allowed=['new','contacted','quoted','closed'];const status=String(x.status||'').toLowerCase().trim();if(!allowed.includes(status))return json(res,400,{error:'Invalid status. Allowed: '+allowed.join(', ')});const l=db.leads.find(v=>v.id===lid);if(!l)return json(res,404,{error:'Lead not found.'});l.status=status;l.updatedAt=now();save();syncRelational('lead', l);return json(res,200,{ok:true,lead:l})}
   }
