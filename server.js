@@ -1,3 +1,119 @@
+
+const dns = require('dns').promises;
+
+const DISPOSABLE_EMAIL_DOMAINS = new Set([
+  'tempmail.com','10minutemail.com','mailinator.com','guerrillamail.com',
+  'throwawaymail.com','yopmail.com','sharklasers.com','dispostable.com',
+  'getnada.com','fake.com','fakemail.com','test.com','example.com',
+  'asdf.com','maildrop.cc','inboxkitten.com','temp-mail.org',
+  'fakemailgenerator.com','burnermail.io','crazymailing.com','trashmail.com',
+  'mytemp.email','mohmal.com','generator.email','nada.ltd','temp-mail.io',
+  'emailondeck.com','trashmail.net','discard.email','mytempemail.com',
+  'tempail.com','fakemail.net','tempmailaddress.com','spamgourmet.com',
+  'grr.la','guerrillamailblock.com','pokemail.net','inbound.plus'
+]);
+
+const DUMMY_USERNAMES = new Set([
+  'test','testing','testuser','tester','admin','administrator','root',
+  'fake','fakeuser','fakeemail','testmail','testemail','asdf','asdfgh',
+  'asdfghjkl','qwerty','qwertyuiop','123456','1234567','12345678',
+  '123456789','1234567890','sample','samplemail','user','user123',
+  'demo','demouser','abc','abcd','abcdef','xyz','xyz123','temp',
+  'tempuser','dummy','dummyuser','noemail','noreply','example',
+  'unknown','anonymous','null','undefined','random','someone','nobody'
+]);
+
+const FAKE_MOBILES = new Set([
+  '1234567890','0123456789','9876543210','8765432109','7654321098','6543210987',
+  '9898989898','9123456789','9000000000','8000000000','7000000000','6000000000',
+  '9111111111','9222222222','9333333333','9444444444','9555555555','9666666666',
+  '9777777777','9888888888','9999999999','8888888888','7777777777','6666666666',
+  '0000000000','1111111111','2222222222','3333333333','4444444444','5555555555',
+  '9876598765','9898098980','9191919191','9090909090','8080808080','7070707070',
+  '9012345678','9988776655','9123491234','9876501234'
+]);
+
+function validateIndianMobile(raw) {
+  let m = String(raw || '').replace(/\D/g, '');
+  if (m.length === 12 && m.startsWith('91')) m = m.slice(2);
+  if (m.length === 11 && m.startsWith('0')) m = m.slice(1);
+
+  if (!m) return { valid: false, error: 'Mobile number is required.' };
+  if (m.length !== 10) return { valid: false, error: 'Mobile number must be exactly 10 digits (you entered ' + m.length + ').' };
+  if (!/^[6-9]/.test(m)) {
+    return { valid: false, error: 'Please enter a genuine Indian mobile number starting with 6, 7, 8, or 9.' };
+  }
+  if (FAKE_MOBILES.has(m) || /^(\d)\1{9}$/.test(m)) {
+    return { valid: false, error: 'Please enter a genuine mobile number (test/dummy numbers are not permitted).' };
+  }
+  if (/(\d)\1{5,}/.test(m)) {
+    return { valid: false, error: 'Please enter a genuine mobile number (repeated digit pattern rejected).' };
+  }
+  const uniqueDigits = new Set(m.split('')).size;
+  if (uniqueDigits < 4) {
+    return { valid: false, error: 'Please enter a genuine active mobile number.' };
+  }
+  return { valid: true, mobile: m };
+}
+
+async function validateEmailServer(raw, checkMx = false) {
+  const email = String(raw || '').trim().toLowerCase();
+  if (!email) return { valid: false, error: 'Gmail / Email address is required.' };
+
+  const emailRegex = /^[a-z0-9](?:[a-z0-9._%+-]*[a-z0-9])?@([a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/i;
+  if (!emailRegex.test(email)) {
+    return { valid: false, error: 'Invalid email address format.' };
+  }
+
+  const parts = email.split('@');
+  if (parts.length !== 2) return { valid: false, error: 'Invalid email address.' };
+  const username = parts[0];
+  const domain = parts[1];
+
+  if (DISPOSABLE_EMAIL_DOMAINS.has(domain)) {
+    return { valid: false, error: 'Temporary or disposable email domains are blocked. Please use an official Gmail address.' };
+  }
+
+  if (domain === 'gmail.com' || domain === 'googlemail.com') {
+    const rawUserWithoutDots = username.replace(/\./g, '');
+    if (rawUserWithoutDots.length < 6 || rawUserWithoutDots.length > 30) {
+      return { valid: false, error: 'Google requires Gmail usernames to be between 6 and 30 characters long.' };
+    }
+    if (!/^[a-z0-9.]+$/.test(username)) {
+      return { valid: false, error: 'Gmail usernames can only contain letters (a-z), numbers (0-9), and periods (.).' };
+    }
+    if (username.startsWith('.') || username.endsWith('.') || username.includes('..')) {
+      return { valid: false, error: 'Gmail usernames cannot start, end, or contain consecutive periods.' };
+    }
+    if (DUMMY_USERNAMES.has(rawUserWithoutDots)) {
+      return { valid: false, error: 'The Gmail address "' + email + '" is a test/placeholder username. Please use your genuine Gmail.' };
+    }
+    const uniqueChars = new Set(rawUserWithoutDots.split('')).size;
+    if (uniqueChars < 3) {
+      return { valid: false, error: 'Please enter a genuine Gmail address (character repetition pattern blocked).' };
+    }
+  } else {
+    if (username.length < 3) {
+      return { valid: false, error: 'Email username must be at least 3 characters.' };
+    }
+    if (DUMMY_USERNAMES.has(username)) {
+      return { valid: false, error: 'The email address "' + email + '" is a placeholder username.' };
+    }
+    if (checkMx) {
+      try {
+        const mx = await dns.resolveMx(domain);
+        if (!mx || mx.length === 0) {
+          return { valid: false, error: 'The email domain "@' + domain + '" does not have active mail servers. Please enter a genuine address.' };
+        }
+      } catch (err) {
+        return { valid: false, error: 'The email domain "@' + domain + '" could not be verified. Please enter a valid, active Gmail or email address.' };
+      }
+    }
+  }
+
+  return { valid: true, email };
+}
+
 const http=require('http');const fs=require('fs');const path=require('path');const crypto=require('crypto');
 // Load local .env without requiring dotenv
 try{const envPath=path.join(__dirname,'.env');if(fs.existsSync(envPath)){for(const line of fs.readFileSync(envPath,'utf8').split(/\r?\n/)){const m=line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/);if(m&&!process.env[m[1]]){let v=m[2].trim();if((v.startsWith('\"')&&v.endsWith('\"'))||(v.startsWith("'")&&v.endsWith("'")))v=v.slice(1,-1);process.env[m[1]]=v;}}}}catch(e){console.error('[VolteraX] Could not read .env:',e.message)}
@@ -269,9 +385,16 @@ async function route(req,res){
     const password=String(x.password||'');
     const ref=String(x.ref||'').trim().toUpperCase();
 
-    const isEmailValid=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if(name.length<2||(!isEmailValid && !/^[0-9]{10}$/.test(mobile))||password.length<6){
-      return json(res,400,{error:'Invalid signup details. Name (2+ chars), valid Gmail/Email address, and password (6+ chars) required.'});
+    if(name.length<2) return json(res,400,{error:'Please enter your full name (at least 2 characters).'});
+    if(password.length<6) return json(res,400,{error:'Password must be at least 6 characters.'});
+
+    const emailCheck = await validateEmailServer(email, true);
+    if(!emailCheck.valid) return json(res,400,{error: emailCheck.error});
+
+    if(mobile){
+      const mobCheck = validateIndianMobile(mobile);
+      if(!mobCheck.valid) return json(res,400,{error: mobCheck.error});
+      mobile = mobCheck.mobile;
     }
     if(email && db.users.some(v=>(v.email&&v.email.toLowerCase()===email)||(v.mobile===email))){
       return json(res,409,{error:'Email already registered. Please sign in.'});
@@ -320,7 +443,19 @@ async function route(req,res){
   }
   if(req.method==='POST'&&p==='/api/customer/logout'){const sid=cookies(req).vx_session;if(sid)delete db.sessions[sid];save();return json(res,200,{ok:true},{'Set-Cookie':cookie('vx_session','',0)})}
   if(req.method==='POST'&&p==='/api/customer/feedback'){const x=await body(req);const c=customer(req);const name=String(x.name||c?.name||'').trim(),message=String(x.feedbackText||'').trim(),rating=Number(x.rating);if(!name||!message||rating<1||rating>5)return json(res,400,{error:'Invalid feedback.'});const item={id:id('FB'),userId:c?.id||null,name,rating,feedbackText:message,createdAt:now(),status:'new'};db.feedback.unshift(item);save();syncRelational('feedback', item);return json(res,201,{ok:true,id:item.id})}
-  if(req.method==='POST'&&p==='/api/customer/lead'){const c=requireCustomer(req,res);if(!c)return;const x=await body(req);const item={id:id('LD'),userId:c.id,name:c.name,mobile:String(x.mobile||c.mobile).replace(/\D/g,''),message:String(x.message||'').slice(0,5000),createdAt:now(),status:'new'};db.leads.unshift(item);save();syncRelational('lead', item);return json(res,201,{ok:true,id:item.id})}
+  if(req.method==='POST'&&p==='/api/customer/lead'){
+    const c=requireCustomer(req,res);
+    if(!c)return;
+    const x=await body(req);
+    const rawMob = String(x.mobile || c.mobile || '');
+    const mobCheck = validateIndianMobile(rawMob);
+    if(!mobCheck.valid) return json(res, 400, { error: mobCheck.error });
+    const item={id:id('LD'),userId:c.id,name:c.name,mobile:mobCheck.mobile,message:String(x.message||'').slice(0,5000),createdAt:now(),status:'new'};
+    db.leads.unshift(item);
+    save();
+    syncRelational('lead', item);
+    return json(res,201,{ok:true,id:item.id});
+  }
   if(req.method==='POST'&&p==='/api/customer/order'){const c=requireCustomer(req,res);if(!c)return;const x=await body(req);const title=String(x.title||'VOLTERAX PROJECT').slice(0,200).trim();if(!title)return json(res,400,{error:'Project title is required.'});const item={id:id('ORD'),order_id:String(x.order_id||id('VX-ORD-')),userId:c.id,title:title,amount_paise:Number(x.amount_paise||0),status:String(x.status||'pending'),details:String(x.details||'Custom commissioned hardware prototype').slice(0,5000),createdAt:now(),updatedAt:now()};db.orders.unshift(item);save();syncRelational('order', item);return json(res,201,{ok:true,order:item})}
   // Admin
   if(req.method==='POST'&&p==='/api/admin/login'){const x=await body(req);if(String(x.email||'').toLowerCase()!==ADMIN_EMAIL||String(x.password||'')!==ADMIN_PASSWORD)return json(res,401,{error:'Invalid admin credentials.'});const sid=crypto.randomBytes(32).toString('hex');db.adminSessions[sid]={expires:Date.now()+SESSION_TTL};save();return json(res,200,{ok:true},{'Set-Cookie':cookie('vx_admin',sid,SESSION_TTL/1000)})}

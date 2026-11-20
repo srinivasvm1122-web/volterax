@@ -2064,15 +2064,14 @@ window.volteraxSubmitMobile = async function() {
 
 const mobileInput = document.getElementById('customerMobile');
 
-const n = (mobileInput?.value || '').replace(/\D/g, '');
-
-if (!/^\d{10}$/.test(n)) {
-
-alert('Please enter a valid 10-digit mobile number.');
-
-return;
-
+const rawMobile = mobileInput?.value || '';
+const mobCheck = validateVolteraxMobile(rawMobile);
+if (!mobCheck.valid) {
+  alert('⚠️ ' + mobCheck.error);
+  mobileInput?.focus();
+  return;
 }
+const n = mobCheck.mobile;
 
 const user = currentAccount?.user;
 
@@ -2122,19 +2121,17 @@ const nameInput = document.querySelector('.projectPanel input:not(#projectMobile
 
 const name = nameInput ? nameInput.value.trim() : '';
 
-const mobile = (document.getElementById('projectMobile')?.value || '').replace(/\D/g, '');
+const mobileInput = document.getElementById('projectMobile');
+const rawMobile = mobileInput?.value || '';
+const mobCheck = validateVolteraxMobile(rawMobile);
+if (!mobCheck.valid) {
+  alert('⚠️ ' + mobCheck.error);
+  mobileInput?.focus();
+  return;
+}
+const mobile = mobCheck.mobile;
 
 const idea = (document.getElementById('idea')?.value || '').trim();
-
-
-
-if (!/^\d{10}$/.test(mobile)) {
-
-alert('Please enter a valid 10-digit mobile number.');
-
-return;
-
-}
 
 if (!idea || idea.length < 5) {
 
@@ -2305,6 +2302,111 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
     return String(str ?? '').replace(/[&<>"']/g, c => ({
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     }[c]));
+  }
+
+  
+  // ==================== VOLTERAX REAL/ORIGINAL ANTI-FAKE VALIDATION ====================
+  const VX_DISPOSABLE_DOMAINS = new Set([
+    'tempmail.com','10minutemail.com','mailinator.com','guerrillamail.com',
+    'throwawaymail.com','yopmail.com','sharklasers.com','dispostable.com',
+    'getnada.com','fake.com','fakemail.com','test.com','example.com',
+    'asdf.com','maildrop.cc','inboxkitten.com','temp-mail.org',
+    'fakemailgenerator.com','burnermail.io','crazymailing.com','trashmail.com',
+    'mytemp.email','mohmal.com','generator.email','nada.ltd','temp-mail.io',
+    'emailondeck.com','trashmail.net','discard.email','mytempemail.com',
+    'tempail.com','fakemail.net','tempmailaddress.com','spamgourmet.com',
+    'grr.la','guerrillamailblock.com','pokemail.net','inbound.plus'
+  ]);
+
+  const VX_DUMMY_USERNAMES = new Set([
+    'test','testing','testuser','tester','admin','administrator','root',
+    'fake','fakeuser','fakeemail','testmail','testemail','asdf','asdfgh',
+    'asdfghjkl','qwerty','qwertyuiop','123456','1234567','12345678',
+    '123456789','1234567890','sample','samplemail','user','user123',
+    'demo','demouser','abc','abcd','abcdef','xyz','xyz123','temp',
+    'tempuser','dummy','dummyuser','noemail','noreply','example',
+    'unknown','anonymous','null','undefined','random','someone','nobody'
+  ]);
+
+  const VX_FAKE_MOBILES = new Set([
+    '1234567890','0123456789','9876543210','8765432109','7654321098','6543210987',
+    '9898989898','9123456789','9000000000','8000000000','7000000000','6000000000',
+    '9111111111','9222222222','9333333333','9444444444','9555555555','9666666666',
+    '9777777777','9888888888','9999999999','8888888888','7777777777','6666666666',
+    '0000000000','1111111111','2222222222','3333333333','4444444444','5555555555',
+    '9876598765','9898098980','9191919191','9090909090','8080808080','7070707070',
+    '9012345678','9988776655','9123491234','9876501234'
+  ]);
+
+  function validateVolteraxMobile(raw) {
+    let m = String(raw || '').replace(/\D/g, '');
+    if (m.length === 12 && m.startsWith('91')) m = m.slice(2);
+    if (m.length === 11 && m.startsWith('0')) m = m.slice(1);
+
+    if (!m) return { valid: false, error: 'Please enter your 10-digit mobile number.' };
+    if (m.length !== 10) return { valid: false, error: 'Mobile number must be exactly 10 digits (you entered ' + m.length + ' digits).' };
+    if (!/^[6-9]/.test(m)) {
+      return { valid: false, error: 'Please enter a genuine Indian mobile number starting with 6, 7, 8, or 9.' };
+    }
+    if (VX_FAKE_MOBILES.has(m) || /^(\d)\1{9}$/.test(m)) {
+      return { valid: false, error: 'Please enter a genuine mobile number (test/dummy numbers are not accepted).' };
+    }
+    if (/(\d)\1{5,}/.test(m)) {
+      return { valid: false, error: 'Please enter a genuine mobile number (too many repeated digits).' };
+    }
+    const uniqueDigits = new Set(m.split('')).size;
+    if (uniqueDigits < 4) {
+      return { valid: false, error: 'Please enter a genuine 10-digit active mobile number.' };
+    }
+    return { valid: true, mobile: m };
+  }
+
+  function validateVolteraxEmail(raw) {
+    const email = String(raw || '').trim().toLowerCase();
+    if (!email) return { valid: false, error: 'Please enter your Gmail / Email address.' };
+
+    const emailRegex = /^[a-z0-9](?:[a-z0-9._%+-]*[a-z0-9])?@([a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/i;
+    if (!emailRegex.test(email)) {
+      return { valid: false, error: 'Please enter a valid email format (e.g. yourname@gmail.com).' };
+    }
+
+    const parts = email.split('@');
+    if (parts.length !== 2) return { valid: false, error: 'Invalid email address.' };
+    const username = parts[0];
+    const domain = parts[1];
+
+    if (VX_DISPOSABLE_DOMAINS.has(domain)) {
+      return { valid: false, error: 'Temporary or disposable email domains are not allowed. Please enter your official Gmail.' };
+    }
+
+    if (domain === 'gmail.com' || domain === 'googlemail.com') {
+      const rawUserWithoutDots = username.replace(/\./g, '');
+      if (rawUserWithoutDots.length < 6 || rawUserWithoutDots.length > 30) {
+        return { valid: false, error: 'Google requires Gmail usernames to be between 6 and 30 characters.' };
+      }
+      if (!/^[a-z0-9.]+$/.test(username)) {
+        return { valid: false, error: 'Gmail usernames can only contain letters (a-z), numbers (0-9), and periods (.).' };
+      }
+      if (username.startsWith('.') || username.endsWith('.') || username.includes('..')) {
+        return { valid: false, error: 'Gmail usernames cannot start, end, or have consecutive periods.' };
+      }
+      if (VX_DUMMY_USERNAMES.has(rawUserWithoutDots)) {
+        return { valid: false, error: 'The address "' + email + '" is a placeholder/test username. Please enter your real Gmail address.' };
+      }
+      const uniqueChars = new Set(rawUserWithoutDots.split('')).size;
+      if (uniqueChars < 3) {
+        return { valid: false, error: 'Please enter a genuine Gmail address (character repetition detected).' };
+      }
+    } else {
+      if (username.length < 3) {
+        return { valid: false, error: 'Email username must be at least 3 characters.' };
+      }
+      if (VX_DUMMY_USERNAMES.has(username)) {
+        return { valid: false, error: 'The address "' + email + '" is a placeholder. Please enter your real email.' };
+      }
+    }
+
+    return { valid: true, email: email };
   }
 
   function cleanMobile(v) {
@@ -2533,7 +2635,8 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
         const ref = (document.getElementById('accRef').value.trim() || sessionStorage.getItem('volteraxIncomingReferral') || '').toUpperCase();
 
         if (name.length < 2) throw new Error('Please enter your full name (2+ characters).');
-        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Please enter a valid Gmail / Email address (e.g. name@gmail.com).');
+        const emailCheck = validateVolteraxEmail(email);
+        if (!emailCheck.valid) throw new Error(emailCheck.error);
         if (password.length < 6) throw new Error('Password must be at least 6 characters.');
 
         const res = await fetch('/api/customer/signup', {
@@ -2558,7 +2661,8 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
         const email = (emailEl ? emailEl.value : '').trim().toLowerCase();
         const password = document.getElementById('accLoginPassword').value;
 
-        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Please enter your registered Gmail / Email address.');
+        const emailCheck = validateVolteraxEmail(email);
+        if (!emailCheck.valid) throw new Error(emailCheck.error);
         if (!password) throw new Error('Please enter your password.');
 
         const res = await fetch('/api/customer/login', {
