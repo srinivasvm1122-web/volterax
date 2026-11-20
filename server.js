@@ -427,6 +427,22 @@ async function initDb(){
   if(fs.existsSync(localDbPath)){try{db=JSON.parse(fs.readFileSync(localDbPath,'utf8'))}catch(_){db=blank()}}
   for(const k of Object.keys(blank()))if(db[k]==null)db[k]=blank()[k];
 }
+let 
+    // Auto-repair order phone numbers from shipping_address or customer profile
+    if (Array.isArray(db.orders)) {
+      for (const o of db.orders) {
+        if (!o.mobile) {
+          const user = (db.users || []).find(u => u.id === o.userId);
+          const sa = typeof o.shipping_address === 'object' && o.shipping_address ? o.shipping_address : {};
+          const p = o.phone || sa.phone || sa.mobile || user?.mobile || '';
+          if (p) {
+            o.mobile = p;
+            o.phone = p;
+          }
+        }
+      }
+    }
+
 let saveQueue=Promise.resolve();
 async function syncRelational(type, item) {
   if (pgPool) {
@@ -979,11 +995,26 @@ async function route(req,res){
       if(pinCheck.state && !shipping_address.state) shipping_address.state = pinCheck.state;
     }
 
+    const customerPhone = String(x.phone || x.mobile || (shipping_address && shipping_address.phone) || c.mobile || '').replace(/\D/g, '').slice(-10);
+
+    if(customerPhone && !c.mobile){
+      c.mobile = customerPhone;
+      c.updatedAt = now();
+      save();
+      syncRelational('customer', c);
+    }
+
+    if(shipping_address && customerPhone){
+      shipping_address.phone = customerPhone;
+    }
+
     const item={
       id:id('ORD'),
       order_id:String(x.order_id||id('VX-ORD-')),
       userId:c.id,
       title:title,
+      mobile: customerPhone || c.mobile || '',
+      phone: customerPhone || c.mobile || '',
       amount_paise:Number(x.amount_paise||0),
       status:String(x.status||'pending'),
       payment_method: 'ONLINE_ONLY',
@@ -1145,7 +1176,21 @@ async function route(req,res){
       return json(res,200,{ok:true,deleted:removed});
     }
     if(req.method==='GET'&&p==='/api/admin/customers')return json(res,200,db.users.map(safeUser));
-    if(req.method==='GET'&&p==='/api/admin/orders')return json(res,200,db.orders.map(o=>({...o,user:db.users.find(u=>u.id===o.userId)?.name||'Unknown',mobile:db.users.find(u=>u.id===o.userId)?.mobile||''})));
+    if(req.method==='GET'&&p==='/api/admin/orders'){
+      return json(res, 200, db.orders.map(o => {
+        const user = db.users.find(u => u.id === o.userId);
+        const sa = typeof o.shipping_address === 'object' && o.shipping_address ? o.shipping_address : {};
+        const phone = o.mobile || o.phone || sa.phone || sa.mobile || user?.mobile || '';
+        return {
+          ...o,
+          user: user?.name || o.user || 'Customer',
+          userName: user?.name || o.user || 'Customer',
+          userEmail: user?.email || '',
+          mobile: phone,
+          phone: phone
+        };
+      }));
+    }
     if(req.method==='GET'&&p==='/api/admin/feedback')return json(res,200,db.feedback.map(f=>({...f,customer:db.users.find(u=>u.id===f.userId)?.name||f.name,mobile:db.users.find(u=>u.id===f.userId)?.mobile||''})));
     if(req.method==='GET'&&p==='/api/admin/leads')return json(res,200,db.leads.map(l=>({...l,customer:db.users.find(u=>u.id===l.userId)?.name||l.name})));
     if(req.method==='POST'&&p==='/api/admin/order'){const x=await body(req);const user=db.users.find(v=>v.id===x.userId||v.mobile===String(x.mobile||'').replace(/\D/g,''));if(!user)return json(res,404,{error:'Customer not found.'});const item={id:id('ORD'),order_id:String(x.order_id||id('VX-ORD-')),userId:user.id,title:String(x.title||'VOLTERAX PROJECT').slice(0,200),amount_paise:Number(x.amount_paise||0),status:String(x.status||'pending'),details:String(x.details||'').slice(0,5000),shipping_address:x.shipping_address||null,createdAt:now(),updatedAt:now()};db.orders.unshift(item);save();syncRelational('order', item);return json(res,201,{ok:true,order:item})}
