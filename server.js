@@ -28,6 +28,12 @@ async function initDb(){
         if(rows&&rows.length>0&&rows[0].data){
           db=rows[0].data;
           for(const k of Object.keys(blank()))if(db[k]==null)db[k]=blank()[k];
+          if(!db.projects||db.projects.length===0){
+            try{
+              const pRes=await fetch(`${SUPABASE_URL}/rest/v1/projects?select=*&order=id.asc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+              if(pRes.ok){const pRows=await pRes.json();if(Array.isArray(pRows)&&pRows.length>0)db.projects=pRows;}
+            }catch(pe){console.warn('[VolteraX] Projects table load warning:',pe.message);}
+          }
           console.log(`[VolteraX] Supabase REST connected! Users: ${db.users.length}, Orders: ${db.orders.length}, Projects: ${db.projects?.length||0}`);
           return;
         }
@@ -140,6 +146,45 @@ async function syncRelational(type, item) {
           created_at: item.createdAt || new Date().toISOString()
         })
       });
+    } else if (type === 'project') {
+      const pId = encodeURIComponent(item.id || item.code);
+      const patchRes = await fetch(`${SUPABASE_URL}/rest/v1/projects?id=eq.${pId}`, {
+        method: 'PATCH',
+        headers: { ...headers, 'Prefer': 'return=representation' },
+        body: JSON.stringify({
+          title: item.title,
+          category: item.category,
+          price: Number(item.price || 0),
+          description: item.description,
+          image: item.image,
+          status: item.status || 'active',
+          featured: Boolean(item.featured)
+        })
+      });
+      const patchedRows = patchRes.ok ? await patchRes.json().catch(() => []) : [];
+      if (!Array.isArray(patchedRows) || patchedRows.length === 0) {
+        await fetch(`${SUPABASE_URL}/rest/v1/projects`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            id: item.id || item.code,
+            code: item.code || item.id,
+            title: item.title,
+            category: item.category || 'HARDWARE',
+            price: Number(item.price || 0),
+            description: item.description || '',
+            image: item.image || '',
+            status: item.status || 'active',
+            featured: Boolean(item.featured)
+          })
+        });
+      }
+    } else if (type === 'delete_project') {
+      const pId = encodeURIComponent(item.id || item.code);
+      await fetch(`${SUPABASE_URL}/rest/v1/projects?id=eq.${pId}`, {
+        method: 'DELETE',
+        headers
+      });
     }
   } catch (err) {
     console.error(`[Supabase Relational Sync Error: ${type}]`, err.message);
@@ -193,6 +238,7 @@ async function route(req,res){
   if(req.method==='GET'&&p==='/api/diag'){return json(res,200,{hasPgPool:!!pgPool,hasPgModule:!!PgPool,users:db.users.length,orders:db.orders.length,dbError:globalThis.__lastDbError||null})}
   if(req.method==='GET'&&p==='/api/customer/me'){const c=customer(req);return c?json(res,200,customerBundle(c)):json(res,401,{error:'Not logged in'})}
   if(req.method==='GET'&&p==='/api/customer/orders'){const c=customer(req);return c?json(res,200,db.orders.filter(o=>o.userId===c.id)):json(res,401,{error:'Not logged in'})}
+  if(req.method==='GET'&&p==='/api/projects'){return json(res,200,db.projects||[],{'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache','Expires':'0','Access-Control-Allow-Origin':'*'})}
   if(req.method==='POST'&&p==='/api/customer/signup'){
     const x=await body(req);
     const name=String(x.name||'').trim();
@@ -238,7 +284,57 @@ async function route(req,res){
   if(req.method==='POST'&&p==='/api/admin/logout'){const sid=cookies(req).vx_admin;if(sid)delete db.adminSessions[sid];save();return json(res,200,{ok:true},{'Set-Cookie':cookie('vx_admin','',0)})}
   if(p.startsWith('/api/admin/')){if(!requireAdmin(req,res))return;
     if(req.method==='GET'&&p==='/api/admin/summary')return json(res,200,{customers:db.users.length,orders:db.orders.length,feedback:db.feedback.length,newFeedback:db.feedback.filter(x=>x.status==='new').length,leads:db.leads.length,newLeads:db.leads.filter(x=>x.status==='new').length,revenuePaise:db.orders.reduce((a,o)=>a+Number(o.amount_paise||0),0),projects:(db.projects||[]).length,updatedAt:now()});
-    if(req.method==='GET'&&p==='/api/admin/projects')return json(res,200,db.projects||[]);
+    if(req.method==='GET'&&(p==='/api/admin/projects'||p==='/api/admin/project'))return json(res,200,db.projects||[]);
+    if(req.method==='PATCH'&&(p.startsWith('/api/admin/projects/')||p.startsWith('/api/admin/project/'))){
+      const rawPid=decodeURIComponent(p.split('/').pop());
+      const pid=rawPid.toUpperCase().replace(/\s+/g,'');
+      const x=await body(req);
+      const proj=(db.projects||[]).find(v=>(v.id&&v.id.toUpperCase().replace(/\s+/g,'')===pid)||(v.code&&v.code.toUpperCase().replace(/\s+/g,'')===pid));
+      if(!proj)return json(res,404,{error:'Project not found: '+rawPid});
+      if(x.price!==undefined)proj.price=Number(x.price);
+      if(x.title!==undefined)proj.title=String(x.title).trim();
+      if(x.category!==undefined)proj.category=String(x.category).trim().toUpperCase();
+      if(x.description!==undefined)proj.description=String(x.description).trim();
+      if(x.image!==undefined)proj.image=String(x.image).trim();
+      if(x.status!==undefined)proj.status=String(x.status);
+      if(x.featured!==undefined)proj.featured=Boolean(x.featured);
+      proj.updatedAt=now();
+      save();
+      syncRelational('project', proj);
+      return json(res,200,{ok:true,project:proj});
+    }
+    if(req.method==='POST'&&(p==='/api/admin/projects'||p==='/api/admin/project')){
+      const x=await body(req);
+      const newId=x.id||id('VX-');
+      const item={
+        id:newId,
+        code:x.code||('VX / '+newId),
+        title:String(x.title||'New Hardware Project').trim(),
+        category:String(x.category||'HARDWARE').toUpperCase(),
+        description:String(x.description||'').trim(),
+        image:String(x.image||''),
+        price:Number(x.price||0),
+        status:String(x.status||'active'),
+        featured:Boolean(x.featured),
+        createdAt:now(),
+        updatedAt:now()
+      };
+      if(!db.projects)db.projects=[];
+      db.projects.unshift(item);
+      save();
+      syncRelational('project', item);
+      return json(res,201,{ok:true,project:item});
+    }
+    if(req.method==='DELETE'&&(p.startsWith('/api/admin/projects/')||p.startsWith('/api/admin/project/'))){
+      const rawPid=decodeURIComponent(p.split('/').pop());
+      const pid=rawPid.toUpperCase().replace(/\s+/g,'');
+      const idx=(db.projects||[]).findIndex(v=>(v.id&&v.id.toUpperCase().replace(/\s+/g,'')===pid)||(v.code&&v.code.toUpperCase().replace(/\s+/g,'')===pid));
+      if(idx===-1)return json(res,404,{error:'Project not found.'});
+      const removed=db.projects.splice(idx,1)[0];
+      save();
+      syncRelational('delete_project', removed);
+      return json(res,200,{ok:true,deleted:removed});
+    }
     if(req.method==='GET'&&p==='/api/admin/customers')return json(res,200,db.users.map(safeUser));
     if(req.method==='GET'&&p==='/api/admin/orders')return json(res,200,db.orders.map(o=>({...o,user:db.users.find(u=>u.id===o.userId)?.name||'Unknown',mobile:db.users.find(u=>u.id===o.userId)?.mobile||''})));
     if(req.method==='GET'&&p==='/api/admin/feedback')return json(res,200,db.feedback.map(f=>({...f,customer:db.users.find(u=>u.id===f.userId)?.name||f.name,mobile:db.users.find(u=>u.id===f.userId)?.mobile||''})));

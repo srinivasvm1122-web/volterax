@@ -718,7 +718,9 @@
       menuButton.textContent = '☰';
     }));
   </script>
-<script id="vx-order-login-routing">
+<script id="vx-live-projects-sync">
+(function() {
+  function updateCardRoutes() {
     document.querySelectorAll('.order-btn').forEach(function(button){
       var card = button.closest('.project-card');
       var title = card && card.querySelector('.card-info h2');
@@ -726,14 +728,98 @@
       var priceEl = card && card.querySelector('.price-val');
       var price = priceEl ? priceEl.textContent.replace(/\D/g, '') : '';
       button.href = 'index.html?orderProject=' + encodeURIComponent(projectName) + (price ? '&orderPrice=' + price : '');
-      button.addEventListener('click', function(){
+      button.onclick = function(){
         try {
           sessionStorage.setItem('vxPendingProjectOrder', projectName);
           if (price) sessionStorage.setItem('vxPendingProjectPrice', price);
         } catch(e) {}
+      };
+    });
+  }
+
+  // Initial binding
+  updateCardRoutes();
+
+  // Dynamic live sync with backend / Supabase database
+  fetch('/api/projects', { cache: 'no-store' })
+    .then(function(res) {
+      if (!res.ok) throw new Error('Status ' + res.status);
+      return res.json();
+    })
+    .then(function(projects) {
+      if (!Array.isArray(projects) || projects.length === 0) return;
+
+      var byCode = {};
+      var byNum = {};
+      var byTitle = {};
+
+      projects.forEach(function(p, i) {
+        if (p.code) {
+          byCode[p.code.toUpperCase().replace(/\s+/g, '')] = p;
+          var num = p.code.replace(/\D/g, '');
+          if (num) byNum[String(parseInt(num, 10))] = p;
+        }
+        if (p.id) {
+          byCode[p.id.toUpperCase().replace(/\s+/g, '')] = p;
+          var numId = p.id.replace(/\D/g, '');
+          if (numId) byNum[String(parseInt(numId, 10))] = p;
+        }
+        if (p.title) {
+          byTitle[p.title.toLowerCase().trim()] = p;
+        }
       });
+
+      document.querySelectorAll('.project-card').forEach(function(card, index) {
+        var codeEl = card.querySelector('.visual-index');
+        var titleEl = card.querySelector('.card-info h2');
+        var priceValEl = card.querySelector('.price-val');
+        var descEl = card.querySelector('.card-info p');
+        var imgEl = card.querySelector('.project-visual img');
+
+        var matched = null;
+        if (codeEl) {
+          var raw = codeEl.textContent.toUpperCase().replace(/\s+/g, '');
+          matched = byCode[raw];
+          if (!matched) {
+            var n = codeEl.textContent.replace(/\D/g, '');
+            if (n) matched = byNum[String(parseInt(n, 10))];
+          }
+        }
+        if (!matched && titleEl) {
+          matched = byTitle[titleEl.textContent.toLowerCase().trim()];
+        }
+        if (!matched && projects[index]) {
+          matched = projects[index];
+        }
+
+        if (matched) {
+          if (priceValEl && matched.price != null && !isNaN(matched.price)) {
+            priceValEl.textContent = '₹' + Number(matched.price).toLocaleString('en-IN');
+          }
+          if (titleEl && matched.title && titleEl.textContent !== matched.title) {
+            titleEl.textContent = matched.title;
+          }
+          if (descEl && matched.description && descEl.textContent !== matched.description) {
+            descEl.textContent = matched.description;
+          }
+          if (imgEl && matched.image && matched.image.startsWith('http') && imgEl.src !== matched.image) {
+            imgEl.src = matched.image;
+          }
+          if (matched.status === 'archived' || matched.status === 'inactive') {
+            card.style.display = 'none';
+          } else {
+            card.style.display = '';
+          }
+        }
+      });
+
+      // Refresh link URLs with live prices
+      updateCardRoutes();
+    })
+    .catch(function(err) {
+      console.warn('[VOLTERAX] Live price sync notice:', err.message);
     });
-    });
-  </script>
+})();
+</script>
 </body>
 </html>
