@@ -1,4 +1,71 @@
 
+// ==================== GMAIL / EMAIL OTP VERIFICATION SYSTEM ====================
+globalThis.__vxPendingOtps = globalThis.__vxPendingOtps || {};
+
+let mailerTransport = null;
+function getMailer() {
+  if (mailerTransport) return mailerTransport;
+  const user = process.env.SMTP_USER || process.env.GMAIL_USER || 'volterax.360@gmail.com';
+  const pass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || process.env.EMAIL_PASSWORD;
+  if (!pass) return null;
+  try {
+    const { createTransport } = require('nodemailer');
+    mailerTransport = createTransport({
+      service: 'gmail',
+      auth: { user, pass }
+    });
+    return mailerTransport;
+  } catch (err) {
+    console.error('[Nodemailer Init Error]', err.message);
+    return null;
+  }
+}
+
+async function sendOtpEmail(toEmail, otp, name = 'Customer') {
+  const mailer = getMailer();
+  const htmlContent = `
+    <div style="background:#050508;color:#ffffff;padding:36px;font-family:Arial,-apple-system,sans-serif;border-radius:14px;border:1px solid #6C3BFF;max-width:540px;margin:0 auto;box-shadow:0 20px 50px rgba(0,0,0,0.8);">
+      <div style="margin-bottom:24px;">
+        <span style="font-size:24px;font-weight:900;letter-spacing:3px;color:#ffffff;">VOLTERAX</span>
+        <span style="font-size:11px;font-family:monospace;color:#00E5FF;letter-spacing:2px;margin-left:8px;">/ VERIFICATION HUB</span>
+      </div>
+      <h2 style="color:#ffffff;margin:0 0 12px;font-size:22px;font-weight:800;">Your 6-Digit Verification Code</h2>
+      <p style="color:#d1d5db;font-size:14.5px;line-height:1.6;margin:0 0 24px;">
+        Hello ${name},<br>
+        Use the one-time code below to authenticate your VOLTERAX customer portal:
+      </p>
+      <div style="background:#0c0c14;border:1px solid #6C3BFF;padding:20px;text-align:center;font-size:36px;font-weight:900;letter-spacing:12px;color:#00E5FF;border-radius:10px;margin:24px 0;">
+        ${otp}
+      </div>
+      <p style="color:#9da0ad;font-size:12.5px;line-height:1.6;margin:24px 0 0;border-top:1px solid rgba(255,255,255,0.08);padding-top:16px;">
+        ⏱️ This security code is valid for <strong>10 minutes</strong>.<br>
+        🔒 Do not share this code with anyone. VOLTERAX will never ask for your code over the phone.
+      </p>
+    </div>
+  `;
+
+  if (mailer) {
+    try {
+      await mailer.sendMail({
+        from: `"VOLTERAX Hardware Systems" <${process.env.SMTP_USER || 'volterax.360@gmail.com'}>`,
+        to: toEmail,
+        subject: `VOLTERAX Verification Code: ${otp}`,
+        text: `Your VOLTERAX 6-digit verification code is: ${otp}. It expires in 10 minutes.`,
+        html: htmlContent
+      });
+      console.log(`[VOLTERAX OTP] Dispatched email to ${toEmail}`);
+      return { sent: true };
+    } catch (err) {
+      console.error(`[VOLTERAX OTP Send Error]`, err.message);
+      return { sent: false, error: err.message };
+    }
+  } else {
+    console.log(`[VOLTERAX OTP Notice] SMTP_PASS not set in environment. Live code for ${toEmail} is: ${otp}`);
+    return { sent: false, code: otp, notice: 'Code logged to server' };
+  }
+}
+
+
 const dns = require('dns').promises;
 
 const DISPOSABLE_EMAIL_DOMAINS = new Set([
@@ -375,7 +442,96 @@ async function route(req,res){
     }
     return json(res,200,db.projects||[],{'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache','Expires':'0','Access-Control-Allow-Origin':'*'});
   }
-  if(req.method==='POST'&&p==='/api/customer/signup'){
+  
+    // --- GMAIL OTP ENDPOINTS ---
+    if(req.method==='POST'&&p==='/api/customer/send-otp'){
+      const x=await body(req);
+      const email=String(x.email||x.gmail||'').trim().toLowerCase();
+      const name=String(x.name||'').trim()||'Customer';
+      const mode=String(x.mode||'login').toLowerCase();
+
+      const emailCheck = await validateEmailServer(email, false);
+      if(!emailCheck.valid) return json(res, 400, { error: emailCheck.error });
+
+      const otp = String(Math.floor(100000 + Math.random() * 900000));
+      globalThis.__vxPendingOtps[email] = {
+        otp,
+        expires: Date.now() + 10 * 60 * 1000,
+        name,
+        mode,
+        ref: String(x.ref||'').trim().toUpperCase(),
+        attempts: 0
+      };
+
+      const mailResult = await sendOtpEmail(email, otp, name);
+      return json(res, 200, {
+        ok: true,
+        message: 'Verification code sent to ' + email,
+        email: email,
+        hasSmtp: Boolean(mailResult.sent)
+      });
+    }
+
+    if(req.method==='POST'&&p==='/api/customer/verify-otp'){
+      const x=await body(req);
+      const email=String(x.email||x.gmail||'').trim().toLowerCase();
+      const inputOtp=String(x.otp||x.code||'').trim().replace(/\D/g,'');
+
+      if(!email) return json(res, 400, { error: 'Email address is required.' });
+      if(!inputOtp || inputOtp.length !== 6) return json(res, 400, { error: 'Please enter the 6-digit verification code.' });
+
+      const pending = globalThis.__vxPendingOtps[email];
+      if(!pending || Date.now() > pending.expires){
+        return json(res, 400, { error: 'Verification code expired or not requested. Please click Resend Code.' });
+      }
+
+      if(pending.attempts >= 5){
+        delete globalThis.__vxPendingOtps[email];
+        return json(res, 400, { error: 'Too many incorrect attempts. Please request a new verification code.' });
+      }
+
+      if(pending.otp !== inputOtp){
+        pending.attempts++;
+        return json(res, 400, { error: 'Incorrect verification code. Please check your Gmail inbox or spam.' });
+      }
+
+      // Valid OTP! Clear pending record
+      delete globalThis.__vxPendingOtps[email];
+
+      // Find or create customer
+      let user = db.users.find(u => (u.email && u.email.toLowerCase() === email) || (u.mobile && u.mobile === email));
+      if(!user){
+        const userName = String(x.name || pending.name || email.split('@')[0]).trim() || 'Volterax Customer';
+        const userRef = pending.ref || '';
+        const hp = hashPassword(crypto.randomBytes(16).toString('hex'));
+        const idv = id('VX');
+        user = {
+          id: idv,
+          name: userName,
+          email: email,
+          mobile: '',
+          passwordHash: hp.hash,
+          passwordSalt: hp.salt,
+          ref: 'VX' + crypto.randomBytes(4).toString('hex').toUpperCase(),
+          referredBy: userRef && db.users.some(v => v.ref === userRef) ? userRef : null,
+          createdAt: now(),
+          lastLoginAt: now()
+        };
+        db.users.push(user);
+      } else {
+        user.lastLoginAt = now();
+        if(x.name && (!user.name || user.name === 'Customer')) user.name = String(x.name).trim();
+      }
+
+      const sid = crypto.randomBytes(32).toString('hex');
+      db.sessions[sid] = { userId: user.id, expires: Date.now() + SESSION_TTL };
+      save();
+      syncRelational('customer', user);
+
+      return json(res, 200, customerBundle(user), { 'Set-Cookie': cookie('vx_session', sid, SESSION_TTL / 1000) });
+    }
+
+    if(req.method==='POST'&&p==='/api/customer/signup'){
     const x=await body(req);
     const name=String(x.name||'').trim();
     const email=String(x.email||x.gmail||'').trim().toLowerCase();
