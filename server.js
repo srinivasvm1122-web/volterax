@@ -450,15 +450,23 @@ async function route(req,res){
       const email=String(x.email||x.gmail||'').trim().toLowerCase();
       const name=String(x.name||'').trim()||'Customer';
       const mode=String(x.mode||'login').toLowerCase();
+      let mobile=String(x.mobile||'').trim();
 
       const emailCheck = await validateEmailServer(email, false);
       if(!emailCheck.valid) return json(res, 400, { error: emailCheck.error });
+
+      if (mode === 'create') {
+        const mobCheck = validateIndianMobile(mobile);
+        if(!mobCheck.valid) return json(res, 400, { error: mobCheck.error });
+        mobile = mobCheck.mobile;
+      }
 
       const fallbackOtp = String(Math.floor(100000 + Math.random() * 900000));
       globalThis.__vxPendingOtps[email] = {
         otp: fallbackOtp,
         expires: Date.now() + 10 * 60 * 1000,
         name,
+        mobile: mobile || '',
         mode,
         ref: String(x.ref||'').trim().toUpperCase(),
         attempts: 0
@@ -548,6 +556,7 @@ async function route(req,res){
 
       // Find or create customer
       let user = db.users.find(u => (u.email && u.email.toLowerCase() === email) || (u.mobile && u.mobile === email));
+      const userMobile = String(x.mobile || (pending && pending.mobile) || '').trim();
       if(!user){
         const userName = String(x.name || (pending && pending.name) || email.split('@')[0]).trim() || 'Volterax Customer';
         const userRef = (pending && pending.ref) || '';
@@ -557,7 +566,7 @@ async function route(req,res){
           id: idv,
           name: userName,
           email: email,
-          mobile: '',
+          mobile: userMobile,
           passwordHash: hp.hash,
           passwordSalt: hp.salt,
           ref: 'VX' + crypto.randomBytes(4).toString('hex').toUpperCase(),
@@ -569,6 +578,7 @@ async function route(req,res){
       } else {
         user.lastLoginAt = now();
         if(x.name && (!user.name || user.name === 'Customer')) user.name = String(x.name).trim();
+        if(userMobile && !user.mobile) user.mobile = userMobile;
       }
 
       const sid = crypto.randomBytes(32).toString('hex');

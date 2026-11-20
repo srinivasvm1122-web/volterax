@@ -1775,6 +1775,8 @@ if (btn) btn.disabled = false;
   <div id="accCreateFields">
     <label class="accountLabel">YOUR FULL NAME</label>
     <input class="accountInput" id="accName" placeholder="e.g. Anand Rao">
+    <label class="accountLabel">PHONE NUMBER / MOBILE</label>
+    <input class="accountInput" id="accMobile" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number (e.g. 9876543210)">
     <label class="accountLabel">GMAIL / EMAIL ADDRESS</label>
     <input class="accountInput" id="accEmail" type="email" autocomplete="email" placeholder="name@gmail.com">
     <label class="accountLabel">REFERRAL CODE (OPTIONAL)</label>
@@ -2750,21 +2752,37 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
       const name = mode === 'create'
         ? (document.getElementById('accName')?.value || '').trim()
         : '';
+
+      const mobile = mode === 'create'
+        ? (document.getElementById('accMobile')?.value || '').trim()
+        : '';
       
       const ref = mode === 'create'
         ? ((document.getElementById('accRef')?.value || '').trim() || sessionStorage.getItem('volteraxIncomingReferral') || '').toUpperCase()
         : '';
 
-      if (mode === 'create' && name.length < 2) {
-        msg.style.color = '#ef4444';
-        msg.textContent = '✕ Please enter your full name (at least 2 characters).';
-        return;
+      if (mode === 'create') {
+        if (name.length < 2) {
+          msg.style.color = '#ef4444';
+          msg.textContent = '✕ Please enter your full name (at least 2 characters).';
+          document.getElementById('accName')?.focus();
+          return;
+        }
+
+        const mobCheck = validateVolteraxMobile(mobile);
+        if (!mobCheck.valid) {
+          msg.style.color = '#ef4444';
+          msg.textContent = '✕ ' + mobCheck.error;
+          document.getElementById('accMobile')?.focus();
+          return;
+        }
       }
 
       const emailCheck = validateVolteraxEmail(email);
       if (!emailCheck.valid) {
         msg.style.color = '#ef4444';
         msg.textContent = '✕ ' + emailCheck.error;
+        document.getElementById(mode === 'create' ? 'accEmail' : 'accLoginEmail')?.focus();
         return;
       }
 
@@ -2776,7 +2794,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
         const res = await fetch('/api/customer/send-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, name, mode, ref })
+          body: JSON.stringify({ email, name, mobile, mode, ref })
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to send verification code.');
@@ -2803,6 +2821,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
       }
 
       const name = (document.getElementById('accName')?.value || '').trim();
+      const mobile = (document.getElementById('accMobile')?.value || '').trim();
       const ref = ((document.getElementById('accRef')?.value || '').trim() || sessionStorage.getItem('volteraxIncomingReferral') || '').toUpperCase();
 
       msg.style.color = '#00E5FF';
@@ -2814,7 +2833,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
-          body: JSON.stringify({ email: activeOtpEmail, otp, name, mode, ref })
+          body: JSON.stringify({ email: activeOtpEmail, otp, name, mobile, mode, ref })
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Verification failed. Please check the code.');
