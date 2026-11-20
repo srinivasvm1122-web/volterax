@@ -453,9 +453,9 @@ async function route(req,res){
       const emailCheck = await validateEmailServer(email, false);
       if(!emailCheck.valid) return json(res, 400, { error: emailCheck.error });
 
-      const otp = String(Math.floor(100000 + Math.random() * 900000));
+      const fallbackOtp = String(Math.floor(100000 + Math.random() * 900000));
       globalThis.__vxPendingOtps[email] = {
-        otp,
+        otp: fallbackOtp,
         expires: Date.now() + 10 * 60 * 1000,
         name,
         mode,
@@ -463,13 +463,36 @@ async function route(req,res){
         attempts: 0
       };
 
-      const mailResult = await sendOtpEmail(email, otp, name);
+      let sentViaSupabase = false;
+      if (SUPABASE_URL && SUPABASE_KEY) {
+        try {
+          const supaRes = await fetch(SUPABASE_URL + '/auth/v1/otp', {
+            method: 'POST',
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, create_user: true })
+          });
+          if (supaRes.ok) {
+            sentViaSupabase = true;
+            console.log('[Supabase Auth OTP] Real email code dispatched to ' + email);
+          }
+        } catch (supaErr) {
+          console.warn('[Supabase Auth OTP Warning]', supaErr.message);
+        }
+      }
+
+      // Also try nodemailer if configured
+      const mailResult = await sendOtpEmail(email, fallbackOtp, name);
+      const emailSent = sentViaSupabase || Boolean(mailResult.sent);
+
       return json(res, 200, {
         ok: true,
-        message: mailResult.sent ? 'Verification code sent to ' + email : 'Verification code generated for ' + email,
+        message: 'Verification code sent to ' + email + '. Please check your Inbox and Spam folder.',
         email: email,
-        hasSmtp: Boolean(mailResult.sent),
-        previewCode: mailResult.sent ? null : otp
+        hasSmtp: emailSent,
+        previewCode: emailSent ? null : fallbackOtp
       });
     }
 
@@ -482,28 +505,50 @@ async function route(req,res){
       if(!inputOtp || inputOtp.length !== 6) return json(res, 400, { error: 'Please enter the 6-digit verification code.' });
 
       const pending = globalThis.__vxPendingOtps[email];
-      if(!pending || Date.now() > pending.expires){
-        return json(res, 400, { error: 'Verification code expired or not requested. Please click Resend Code.' });
+      let verified = false;
+
+      // 1. Verify with Supabase Auth
+      if (SUPABASE_URL && SUPABASE_KEY) {
+        try {
+          const supaVerify = await fetch(SUPABASE_URL + '/auth/v1/verify', {
+            method: 'POST',
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              type: 'email',
+              email: email,
+              token: inputOtp
+            })
+          });
+          if (supaVerify.ok) {
+            verified = true;
+            console.log('[Supabase Auth] Code successfully verified for ' + email);
+          }
+        } catch (supaVerifyErr) {
+          console.warn('[Supabase Auth Verify Warning]', supaVerifyErr.message);
+        }
       }
 
-      if(pending.attempts >= 5){
-        delete globalThis.__vxPendingOtps[email];
-        return json(res, 400, { error: 'Too many incorrect attempts. Please request a new verification code.' });
+      // 2. Verify with local fallback OTP
+      if (!verified && pending && pending.otp === inputOtp && Date.now() <= pending.expires) {
+        verified = true;
       }
 
-      if(pending.otp !== inputOtp){
-        pending.attempts++;
-        return json(res, 400, { error: 'Incorrect verification code. Please check your Gmail inbox or spam.' });
+      if (!verified) {
+        if (pending) pending.attempts++;
+        return json(res, 400, { error: 'Incorrect or expired verification code. Please check your Gmail or click Resend.' });
       }
 
-      // Valid OTP! Clear pending record
+      // Validated! Clear pending record
       delete globalThis.__vxPendingOtps[email];
 
       // Find or create customer
       let user = db.users.find(u => (u.email && u.email.toLowerCase() === email) || (u.mobile && u.mobile === email));
       if(!user){
-        const userName = String(x.name || pending.name || email.split('@')[0]).trim() || 'Volterax Customer';
-        const userRef = pending.ref || '';
+        const userName = String(x.name || (pending && pending.name) || email.split('@')[0]).trim() || 'Volterax Customer';
+        const userRef = (pending && pending.ref) || '';
         const hp = hashPassword(crypto.randomBytes(16).toString('hex'));
         const idv = id('VX');
         user = {
