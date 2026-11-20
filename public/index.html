@@ -1433,7 +1433,396 @@ color: #fff !important;
 
 <section class="fullImage"><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1640955785023-1854685dae05?auto=format&fit=crop&fm=jpg&q=78&w=2400" alt="Microcontroller engineering detail"><div class="caption"><small>03 / HARDWARE DETAIL</small><h2>Small boards.<br>Big intent.</h2></div></section>
 
-<section class="origin" id="origin"><div class="originGrid"><div class="map"><img loading="lazy" decoding="async" src="https://upload.wikimedia.org/wikipedia/commons/b/b6/Karnataka_outline_shape.svg" alt="Karnataka state outline map"><div class="mapLabel">VOLTERAX ORIGIN · KARNATAKA · INDIA</div></div><div><div class="eyebrow">04 / ORIGIN</div><h2>BORN IN KARNATAKA.<br>BUILT OUTWARD.</h2><p>VOLTERAX is a Karnataka technology brand building from electronics and engineering toward robotics, automation and original products.</p><a class="btn" href="#bridge" style="margin-top:28px">SEE HOW WE CONNECT ↗</a></div></div></section>
+<style id="vx-kmap-styles">
+.vx-kmap-card {
+  position: relative;
+  overflow: hidden !important;
+  background: radial-gradient(circle at 70% 75%, rgba(108,59,255,0.15), rgba(7,8,9,0.98) 72%), #070809 !important;
+  border: 1px solid rgba(108,59,255,0.38) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7), inset 0 0 50px rgba(108,59,255,0.1) !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+.vx-kmap-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(108,59,255,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(108,59,255,0.07) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none;
+  z-index: 1;
+}
+.vx-kmap-scanline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0,229,255,0.2) 15%, #00E5FF 50%, rgba(108,59,255,0.85) 85%, transparent);
+  box-shadow: 0 0 16px rgba(0,229,255,0.9), 0 0 32px rgba(108,59,255,0.7);
+  z-index: 3;
+  pointer-events: none;
+  animation: vxKmapScan 6s ease-in-out infinite;
+}
+@keyframes vxKmapScan {
+  0%, 100% { top: 6%; opacity: 0; }
+  12% { opacity: 0.95; }
+  50% { top: 90%; opacity: 1; }
+  88% { opacity: 0.95; }
+}
+.vx-kmap-hud {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 4;
+  font-family: monospace;
+  text-align: right;
+  pointer-events: none;
+}
+.vx-hud-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(8,10,16,0.88);
+  border: 1px solid rgba(0,229,255,0.45);
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #00E5FF;
+  box-shadow: 0 0 16px rgba(0,229,255,0.22);
+}
+.vx-hud-dot {
+  width: 6px;
+  height: 6px;
+  background: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #10b981;
+  animation: vxHudBlink 1.4s infinite;
+}
+@keyframes vxHudBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+.vx-hud-coords {
+  font-size: 9px;
+  color: #9da0ad;
+  letter-spacing: 0.12em;
+  margin-top: 6px;
+}
+.vx-kmap-stage {
+  position: relative;
+  width: 84%;
+  height: 84%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vx-kmap-silhouette {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  filter: invert(1) brightness(0.68) drop-shadow(0 0 20px rgba(108,59,255,0.58)) drop-shadow(0 0 40px rgba(0,229,255,0.28)) !important;
+  opacity: 0.88;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.vx-kmap-svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: auto;
+}
+.vx-track {
+  stroke: rgba(108,59,255,0.35);
+  stroke-width: 1.6;
+  stroke-dasharray: 4 4;
+  fill: none;
+}
+.vx-track-glow {
+  stroke: url(#vxCircuitGrad);
+  stroke-width: 2.4;
+  stroke-dasharray: 22 65;
+  fill: none;
+  animation: vxCircuitFlow 3s linear infinite;
+  filter: drop-shadow(0 0 5px #00E5FF);
+}
+@keyframes vxCircuitFlow {
+  from { stroke-dashoffset: 260; }
+  to { stroke-dashoffset: 0; }
+}
+.vx-pulse-circle {
+  fill: none;
+  stroke: #00E5FF;
+  stroke-width: 1.5;
+  opacity: 0;
+  animation: vxPulseOut 3.2s cubic-bezier(0.1, 0.6, 0.3, 1) infinite;
+}
+.vx-pulse-circle.c1 { animation-delay: 0s; }
+.vx-pulse-circle.c2 { animation-delay: 0.8s; }
+.vx-pulse-circle.c3 { animation-delay: 1.6s; }
+.vx-pulse-circle.c4 { animation-delay: 2.4s; }
+@keyframes vxPulseOut {
+  0% { r: 12px; opacity: 0.95; stroke-width: 2.4px; stroke: #00E5FF; }
+  50% { opacity: 0.6; stroke: #8B5CFF; }
+  100% { r: 210px; opacity: 0; stroke-width: 0.5px; stroke: #6C3BFF; }
+}
+.vx-cnode {
+  cursor: pointer;
+}
+.vx-node-halo {
+  fill: rgba(108,59,255,0.22);
+  animation: vxHaloBreath 2.2s infinite ease-in-out alternate;
+}
+@keyframes vxHaloBreath {
+  0% { transform: scale(0.92); opacity: 0.45; }
+  100% { transform: scale(1.35); opacity: 0.95; }
+}
+.vx-node-ring {
+  fill: none;
+  stroke: #00E5FF;
+  stroke-width: 1.5;
+}
+.vx-node-core {
+  fill: #00E5FF;
+  filter: drop-shadow(0 0 6px #00E5FF);
+}
+.vx-cnode-hq .vx-node-core {
+  fill: #ffffff;
+  filter: drop-shadow(0 0 8px #00E5FF) drop-shadow(0 0 16px #6C3BFF);
+}
+.vx-cnode-hq .vx-node-ring {
+  stroke: #6C3BFF;
+  stroke-width: 2.2;
+}
+.vx-node-lbl-title {
+  font-family: monospace;
+  font-size: 13.5px;
+  font-weight: 800;
+  fill: #ffffff;
+  letter-spacing: 0.12em;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.95), 0 0 14px rgba(108,59,255,0.9);
+}
+.vx-node-lbl-sub {
+  font-family: monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  fill: #00E5FF;
+  letter-spacing: 0.16em;
+  opacity: 0.95;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+}
+.vx-kmap-label {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: #b9bdc0;
+}
+.vx-kmap-origin-pill {
+  background: rgba(108,59,255,0.28);
+  border: 1px solid #6C3BFF;
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: #00E5FF;
+  font-weight: 800;
+  font-size: 9px;
+}
+.vx-kmap-active-badge {
+  background: rgba(0,229,255,0.14);
+  border: 1px solid rgba(0,229,255,0.45);
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 9px;
+}
+@media (max-width: 768px) {
+  .vx-node-lbl-title { font-size: 15px !important; }
+  .vx-node-lbl-sub { font-size: 10px !important; }
+  .vx-kmap-label { font-size: 8px; left: 12px; bottom: 12px; flex-wrap: wrap; gap: 6px; }
+  .vx-kmap-hud { top: 12px; right: 12px; }
+}
+</style>
+
+<section class="origin" id="origin"><div class="originGrid"><div class="map vx-kmap-card" id="karnatakaOriginMap">
+  <!-- Cyber Scan line & Grid -->
+  <div class="vx-kmap-scanline"></div>
+  <div class="vx-kmap-grid"></div>
+
+  <!-- Telemetry HUD Badge -->
+  <div class="vx-kmap-hud">
+    <div class="vx-hud-pill"><span class="vx-hud-dot"></span>SYS.MESH ACTIVE</div>
+    <div class="vx-hud-coords">BLR // 12.9716°N · 77.5946°E</div>
+  </div>
+
+  <!-- Map Stage with Silhouette + Interactive Vector Overlay -->
+  <div class="vx-kmap-stage">
+    <img loading="lazy" decoding="async" class="vx-kmap-silhouette" src="https://upload.wikimedia.org/wikipedia/commons/b/b6/Karnataka_outline_shape.svg" alt="Karnataka state outline map">
+
+    <svg class="vx-kmap-svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
+      <!-- Glow Filters & Gradients -->
+      <defs>
+        <filter id="vxNeonGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+        <linearGradient id="vxCircuitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#00E5FF" stop-opacity="0.95"/>
+          <stop offset="50%" stop-color="#8B5CFF" stop-opacity="0.85"/>
+          <stop offset="100%" stop-color="#6C3BFF" stop-opacity="0.7"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Connecting Circuit Traces -->
+      <g class="vx-circuits">
+        <!-- BLR to MYS -->
+        <path class="vx-track" d="M668,770 L600,815 L545,860" />
+        <path class="vx-track-glow" d="M668,770 L600,815 L545,860" />
+
+        <!-- BLR to MNG -->
+        <path class="vx-track" d="M668,770 L520,775 L410,780 L310,780" />
+        <path class="vx-track-glow" d="M668,770 L520,775 L410,780 L310,780" />
+
+        <!-- BLR to SMG -->
+        <path class="vx-track" d="M668,770 L550,700 L400,640" />
+        <path class="vx-track-glow" d="M668,770 L550,700 L400,640" />
+
+        <!-- SMG to HBL -->
+        <path class="vx-track" d="M400,640 L370,550 L345,455" />
+        <path class="vx-track-glow" d="M400,640 L370,550 L345,455" />
+
+        <!-- HBL to BLG -->
+        <path class="vx-track" d="M345,455 L310,420 L265,390" />
+        <path class="vx-track-glow" d="M345,455 L310,420 L265,390" />
+
+        <!-- HBL to KLB -->
+        <path class="vx-track" d="M345,455 L460,320 L567,195" />
+        <path class="vx-track-glow" d="M345,455 L460,320 L567,195" />
+
+        <!-- KLB to BDR -->
+        <path class="vx-track" d="M567,195 L620,155 L660,115" />
+        <path class="vx-track-glow" d="M567,195 L620,155 L660,115" />
+      </g>
+
+      <!-- Radiating Pulse Rings from Bengaluru (BUILT OUTWARD) -->
+      <g class="vx-blr-pulses">
+        <circle cx="668" cy="770" r="16" class="vx-pulse-circle c1" />
+        <circle cx="668" cy="770" r="32" class="vx-pulse-circle c2" />
+        <circle cx="668" cy="770" r="48" class="vx-pulse-circle c3" />
+        <circle cx="668" cy="770" r="64" class="vx-pulse-circle c4" />
+      </g>
+
+      <!-- Animated Moving Photons (Data Packets) -->
+      <circle class="vx-photon" r="3.5" fill="#00E5FF" filter="url(#vxNeonGlow)">
+        <animateMotion path="M668,770 L600,815 L545,860" dur="2s" repeatCount="indefinite" />
+      </circle>
+      <circle class="vx-photon" r="3.5" fill="#00E5FF" filter="url(#vxNeonGlow)">
+        <animateMotion path="M668,770 L520,775 L410,780 L310,780" dur="2.8s" repeatCount="indefinite" />
+      </circle>
+      <circle class="vx-photon" r="4" fill="#00E5FF" filter="url(#vxNeonGlow)">
+        <animateMotion path="M668,770 L550,700 L400,640 L370,550 L345,455" dur="3.5s" repeatCount="indefinite" />
+      </circle>
+      <circle class="vx-photon" r="3.5" fill="#00E5FF" filter="url(#vxNeonGlow)">
+        <animateMotion path="M345,455 L310,420 L265,390" dur="2.2s" repeatCount="indefinite" />
+      </circle>
+      <circle class="vx-photon" r="3.5" fill="#00E5FF" filter="url(#vxNeonGlow)">
+        <animateMotion path="M345,455 L460,320 L567,195 L620,155 L660,115" dur="4s" repeatCount="indefinite" />
+      </circle>
+
+      <!-- City Nodes -->
+      <!-- Bengaluru: HQ -->
+      <g class="vx-cnode vx-cnode-hq" transform="translate(668, 770)" data-city="Bengaluru">
+        <circle class="vx-node-halo" r="22" />
+        <circle class="vx-node-ring" r="10" />
+        <circle class="vx-node-core" r="4.5" />
+        <text class="vx-node-lbl-title" x="20" y="5">BENGALURU</text>
+        <text class="vx-node-lbl-sub" x="20" y="20">HQ · INNOVATION CORE</text>
+      </g>
+
+      <!-- Mysuru -->
+      <g class="vx-cnode" transform="translate(545, 860)" data-city="Mysuru">
+        <circle class="vx-node-halo" r="14" />
+        <circle class="vx-node-ring" r="6" />
+        <circle class="vx-node-core" r="3" />
+        <text class="vx-node-lbl-title" x="14" y="4">MYSURU</text>
+        <text class="vx-node-lbl-sub" x="14" y="16">HARDWARE LABS</text>
+      </g>
+
+      <!-- Mangaluru -->
+      <g class="vx-cnode" transform="translate(310, 780)" data-city="Mangaluru">
+        <circle class="vx-node-halo" r="14" />
+        <circle class="vx-node-ring" r="6" />
+        <circle class="vx-node-core" r="3" />
+        <text class="vx-node-lbl-title" x="-12" y="4" text-anchor="end">MANGALURU</text>
+        <text class="vx-node-lbl-sub" x="-12" y="16" text-anchor="end">IOT & SENSORS</text>
+      </g>
+
+      <!-- Shivamogga -->
+      <g class="vx-cnode" transform="translate(400, 640)" data-city="Shivamogga">
+        <circle class="vx-node-halo" r="12" />
+        <circle class="vx-node-ring" r="5" />
+        <circle class="vx-node-core" r="2.5" />
+        <text class="vx-node-lbl-title" x="12" y="4">SHIVAMOGGA</text>
+        <text class="vx-node-lbl-sub" x="12" y="16">EMBEDDED MESH</text>
+      </g>
+
+      <!-- Hubballi -->
+      <g class="vx-cnode" transform="translate(345, 455)" data-city="Hubballi">
+        <circle class="vx-node-halo" r="15" />
+        <circle class="vx-node-ring" r="7" />
+        <circle class="vx-node-core" r="3.5" />
+        <text class="vx-node-lbl-title" x="-12" y="4" text-anchor="end">HUBBALLI</text>
+        <text class="vx-node-lbl-sub" x="-12" y="16" text-anchor="end">ROBOTICS & AUTO</text>
+      </g>
+
+      <!-- Belagavi -->
+      <g class="vx-cnode" transform="translate(265, 390)" data-city="Belagavi">
+        <circle class="vx-node-halo" r="13" />
+        <circle class="vx-node-ring" r="5.5" />
+        <circle class="vx-node-core" r="2.8" />
+        <text class="vx-node-lbl-title" x="-12" y="4" text-anchor="end">BELAGAVI</text>
+        <text class="vx-node-lbl-sub" x="-12" y="16" text-anchor="end">PRECISION ENGR</text>
+      </g>
+
+      <!-- Kalaburagi -->
+      <g class="vx-cnode" transform="translate(567, 195)" data-city="Kalaburagi">
+        <circle class="vx-node-halo" r="13" />
+        <circle class="vx-node-ring" r="5.5" />
+        <circle class="vx-node-core" r="2.8" />
+        <text class="vx-node-lbl-title" x="14" y="4">KALABURAGI</text>
+        <text class="vx-node-lbl-sub" x="14" y="16">POWER & CONTROL</text>
+      </g>
+
+      <!-- Bidar -->
+      <g class="vx-cnode" transform="translate(660, 115)" data-city="Bidar">
+        <circle class="vx-node-halo" r="11" />
+        <circle class="vx-node-ring" r="4.5" />
+        <circle class="vx-node-core" r="2" />
+        <text class="vx-node-lbl-title" x="12" y="4">BIDAR</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Bottom Label Bar -->
+  <div class="mapLabel vx-kmap-label">
+    <span class="vx-kmap-origin-pill">KA // ORIGIN</span>
+    <span>VOLTERAX ORIGIN · KARNATAKA · INDIA</span>
+    <span class="vx-kmap-active-badge">⚡ BUILT OUTWARD</span>
+  </div>
+</div><div><div class="eyebrow">04 / ORIGIN</div><h2>BORN IN KARNATAKA.<br>BUILT OUTWARD.</h2><p>VOLTERAX is a Karnataka technology brand building from electronics and engineering toward robotics, automation and original products.</p><a class="btn" href="#bridge" style="margin-top:28px">SEE HOW WE CONNECT ↗</a></div></div></section>
 
 <section class="bridge" id="bridge"><div class="bridgeHead"><h2>THE BRIDGE<br>BETWEEN AN IDEA<br>AND A MACHINE.</h2><p>You bring the problem, idea or rough concept. VOLTERAX brings the engineering path. No complicated customer handoff — one direct channel from <b>your idea</b> to <b>our engineering</b> to a <b>working system</b>.</p></div><div class="bridgeVisual"><div class="bridgeLine"></div><div class="bridgeSide left"><b>YOU</b><span>IDEA / PROBLEM<br>REQUIREMENT<br>VISION</span></div><div class="bridgeNode"><strong>VOLTERAX</strong><small>ENGINEERING BRIDGE</small></div><div class="bridgeSide right"><b>YOU GET</b><span>PROTOTYPE<br>TESTED SYSTEM<br>READY TO USE</span></div></div><div class="steps"><div class="step"><div class="stepNo">01 / TELL US</div><h3>Start the conversation.</h3><p>WhatsApp, call or send the project brief. Explain what you want — even if the idea is still rough.</p></div><div class="step"><div class="stepNo">02 / DEFINE</div><h3>Turn it into a system.</h3><p>We break the idea into electronics, firmware, mechanics, communication and control.</p></div><div class="step"><div class="stepNo">03 / BUILD</div><h3>Prototype the real thing.</h3><p>Components become circuits, circuits become hardware, and hardware becomes a working prototype.</p></div><div class="step"><div class="stepNo">04 / DELIVER</div><h3>Test. Refine. Connect.</h3><p>We iterate the system and move it toward a usable project, product or automation solution.</p></div></div></section>
 
