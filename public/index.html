@@ -3407,10 +3407,11 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
           msg.textContent = 'Please enter your city / town.';
           return;
         }
-        if (!pincode || pincode.length !== 6) {
+        const FAKE_PINS = ['000000', '111111', '222222', '333333', '444444', '555555', '666666', '777777', '888888', '999999', '123456', '654321', '012345', '234567', '345678', '456789', '987654', '876543', '765432', '543210', '100000', '200000', '300000', '400000', '500000', '600000', '700000', '800000', '900000', '121212', '123123'];
+        if (!pincode || pincode.length !== 6 || FAKE_PINS.includes(pincode) || /^(\d)\1{5}$/.test(pincode) || !/^[1-8]/.test(pincode)) {
           msg.style.display = 'block';
           msg.style.color = '#ef4444';
-          msg.textContent = 'Please enter a valid 6-digit postal PIN code.';
+          msg.textContent = '❌ Please enter an authentic, verified 6-digit Indian postal PIN code.';
           return;
         }
         shipping_address = { street, city, state, pincode, phone, landmark };
@@ -3542,12 +3543,13 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
         msg.textContent = 'Please enter your city / town.';
         return;
       }
-      if (!pincode || pincode.length !== 6) {
-        msg.style.display = 'block';
-        msg.style.color = '#ef4444';
-        msg.textContent = 'Please enter a valid 6-digit postal PIN code.';
-        return;
-      }
+      const FAKE_PINS = ['000000', '111111', '222222', '333333', '444444', '555555', '666666', '777777', '888888', '999999', '123456', '654321', '012345', '234567', '345678', '456789', '987654', '876543', '765432', '543210', '100000', '200000', '300000', '400000', '500000', '600000', '700000', '800000', '900000', '121212', '123123'];
+        if (!pincode || pincode.length !== 6 || FAKE_PINS.includes(pincode) || /^(\d)\1{5}$/.test(pincode) || !/^[1-8]/.test(pincode)) {
+          msg.style.display = 'block';
+          msg.style.color = '#ef4444';
+          msg.textContent = '❌ Please enter an authentic, verified 6-digit Indian postal PIN code.';
+          return;
+        }
 
       msg.style.display = 'block';
       msg.style.color = '#00E5FF';
@@ -4059,31 +4061,93 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
 
 <script id="vx-legal-and-pincode-logic">
 (function() {
-  // --- 1. Pincode Availability Logic ---
-  window.checkVolteraxPincode = function() {
+  // --- 1. Pincode Availability Logic (Strict Anti-Fake & Real India Post Verification) ---
+  function escapeHtml(str) {
+    return String(str || '').replace(/[&<>"']/g, function(c) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]);
+    });
+  }
+
+  window.checkVolteraxPincode = async function() {
     const input = document.getElementById('vxPincodeInput');
     const result = document.getElementById('vxPincodeResult');
+    const btn = document.getElementById('vxPincodeBtn');
     if (!input || !result) return;
     
     const val = (input.value || '').trim().replace(/\D/g, '');
     result.style.display = 'block';
 
-    const isValidIndianPincode = /^[1-8][0-9]{5}$/.test(val);
-    if (!isValidIndianPincode) {
+    if (!val || val.length !== 6) {
       result.className = 'vx-pincode-result error';
-      result.innerHTML = '⚠️ Please enter a valid 6-digit Indian pincode.';
+      result.innerHTML = '⚠️ Please enter a genuine 6-digit Indian postal PIN code.';
       return;
     }
 
-    const prefix2 = val.substring(0, 2);
-    const isKarnataka = ['56', '57', '58', '59'].includes(prefix2);
+    // Anti-fake checks (dummy repeating numbers, sequential patterns, invalid circle prefixes)
+    const FAKE_PINS = ['000000', '111111', '222222', '333333', '444444', '555555', '666666', '777777', '888888', '999999', '123456', '654321', '012345', '234567', '345678', '456789', '987654', '876543', '765432', '543210', '100000', '200000', '300000', '400000', '500000', '600000', '700000', '800000', '900000', '121212', '123123'];
+    if (FAKE_PINS.includes(val) || /^(\d)\1{5}$/.test(val) || !/^[1-8]/.test(val)) {
+      result.className = 'vx-pincode-result error';
+      result.innerHTML = '❌ <b>Fake / Dummy PIN Code (' + escapeHtml(val) + ')</b><br><span style="font-size:12px;opacity:.9">Test, dummy, or sequential numbers are strictly rejected. Please enter an authentic Indian postal pincode (e.g. 560001, 570001, 580001).</span>';
+      return;
+    }
 
-    if (isKarnataka) {
-      result.className = 'vx-pincode-result karnataka';
-      result.innerHTML = '⚡ <b>Delivery available in 2–4 days across Karnataka.</b> Express courier dispatch from Bengaluru/Mysuru with priority engineering support.';
-    } else {
-      result.className = 'vx-pincode-result pan-india';
-      result.innerHTML = '📦 <b>Pan-India shipping available in 4–7 working days.</b> Insured express transit with live consignment tracking across India.';
+    const invalid2 = ['10', '29', '35', '54', '55', '65', '66', '86', '87', '88', '89'];
+    if (invalid2.includes(val.slice(0, 2))) {
+      result.className = 'vx-pincode-result error';
+      result.innerHTML = '❌ <b>Unrecognized Postal Zone (' + escapeHtml(val) + ')</b><br><span style="font-size:12px;opacity:.9">No official India Post circle exists with this prefix.</span>';
+      return;
+    }
+
+    result.className = 'vx-pincode-result pan-india';
+    result.innerHTML = '⏳ <i>Verifying PIN code ' + escapeHtml(val) + ' with India Post database…</i>';
+    if (btn) btn.disabled = true;
+
+    try {
+      let data = null;
+      try {
+        const res = await fetch('/api/pincode/' + encodeURIComponent(val));
+        data = await res.json();
+      } catch (_) {
+        const res2 = await fetch('https://api.postalpincode.in/pincode/' + encodeURIComponent(val));
+        const d2 = await res2.json();
+        if (Array.isArray(d2) && d2[0] && d2[0].Status === 'Success' && Array.isArray(d2[0].PostOffice) && d2[0].PostOffice.length > 0) {
+          const po = d2[0].PostOffice[0];
+          data = {
+            valid: true,
+            pincode: val,
+            office: po.Name,
+            district: po.District,
+            state: po.State,
+            isKarnataka: (po.State || '').toLowerCase() === 'karnataka' || ['56', '57', '58', '59'].includes(val.slice(0, 2))
+          };
+        } else {
+          data = { valid: false, error: 'No official India Post office found for PIN code ' + val + '.' };
+        }
+      }
+
+      if (data && data.valid) {
+        const isKarnataka = data.isKarnataka;
+        result.className = 'vx-pincode-result ' + (isKarnataka ? 'karnataka' : 'pan-india');
+        result.innerHTML = 
+          '<div style="display:flex;align-items:center;gap:6px;font-weight:800;font-size:13px;margin-bottom:5px;color:' + (isKarnataka ? '#10b981' : '#00E5FF') + '">' +
+            '<span>✓</span> VERIFIED INDIA POST PINCODE: ' + escapeHtml((data.office ? data.office + ', ' : '') + (data.district || '') + ' (' + (data.state || '') + ')') +
+          '</div>' +
+          '<div style="font-size:13px;line-height:1.55;color:#e2e8f0">' +
+            (isKarnataka 
+              ? '⚡ <b>Karnataka Fast-Track:</b> Express courier delivery in <b>2–4 working days</b>. Direct dispatch from our Bengaluru / Mysuru hub with live tracking.'
+              : '📦 <b>Pan-India Shipping:</b> Insured express transit in <b>4–7 working days</b> with live tracking across India.') +
+          '</div>';
+      } else {
+        result.className = 'vx-pincode-result error';
+        result.innerHTML = '❌ <b>Fake / Unrecognized PIN Code (' + escapeHtml(val) + ')</b><br><span style="font-size:12px;opacity:.9">' + escapeHtml(data?.error || 'No official India Post office found for this pincode. Please enter a genuine 6-digit postal code.') + '</span>';
+      }
+    } catch (err) {
+      const prefix2 = val.substring(0, 2);
+      const isKarnataka = ['56', '57', '58', '59'].includes(prefix2);
+      result.className = 'vx-pincode-result ' + (isKarnataka ? 'karnataka' : 'pan-india');
+      result.innerHTML = '⚡ <b>Postal Code ' + escapeHtml(val) + ':</b> ' + (isKarnataka ? 'Karnataka Fast-Track (2–4 days)' : 'Pan-India shipping available (4–7 days).');
+    } finally {
+      if (btn) btn.disabled = false;
     }
   };
 
@@ -4274,6 +4338,76 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
     launchModal();
   }
 })();
+
+  // Auto-fill and live India Post verification on pincode typing
+  function wirePincodeAutoLookup(pincodeInputId, cityInputId, stateInputId, statusMsgId) {
+    const pinEl = document.getElementById(pincodeInputId);
+    const cityEl = document.getElementById(cityInputId);
+    const stateEl = document.getElementById(stateInputId);
+    const msgEl = statusMsgId ? document.getElementById(statusMsgId) : null;
+    if (!pinEl) return;
+
+    let debounceTimer = null;
+    pinEl.addEventListener('input', () => {
+      const pin = pinEl.value.replace(/\D/g, '').slice(0, 6);
+      pinEl.value = pin;
+      if (pin.length !== 6) return;
+
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(async () => {
+        const FAKE_PINS = ['000000', '111111', '222222', '333333', '444444', '555555', '666666', '777777', '888888', '999999', '123456', '654321', '012345', '234567', '345678', '456789', '987654', '876543', '765432', '543210', '100000', '200000', '300000', '400000', '500000', '600000', '700000', '800000', '900000', '121212', '123123'];
+        if (FAKE_PINS.includes(pin) || /^(\d)\1{5}$/.test(pin) || !/^[1-8]/.test(pin)) {
+          if (msgEl) {
+            msgEl.style.display = 'block';
+            msgEl.style.color = '#ef4444';
+            msgEl.textContent = '❌ Fake/dummy PIN code (' + pin + ') rejected. Please enter an authentic Indian postal pincode.';
+          }
+          return;
+        }
+
+        try {
+          let data = null;
+          try {
+            const r = await fetch('/api/pincode/' + encodeURIComponent(pin));
+            data = await r.json();
+          } catch (_) {
+            const r2 = await fetch('https://api.postalpincode.in/pincode/' + encodeURIComponent(pin));
+            const d2 = await r2.json();
+            if (Array.isArray(d2) && d2[0] && d2[0].Status === 'Success' && d2[0].PostOffice && d2[0].PostOffice.length > 0) {
+              const po = d2[0].PostOffice[0];
+              data = { valid: true, district: po.District, state: po.State };
+            } else {
+              data = { valid: false, error: 'No official India Post office found for this PIN code.' };
+            }
+          }
+
+          if (data && data.valid) {
+            if (cityEl && data.district && (!cityEl.value || cityEl.value.trim().length === 0)) {
+              cityEl.value = data.district;
+            }
+            if (stateEl && data.state) {
+              stateEl.value = data.state;
+            }
+            if (msgEl) {
+              msgEl.style.display = 'block';
+              msgEl.style.color = '#10b981';
+              msgEl.textContent = '✓ Verified India Post: ' + (data.district || '') + ' (' + (data.state || '') + ')';
+            }
+          } else {
+            if (msgEl) {
+              msgEl.style.display = 'block';
+              msgEl.style.color = '#ef4444';
+              msgEl.textContent = '❌ ' + (data && data.error ? data.error : 'Invalid Indian PIN code.');
+            }
+          }
+        } catch (_) {}
+      }, 350);
+    });
+  }
+
+  wirePincodeAutoLookup('newOrderPincode', 'newOrderCity', 'newOrderState', 'orderStatusMsg');
+  wirePincodeAutoLookup('vxModalPincode', 'vxModalCity', 'vxModalState', 'addressStatusMsg');
+
 </script>
 
 </body></html> 

@@ -124,6 +124,83 @@ function validateIndianMobile(raw) {
   return { valid: true, mobile: m };
 }
 
+const FAKE_PINCODES = new Set([
+  '000000', '111111', '222222', '333333', '444444', '555555', '666666', '777777', '888888', '999999',
+  '123456', '654321', '012345', '234567', '345678', '456789', '987654', '876543', '765432', '543210',
+  '100000', '200000', '300000', '400000', '500000', '600000', '700000', '800000', '900000',
+  '121212', '131313', '141414', '151515', '161616', '171717', '181818', '191919', '202020',
+  '565656', '575757', '585858', '595959', '999990', '123123', '654654'
+]);
+
+const pincodeCache = new Map();
+
+async function validateIndianPincodeServer(raw) {
+  const pin = String(raw || '').replace(/\D/g, '').trim();
+  if (!pin) return { valid: false, error: 'PIN code is required.' };
+  if (pin.length !== 6) return { valid: false, error: 'PIN code must be exactly 6 digits (you entered ' + pin.length + ').' };
+  
+  if (!/^[1-8][0-9]{5}$/.test(pin)) {
+    return { valid: false, error: 'Invalid Indian PIN code format (must start with digits 1 to 8).' };
+  }
+
+  if (FAKE_PINCODES.has(pin) || /^(\d)\1{5}$/.test(pin)) {
+    return { valid: false, error: 'Fake or dummy PIN code rejected (' + pin + '). Please enter an official Indian postal code.' };
+  }
+
+  const p2 = parseInt(pin.slice(0, 2), 10);
+  const invalid2Digits = [10, 29, 35, 54, 55, 65, 66, 86, 87, 88, 89];
+  if (invalid2Digits.includes(p2)) {
+    return { valid: false, error: 'Invalid postal zone (' + pin + '). No India Post circle exists with this prefix.' };
+  }
+
+  if (pincodeCache.has(pin)) {
+    return pincodeCache.get(pin);
+  }
+
+  try {
+    const res = await fetch('https://api.postalpincode.in/pincode/' + pin, { signal: AbortSignal.timeout(3500) });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data[0] && data[0].Status === 'Success' && Array.isArray(data[0].PostOffice) && data[0].PostOffice.length > 0) {
+        const po = data[0].PostOffice[0];
+        const state = po.State || '';
+        const isKarnataka = state.toLowerCase() === 'karnataka' || ['56', '57', '58', '59'].includes(pin.slice(0, 2));
+        const result = {
+          valid: true,
+          pincode: pin,
+          office: po.Name,
+          district: po.District,
+          state: state,
+          isKarnataka,
+          deliveryDays: isKarnataka ? '2–4 Days' : '4–7 Days',
+          hub: isKarnataka ? 'Karnataka Fast-Track Dispatch (Bengaluru Hub)' : 'Pan-India Insured Express'
+        };
+        pincodeCache.set(pin, result);
+        return result;
+      } else {
+        const result = { valid: false, error: 'No official India Post office found for PIN code ' + pin + '. Please enter a genuine postal code.' };
+        pincodeCache.set(pin, result);
+        return result;
+      }
+    }
+  } catch (err) {
+    const isKarnataka = ['56', '57', '58', '59'].includes(pin.slice(0, 2));
+    return {
+      valid: true,
+      pincode: pin,
+      office: '',
+      district: '',
+      state: isKarnataka ? 'Karnataka' : 'India',
+      isKarnataka,
+      deliveryDays: isKarnataka ? '2–4 Days' : '4–7 Days',
+      hub: isKarnataka ? 'Karnataka Fast-Track (Bengaluru Hub)' : 'Pan-India Express',
+      fallback: true
+    };
+  }
+
+  return { valid: false, error: 'Unable to verify postal pincode. Please check and try again.' };
+}
+
 async function validateEmailServer(raw, checkMx = false) {
   const email = String(raw || '').trim().toLowerCase();
   if (!email) return { valid: false, error: 'Gmail / Email address is required.' };
@@ -497,6 +574,17 @@ async function route(req,res){
   if(req.method==='GET'&&p==='/api/diag'){return json(res,200,{hasPgPool:!!pgPool,hasPgModule:!!PgPool,users:db.users.length,orders:db.orders.length,dbError:globalThis.__lastDbError||null})}
   if(req.method==='GET'&&p==='/api/customer/me'){const c=customer(req);return c?json(res,200,customerBundle(c)):json(res,401,{error:'Not logged in'})}
   if(req.method==='GET'&&p==='/api/customer/orders'){const c=customer(req);return c?json(res,200,db.orders.filter(o=>o.userId===c.id)):json(res,401,{error:'Not logged in'})}
+  if(req.method==='GET' && (p.startsWith('/api/pincode/') || p==='/api/validate-pincode')){
+    let pin = '';
+    if(p.startsWith('/api/pincode/')) pin = p.slice(13);
+    else pin = u.searchParams.get('pincode') || u.searchParams.get('pin') || '';
+    const result = await validateIndianPincodeServer(pin);
+    const code = result.valid ? 200 : 400;
+    return json(res, code, result, {
+      'Access-Control-Allow-Origin': '*',
+      'Cache-Control': 'public, max-age=86400'
+    });
+  }
   if(req.method==='GET'&&p==='/api/projects'){
     if(pgPool){
       try{
@@ -786,6 +874,13 @@ async function route(req,res){
       };
     }
 
+    if(shipping_address && shipping_address.pincode){
+      const pinCheck = await validateIndianPincodeServer(shipping_address.pincode);
+      if(!pinCheck.valid) return json(res, 400, { error: pinCheck.error });
+      if(pinCheck.district && (!shipping_address.city || shipping_address.city.length < 2)) shipping_address.city = pinCheck.district;
+      if(pinCheck.state && !shipping_address.state) shipping_address.state = pinCheck.state;
+    }
+
     const item={
       id:id('ORD'),
       order_id:String(x.order_id||id('VX-ORD-')),
@@ -830,6 +925,9 @@ async function route(req,res){
       if(!street || street.length < 4) return json(res, 400, { error: 'Please enter your complete house/flat and street address.' });
       if(!city || city.length < 2) return json(res, 400, { error: 'Please enter your city or town name.' });
       if(!pincode || pincode.length !== 6) return json(res, 400, { error: 'Please enter a valid 6-digit postal PIN code.' });
+
+      const pinCheck = await validateIndianPincodeServer(pincode);
+      if(!pinCheck.valid) return json(res, 400, { error: pinCheck.error });
 
       order.shipping_address = {
         street,
