@@ -466,9 +466,10 @@ async function route(req,res){
       const mailResult = await sendOtpEmail(email, otp, name);
       return json(res, 200, {
         ok: true,
-        message: 'Verification code sent to ' + email,
+        message: mailResult.sent ? 'Verification code sent to ' + email : 'Verification code generated for ' + email,
         email: email,
-        hasSmtp: Boolean(mailResult.sent)
+        hasSmtp: Boolean(mailResult.sent),
+        previewCode: mailResult.sent ? null : otp
       });
     }
 

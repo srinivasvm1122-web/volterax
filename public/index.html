@@ -1791,6 +1791,7 @@ if (btn) btn.disabled = false;
       📬 Verification code sent to <strong id="accOtpDisplayEmail" style="color:#00E5FF"></strong>.
       <div style="font-size:11px;color:#9da0ad;margin-top:2px">Please check your Gmail inbox or spam folder.</div>
     </div>
+    <div id="accOtpPreviewHint" style="display:none;background:rgba(0,229,255,.1);border:1px dashed #00E5FF;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;line-height:1.5;color:#fff;"></div>
     <label class="accountLabel">ENTER 6-DIGIT VERIFICATION CODE</label>
     <input class="accountInput" id="accOtpInput" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="• • • • • •" style="font-size:26px;letter-spacing:0.35em;text-align:center;font-weight:800;color:#00E5FF" autocomplete="one-time-code">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:12px">
@@ -2663,7 +2664,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
     clearInterval(resendTimerInterval);
   }
 
-  function showOtpStep(email) {
+  function showOtpStep(email, previewCode) {
     authStep = 'otp';
     activeOtpEmail = email;
     document.getElementById('accCreateFields').style.display = 'none';
@@ -2671,6 +2672,16 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
     document.getElementById('accOtpFields').style.display = 'block';
     document.getElementById('accOtpDisplayEmail').textContent = email;
     document.getElementById('accLogin').textContent = 'VERIFY & SIGN IN ↗';
+
+    const hintBox = document.getElementById('accOtpPreviewHint');
+    if (previewCode) {
+      if (hintBox) {
+        hintBox.style.display = 'block';
+        hintBox.innerHTML = '🔑 <strong>Instant Testing Code:</strong> <span style="font-size:18px;letter-spacing:4px;color:#00E5FF;font-weight:900">' + previewCode + '</span><br><span style="font-size:10px;opacity:.8">(Add Google App Password in Vercel to beam directly to actual Gmail inboxes)</span>';
+      }
+    } else {
+      if (hintBox) hintBox.style.display = 'none';
+    }
     
     const otpInput = document.getElementById('accOtpInput');
     otpInput.value = '';
@@ -2716,7 +2727,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
       if (!res.ok) throw new Error(data.error || 'Failed to resend code.');
       msg.style.color = '#10b981';
       msg.textContent = '✓ Fresh 6-digit code dispatched to ' + activeOtpEmail;
-      showOtpStep(activeOtpEmail);
+      showOtpStep(activeOtpEmail, data.previewCode);
     } catch (err) {
       msg.style.color = '#ef4444';
       msg.textContent = '✕ ' + err.message;
@@ -2772,7 +2783,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
 
         msg.style.color = '#10b981';
         msg.textContent = '✓ Code sent! Check your Gmail inbox.';
-        showOtpStep(email);
+        showOtpStep(email, data.previewCode);
       } catch (err) {
         msg.style.color = '#ef4444';
         msg.textContent = '✕ ' + err.message;
