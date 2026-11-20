@@ -1368,7 +1368,7 @@ color: #fff !important;
 
 <div class="grain"></div>
 
-<nav class="nav"><div class="logoWrap" aria-label="VOLTERAX"><img class="brandMark" src="/assets/volterax-logo.png" alt="VOLTERAX" width="44" height="44" decoding="async"> <span class="brandFallback">VOLTERAX</span><span class="navWord">VOLTERAX</span></div><button class="mobileMenu" type="button" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button><div class="navlinks"><a href="#systems">CAPABILITIES</a><a href="#architecture">ENGINEERING</a><a href="#origin">ORIGIN</a><a href="#bridge">HOW WE WORK</a><a href="#connect">CONNECT</a><a class="nav-projects-btn" href="projects.html">📦 PROJECTS STORE ↗</a><a href="#accountModal" onclick="window.volteraxOrderProject&&window.volteraxOrderProject(); return false;" style="color:#a855f7;font-weight:700">ORDER BUILD ↗</a><a class="accountLink" href="#accountModal" onclick="window.volteraxOpenAccount&&window.volteraxOpenAccount(); return false;">ACCOUNT ↗</a></div></nav>
+<nav class="nav"><div class="logoWrap" aria-label="VOLTERAX"><img class="brandMark" src="/assets/volterax-logo.png" alt="VOLTERAX" width="44" height="44" decoding="async"> <span class="brandFallback">VOLTERAX</span><span class="navWord">VOLTERAX</span></div><button class="mobileMenu" type="button" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button><div class="navlinks"><a href="#origin">ORIGIN</a><a href="#bridge">HOW WE WORK</a><a href="#connect">CONNECT</a><a class="nav-projects-btn" href="projects.html">📦 PROJECTS STORE ↗</a><a href="#accountModal" onclick="window.volteraxOrderProject&&window.volteraxOrderProject(); return false;" style="color:#a855f7;font-weight:700">ORDER BUILD ↗</a><a class="accountLink" href="#accountModal" onclick="window.volteraxOpenAccount&&window.volteraxOpenAccount(); return false;">ACCOUNT ↗</a></div></nav>
 
 <!-- Persistent customer shortcut: Projects Store -->
 <a class="vx-projects-float" href="projects.html" aria-label="Explore the VOLTERAX Projects Store">
@@ -1779,7 +1779,7 @@ if (btn) btn.disabled = false;
   📦 <strong style="color:#00E5FF">Selected Project:</strong> <span id="accPendingTitle" style="font-weight:700"></span>
   <div id="accPendingSub" style="font-size:11px;opacity:.85;margin-top:4px">Sign in or create your profile below to submit this order directly to the engineering team.</div>
 </div>
-<form id="accountAuthForm" novalidate><div id="accCreateFields"><label class="accountLabel">YOUR NAME</label><input class="accountInput" id="accName" placeholder="Your name"><label class="accountLabel">MOBILE NUMBER</label><input class="accountInput" id="accMobile" inputmode="numeric" placeholder="+91 XXXXX XXXXX"><label class="accountLabel">PASSWORD</label><input class="accountInput" id="accPassword" type="password" autocomplete="new-password" placeholder="8+ chars, letter + number"><label class="accountLabel">REFERRAL CODE (OPTIONAL)</label><input class="accountInput" id="accRef" placeholder="VXCHANDAN25"></div><div id="accLoginFields" style="display:none"><label class="accountLabel">MOBILE NUMBER</label><input class="accountInput" id="accLoginMobile" inputmode="numeric" placeholder="+91 XXXXX XXXXX"><label class="accountLabel">PASSWORD</label><input class="accountInput" id="accLoginPassword" type="password" autocomplete="current-password" placeholder="Your password"></div><button class="accountBtn" id="accLogin" type="submit">CREATE SECURE ACCOUNT ↗</button><div id="accAuthMsg" class="accountNotice" aria-live="polite">🔒 Never share your password, OTP, UPI PIN or card PIN with anyone claiming to be VOLTERAX.</div></form></div>
+<form id="accountAuthForm" novalidate><div id="accCreateFields"><label class="accountLabel">YOUR NAME</label><input class="accountInput" id="accName" placeholder="Your name"><label class="accountLabel">GMAIL / EMAIL ADDRESS</label><input class="accountInput" id="accEmail" type="email" autocomplete="email" placeholder="name@gmail.com"><label class="accountLabel">PASSWORD</label><input class="accountInput" id="accPassword" type="password" autocomplete="new-password" placeholder="8+ chars, letter + number"><label class="accountLabel">REFERRAL CODE (OPTIONAL)</label><input class="accountInput" id="accRef" placeholder="VXCHANDAN25"></div><div id="accLoginFields" style="display:none"><label class="accountLabel">GMAIL / EMAIL ADDRESS</label><input class="accountInput" id="accLoginEmail" type="email" autocomplete="email" placeholder="name@gmail.com"><label class="accountLabel">PASSWORD</label><input class="accountInput" id="accLoginPassword" type="password" autocomplete="current-password" placeholder="Your password"></div><button class="accountBtn" id="accLogin" type="submit">CREATE SECURE ACCOUNT ↗</button><div id="accAuthMsg" class="accountNotice" aria-live="polite">🔒 Never share your password, OTP, UPI PIN or card PIN with anyone claiming to be VOLTERAX.</div></form></div>
 
 </div>
 
@@ -1843,7 +1843,7 @@ if (btn) btn.disabled = false;
 
 <input class="accountInput" id="profileEmail" type="email" placeholder="name@company.in">
 
-<label class="accountLabel">REGISTERED MOBILE (VERIFIED)</label>
+<label class="accountLabel">REGISTERED GMAIL / EMAIL (VERIFIED)</label>
 
 <input class="accountInput" id="profileMobile" disabled style="opacity:.6;cursor:not-allowed">
 
@@ -2456,7 +2456,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
     }
 
     setTimeout(() => {
-      const el = document.getElementById(mode === 'create' ? 'accName' : 'accLoginMobile');
+      const el = document.getElementById(mode === 'create' ? 'accName' : 'accLoginEmail');
       el?.focus();
     }, 80);
   }
@@ -2535,20 +2535,20 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
     try {
       if (mode === 'create') {
         const name = document.getElementById('accName').value.trim();
-        const rawMobile = document.getElementById('accMobile').value;
-        const mobile = cleanMobile(rawMobile);
+        const emailEl = document.getElementById('accEmail');
+        const email = (emailEl ? emailEl.value : '').trim().toLowerCase();
         const password = document.getElementById('accPassword').value;
         const ref = (document.getElementById('accRef').value.trim() || sessionStorage.getItem('volteraxIncomingReferral') || '').toUpperCase();
 
         if (name.length < 2) throw new Error('Please enter your full name (2+ characters).');
-        if (!/^\d{10}$/.test(mobile)) throw new Error('Please enter a valid 10-digit mobile number (e.g. 9845012345).');
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Please enter a valid Gmail / Email address (e.g. name@gmail.com).');
         if (password.length < 6) throw new Error('Password must be at least 6 characters.');
 
         const res = await fetch('/api/customer/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
-          body: JSON.stringify({ name, mobile, password, ref })
+          body: JSON.stringify({ name, email, password, ref })
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Registration failed.');
@@ -2562,18 +2562,18 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
           runPendingAction();
         }, 300);
       } else {
-        const rawMobile = document.getElementById('accLoginMobile').value;
-        const mobile = cleanMobile(rawMobile);
+        const emailEl = document.getElementById('accLoginEmail');
+        const email = (emailEl ? emailEl.value : '').trim().toLowerCase();
         const password = document.getElementById('accLoginPassword').value;
 
-        if (!/^\d{10}$/.test(mobile)) throw new Error('Please enter your registered 10-digit mobile number.');
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Please enter your registered Gmail / Email address.');
         if (!password) throw new Error('Please enter your password.');
 
         const res = await fetch('/api/customer/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
-          body: JSON.stringify({ mobile, password })
+          body: JSON.stringify({ email, password })
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Login failed. Please check your credentials.');

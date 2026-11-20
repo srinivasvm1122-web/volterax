@@ -90,7 +90,8 @@ async function syncRelational(type, item) {
         body: JSON.stringify({
           id: item.id,
           name: item.name,
-          mobile: item.mobile,
+          email: item.email || null,
+          mobile: item.mobile || null,
           referral_code: item.ref,
           referred_by: item.referredBy || null,
           created_at: item.createdAt || new Date().toISOString(),
@@ -224,7 +225,7 @@ function cookies(req){return Object.fromEntries((req.headers.cookie||'').split('
 function json(res,status,data,extra={}){const b=JSON.stringify(data);res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store',...extra});res.end(b)}
 function body(req){return new Promise((resolve,reject)=>{let b='';req.on('data',c=>{b+=c;if(b.length>1e6)req.destroy()});req.on('end',()=>{try{resolve(b?JSON.parse(b):{})}catch(e){reject(e)}});req.on('error',reject)})}
 function customer(req){const sid=cookies(req).vx_session;if(!sid)return null;const s=db.sessions[sid];if(!s||Date.now()>s.expires){if(s)delete db.sessions[sid];return null}return db.users.find(u=>u.id===s.userId)||null}
-function safeUser(u){return {id:u.id,name:u.name,mobile:u.mobile,createdAt:u.createdAt,lastLoginAt:u.lastLoginAt,ref:u.ref,referralCode:u.ref, referredBy:u.referredBy||null, mobileVerified:true}}
+function safeUser(u){return {id:u.id,name:u.name,email:u.email||'',mobile:u.mobile||'',createdAt:u.createdAt,lastLoginAt:u.lastLoginAt,ref:u.ref,referralCode:u.ref, referredBy:u.referredBy||null, mobileVerified:Boolean(u.mobile), emailVerified:Boolean(u.email)}}
 function customerBundle(u){const orders=db.orders.filter(o=>o.userId===u.id);const referrals=db.users.filter(x=>x.referredBy===u.ref).map(x=>({id:x.id,name:x.name,status:'registered',reward_paise:0}));return {user:safeUser(u),orders,referrals,earningsPaise:orders.filter(o=>o.status==='completed').reduce((a,o)=>a+Number(o.reward_paise||0),0)}}
 function admin(req){const sid=cookies(req).vx_admin;const s=sid&&db.adminSessions[sid];if(!s||Date.now()>s.expires)return false;return true}
 function requireCustomer(req,res){const u=customer(req);if(!u){json(res,401,{error:'Customer login required.'});return null}return u}
@@ -261,17 +262,38 @@ async function route(req,res){
   if(req.method==='POST'&&p==='/api/customer/signup'){
     const x=await body(req);
     const name=String(x.name||'').trim();
+    const email=String(x.email||x.gmail||'').trim().toLowerCase();
     let mobile=String(x.mobile||'').replace(/\D/g,'');
     if(mobile.length===12&&mobile.startsWith('91')) mobile=mobile.slice(2);
     if(mobile.length===11&&mobile.startsWith('0')) mobile=mobile.slice(1);
     const password=String(x.password||'');
     const ref=String(x.ref||'').trim().toUpperCase();
-    if(name.length<2||!/^[0-9]{10}$/.test(mobile)||password.length<6)return json(res,400,{error:'Invalid signup details. Name (2+ chars), valid 10-digit mobile, and password (6+ chars) required.'});
-    if(db.users.some(v=>v.mobile===mobile))return json(res,409,{error:'Mobile already registered. Please sign in.'});
+
+    const isEmailValid=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if(name.length<2||(!isEmailValid && !/^[0-9]{10}$/.test(mobile))||password.length<6){
+      return json(res,400,{error:'Invalid signup details. Name (2+ chars), valid Gmail/Email address, and password (6+ chars) required.'});
+    }
+    if(email && db.users.some(v=>(v.email&&v.email.toLowerCase()===email)||(v.mobile===email))){
+      return json(res,409,{error:'Email already registered. Please sign in.'});
+    }
+    if(mobile && db.users.some(v=>v.mobile===mobile)){
+      return json(res,409,{error:'Mobile already registered. Please sign in.'});
+    }
     if(ref&&!db.users.some(v=>v.ref===ref))return json(res,400,{error:'Referral code not found.'});
     const hp=hashPassword(password);
     const idv=id('VX');
-    const user={id:idv,name,mobile,passwordHash:hp.hash,passwordSalt:hp.salt,ref:'VX'+crypto.randomBytes(4).toString('hex').toUpperCase(),referredBy:ref||null,createdAt:now(),lastLoginAt:now()};
+    const user={
+      id:idv,
+      name,
+      email:email||'',
+      mobile:mobile||'',
+      passwordHash:hp.hash,
+      passwordSalt:hp.salt,
+      ref:'VX'+crypto.randomBytes(4).toString('hex').toUpperCase(),
+      referredBy:ref||null,
+      createdAt:now(),
+      lastLoginAt:now()
+    };
     db.users.push(user);
     const sid=crypto.randomBytes(32).toString('hex');
     db.sessions[sid]={userId:idv,expires:Date.now()+SESSION_TTL};
@@ -281,12 +303,14 @@ async function route(req,res){
   }
   if(req.method==='POST'&&p==='/api/customer/login'){
     const x=await body(req);
-    let mobile=String(x.mobile||'').replace(/\D/g,'');
-    if(mobile.length===12&&mobile.startsWith('91')) mobile=mobile.slice(2);
-    if(mobile.length===11&&mobile.startsWith('0')) mobile=mobile.slice(1);
+    const input=String(x.email||x.gmail||x.mobile||'').trim().toLowerCase();
+    let cleanMob=input.replace(/\D/g,'');
+    if(cleanMob.length===12&&cleanMob.startsWith('91')) cleanMob=cleanMob.slice(2);
+    if(cleanMob.length===11&&cleanMob.startsWith('0')) cleanMob=cleanMob.slice(1);
     const password=String(x.password||'');
-    const user=db.users.find(v=>v.mobile===mobile);
-    if(!user||!checkPassword(password,user))return json(res,401,{error:'Incorrect mobile number or password.'});
+
+    const user=db.users.find(v=>(v.email&&v.email.toLowerCase()===input)||(v.mobile&&v.mobile===input)||(cleanMob&&v.mobile===cleanMob));
+    if(!user||!checkPassword(password,user))return json(res,401,{error:'Incorrect Gmail/Email address or password.'});
     user.lastLoginAt=now();
     const sid=crypto.randomBytes(32).toString('hex');
     db.sessions[sid]={userId:user.id,expires:Date.now()+SESSION_TTL};
