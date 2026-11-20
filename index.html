@@ -2391,6 +2391,26 @@ if (btn) btn.disabled = false;
   <input class="accountInput" id="newOrderLandmark" placeholder="e.g. Near Metro Station / Landmark">
 </div>
 
+<!-- PAYMENT METHOD: ONLINE PAYMENT ONLY -->
+<div style="margin-top:14px;padding:16px;background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.28);border-radius:14px">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+    <span style="font-size:16px">💳</span>
+    <strong style="font-size:11px;letter-spacing:1.5px;color:#00E5FF">PAYMENT METHOD: ONLINE PAYMENT ONLY</strong>
+    <span style="font-size:10px;color:#10b981;font-weight:700;margin-left:auto">✓ VERIFIED UPI</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;background:#080811;padding:12px 14px;border-radius:10px;border:1px solid rgba(16,185,129,.35)">
+    <input type="radio" id="payMethodOnline" name="payment_method" value="online" checked style="accent-color:#10b981;cursor:pointer">
+    <label for="payMethodOnline" style="cursor:pointer;flex:1">
+      <div style="font-size:13px;font-weight:700;color:#fff">Instant Online Payment (PhonePe / GPay / Paytm / UPI)</div>
+      <div style="font-size:11px;color:#94a3b8;margin-top:2px">Direct encrypted transfer to VOLTERAX Merchant Account. Zero transaction fee.</div>
+    </label>
+    <span style="font-size:10px;font-weight:800;color:#10b981;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.35);padding:4px 8px;border-radius:6px">ONLINE ONLY</span>
+  </div>
+  <div style="font-size:11px;color:#94a3b8;margin:8px 0 0 2px">
+    🔒 <b>Notice:</b> Cash on Delivery (COD) is disabled for custom hardware engineering builds. All project builds require secure online payment.
+  </div>
+</div>
+
 <button class="accountBtn" id="btnPlaceOrder" type="submit" style="margin-top:14px">SUBMIT PROJECT ORDER ↗</button>
 
 <div id="orderStatusMsg" class="accountNotice" style="display:none;margin-top:8px" aria-live="polite"></div>
@@ -3169,7 +3189,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
               '<div style="font-size:11px;font-weight:800;letter-spacing:1px;color:' + (hasAddr ? '#00E5FF' : '#f59e0b') + '">' +
                 (hasAddr ? '📍 DELIVERY ADDRESS ✓' : '⚠️ DELIVERY ADDRESS REQUIRED') +
               '</div>' +
-              '<button type="button" onclick="volteraxOpenAddressModal(\'' + escapeHtml(o.id || o.order_id) + '\')" style="background:transparent;border:1px solid ' + (hasAddr ? 'rgba(0,229,255,.4)' : '#f59e0b') + ';color:' + (hasAddr ? '#00E5FF' : '#fcd34d') + ';border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer">' +
+              '<div style="display:flex;gap:6px;align-items:center"><button type="button" onclick="volteraxOpenPaymentModal(\'' + escapeHtml(o.id || o.order_id) + '\')" style="background:linear-gradient(90deg,#7d55ff,#00E5FF);border:none;color:#050508;font-weight:900;border-radius:8px;padding:5px 12px;font-size:11px;cursor:pointer;letter-spacing:.8px;display:inline-flex;align-items:center;gap:4px;box-shadow:0 0 12px rgba(0,229,255,.3)"><span>💳</span> ONLINE PAYMENT ↗</button><button type="button" onclick="volteraxOpenAddressModal(\'' + escapeHtml(o.id || o.order_id) + '\')" style="background:transparent;border:1px solid ' + (hasAddr ? 'rgba(0,229,255,.4)' : '#f59e0b') + ';color:' + (hasAddr ? '#00E5FF' : '#fcd34d') + ';border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer">' +
                 (hasAddr ? '✏️ EDIT ADDRESS' : '📍 + ADD ADDRESS') +
               '</button>' +
             '</div>' +
@@ -3609,8 +3629,19 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
 
         msg.style.color = '#10b981';
         const orderId = data.order?.order_id || data.order?.id || 'SUBMITTED';
-        msg.innerHTML = '✓ <strong>Order ' + escapeHtml(orderId) + ' submitted successfully!</strong>' + 
-          (shipping_address ? ' Delivery address saved.' : ' Our engineering team will review it.');
+        const ordAmount = Number(amount || data.order?.amount_paise / 100 || 0);
+        msg.innerHTML = '<div style="margin-top:10px;padding:16px;background:rgba(108,59,255,.15);border:1px solid #7d55ff;border-radius:12px;text-align:center">' +
+          '<div style="font-size:15px;font-weight:800;color:#fff">✓ Order ' + escapeHtml(orderId) + ' Placed Successfully!</div>' +
+          '<div style="font-size:12px;color:#cbd5e1;margin:6px 0 12px">Payment Mode: <b>Online Payment Only</b> (₹' + ordAmount.toLocaleString('en-IN', {minimumFractionDigits:2}) + ')</div>' +
+          '<button type="button" class="accountBtn" onclick="volteraxOpenPaymentModal(\'' + escapeHtml(orderId) + '\')" style="background:linear-gradient(90deg,#7d55ff,#00E5FF);color:#050508;font-weight:900;letter-spacing:1px;padding:12px 22px;border:none;cursor:pointer;box-shadow:0 0 16px rgba(0,229,255,.4)">' +
+            '⚡ PROCEED TO ONLINE PAYMENT ↗' +
+          '</button>' +
+        '</div>';
+
+        // Auto-open payment modal after 600ms
+        setTimeout(() => {
+          volteraxOpenPaymentModal(orderId);
+        }, 600);
         
         document.getElementById('newOrderTitle').value = '';
         document.getElementById('newOrderAmount').value = '';
@@ -3644,6 +3675,116 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
   }
 
   // Delivery Address Modal Open / Close / Submit Handlers
+  
+  // --- VOLTERAX ONLINE PAYMENT MODAL LOGIC ---
+  let activePaymentData = null;
+
+  window.volteraxOpenPaymentModal = async function(orderId) {
+    const modal = document.getElementById('vxPaymentModal');
+    if (!modal) return;
+    
+    // Set loading state
+    document.getElementById('vxPayOrderId').textContent = '#' + (orderId || 'ORD');
+    document.getElementById('vxPayOrderTitle').textContent = 'Loading Order…';
+    document.getElementById('vxPayOrderAmount').textContent = '₹...';
+    document.getElementById('vxPayQrImg').src = '';
+    const statusMsg = document.getElementById('vxPayStatusMsg');
+    if (statusMsg) statusMsg.style.display = 'none';
+
+    modal.style.display = 'flex';
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+
+    try {
+      const res = await fetch('/api/customer/order/' + encodeURIComponent(orderId) + '/payment', {
+        credentials: 'same-origin'
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to initialize payment.');
+
+      activePaymentData = data;
+      document.getElementById('vxPayOrderId').textContent = '#' + (data.orderId || orderId);
+      document.getElementById('vxPayOrderTitle').textContent = data.title || 'Custom Engineering Build';
+      document.getElementById('vxPayOrderAmount').textContent = '₹' + Number(data.amount || 0).toLocaleString('en-IN', {minimumFractionDigits:2});
+      document.getElementById('vxPayQrImg').src = data.qrUrl;
+
+      // On mobile devices, offer automatic prompt or direct click
+    } catch (err) {
+      document.getElementById('vxPayOrderTitle').textContent = 'Error: ' + err.message;
+    }
+  };
+
+  window.volteraxClosePaymentModal = function() {
+    const modal = document.getElementById('vxPaymentModal');
+    if (modal) modal.style.display = 'none';
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  };
+
+  window.vxPayViaApp = function(app) {
+    if (!activePaymentData) return;
+    let targetUri = activePaymentData.upiUri;
+    if (app === 'phonepe' && activePaymentData.phonepeUri) {
+      targetUri = activePaymentData.phonepeUri;
+    } else if (app === 'gpay' && activePaymentData.gpayUri) {
+      targetUri = activePaymentData.gpayUri;
+    }
+
+    // Attempt direct intent invocation
+    window.location.href = targetUri;
+
+    // Fallback to generic UPI if app scheme not registered
+    if (app === 'phonepe') {
+      setTimeout(() => {
+        window.location.href = activePaymentData.upiUri;
+      }, 700);
+    }
+  };
+
+  window.vxSubmitPaymentProof = async function() {
+    if (!activePaymentData) return;
+    const utrInput = document.getElementById('vxPayUtrInput');
+    const msg = document.getElementById('vxPayStatusMsg');
+    const btn = document.getElementById('btnConfirmPay');
+    const utr = (utrInput?.value || '').trim();
+
+    msg.style.display = 'block';
+    msg.style.color = '#00E5FF';
+    msg.textContent = 'Recording your payment confirmation…';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/api/customer/order/' + encodeURIComponent(activePaymentData.orderId) + '/confirm-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ utr })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to record payment.');
+
+      msg.style.color = '#10b981';
+      msg.textContent = '✓ Online payment confirmation submitted! Our team is verifying it.';
+
+      const meRes = await fetch('/api/customer/me', { credentials: 'same-origin' });
+      if (meRes.ok) {
+        const fresh = await meRes.json();
+        window.volteraxAccountData = fresh;
+        show(fresh);
+      }
+
+      setTimeout(() => {
+        volteraxClosePaymentModal();
+      }, 1600);
+    } catch (err) {
+      msg.style.color = '#ef4444';
+      msg.textContent = '✕ ' + err.message;
+    } finally {
+      btn.disabled = false;
+    }
+  };
+
+
   window.volteraxOpenAddressModal = function(orderId) {
     const orders = window.volteraxAccountData?.orders || [];
     const order = orders.find(o => o.id === orderId || o.order_id === orderId);
@@ -4688,5 +4829,75 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
   wirePincodeAutoLookup('vxModalPincode', 'vxModalCity', 'vxModalState', 'addressStatusMsg');
 
 </script>
+
+
+<!-- ==================== ONLINE PAYMENT MODAL ==================== -->
+<div id="vxPaymentModal" class="accountModal" style="display:none;align-items:center;justify-content:center;z-index:100050" aria-hidden="true">
+  <div class="accountDialog" style="max-width:480px;border:1px solid #7d55ff;box-shadow:0 0 60px rgba(108,59,255,.4);background:#090912">
+    <div class="accountHead">
+      <div>
+        <div class="eyebrow" style="color:#00E5FF">⚡ SECURE CHECKOUT · ONLINE PAYMENT ONLY</div>
+        <h3 style="margin-top:4px;font-size:18px;font-weight:800;color:#fff">VOLTERAX Payment Gateway</h3>
+      </div>
+      <button class="accountClose" type="button" onclick="window.volteraxClosePaymentModal()" aria-label="Close Payment Modal">×</button>
+    </div>
+
+    <div id="vxPaymentBody" style="margin-top:16px">
+      <!-- Order Summary Card -->
+      <div style="background:#05050a;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px;margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div id="vxPayOrderId" style="font-family:monospace;font-size:12px;color:#00E5FF;font-weight:700">#VX-ORD-XXXX</div>
+            <div id="vxPayOrderTitle" style="font-size:15px;font-weight:800;color:#fff;margin-top:2px">Project Build</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:10px;color:#94a3b8;letter-spacing:1px">PAYABLE AMOUNT</div>
+            <div id="vxPayOrderAmount" style="font-size:22px;font-weight:900;color:#10b981">₹0.00</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.1);display:flex;justify-content:space-between;font-size:11px;color:#94a3b8">
+          <span>Verified Merchant: <b style="color:#fff">VOLTERAX HARDWARE SYSTEMS</b></span>
+          <span style="color:#10b981;font-weight:700">● 256-bit Encrypted</span>
+        </div>
+      </div>
+
+      <!-- Instant UPI App Triggers -->
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button type="button" id="btnPhonePePay" onclick="window.vxPayViaApp('phonepe')" style="background:linear-gradient(90deg,#5f259f,#7d55ff);color:#fff;border:none;border-radius:10px;padding:14px 16px;font-weight:900;font-size:14px;letter-spacing:.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 0 24px rgba(95,37,159,.5)">
+          <span style="font-size:18px">🟣</span> PAY VIA PHONEPE (OPEN APP ↗)
+        </button>
+        
+        <button type="button" id="btnGenericUpiPay" onclick="window.vxPayViaApp('upi')" style="background:linear-gradient(90deg,#1e3a8a,#2563eb);color:#fff;border:none;border-radius:10px;padding:14px 16px;font-weight:900;font-size:14px;letter-spacing:.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px">
+          <span style="font-size:18px">🔵</span> GPAY / PAYTM / ANY UPI APP ↗
+        </button>
+      </div>
+
+      <!-- Dynamic QR Code Container -->
+      <div style="margin-top:18px;text-align:center;background:#05050a;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px">
+        <div style="font-size:11px;font-weight:800;letter-spacing:1px;color:#a78bfa;margin-bottom:8px">
+          OR SCAN DYNAMIC UPI QR WITH ANY APP
+        </div>
+        <div style="display:inline-block;padding:8px;background:#fff;border-radius:10px">
+          <img id="vxPayQrImg" src="" alt="VolteraX Payment QR" style="width:180px;height:180px;display:block">
+        </div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:8px">
+          Direct transfer to VOLTERAX Merchant Account. Supported across PhonePe, Google Pay, Paytm, BHIM, and all bank UPI apps.
+        </div>
+      </div>
+
+      <!-- Confirm / Submit UTR -->
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)">
+        <label class="accountLabel" style="font-size:11px">ALREADY PAID? ENTER 12-DIGIT UPI REF / UTR (OPTIONAL):</label>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <input type="text" id="vxPayUtrInput" class="accountInput" maxlength="25" placeholder="e.g. 432109876543 / UTR" style="margin:0">
+          <button type="button" id="btnConfirmPay" onclick="window.vxSubmitPaymentProof()" style="background:#10b981;color:#050508;border:none;border-radius:8px;padding:0 16px;font-weight:800;font-size:12px;white-space:nowrap;cursor:pointer">
+            CONFIRM ✓
+          </button>
+        </div>
+        <div id="vxPayStatusMsg" class="accountNotice" style="display:none;margin-top:8px" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 </body></html> 

@@ -158,6 +158,50 @@ const KARNATAKA_DISTRICTS = {
   "Vijayanagara": ["Hosapete", "Harapanahalli", "Hoovina Hadagali", "Hagaribommanahalli", "Kotturu", "Kudligi"]
 };
 
+
+const VOLTERAX_MERCHANT_CONFIG = {
+  phone: '6364900748',
+  upi_vpa: process.env.VOLTERAX_UPI_VPA || '6364900748@ybl',
+  upi_alt_vpa: '6364900748@ibl',
+  merchant_name: 'VOLTERAX HARDWARE SYSTEMS',
+  payment_mode: 'ONLINE_ONLY'
+};
+
+function generateOrderPaymentPayload(order) {
+  const amountRs = Math.max(1, (Number(order.amount_paise || 0) / 100));
+  const orderRef = String(order.order_id || order.id || 'VX-ORDER');
+  const merchantName = VOLTERAX_MERCHANT_CONFIG.merchant_name;
+  const vpa = VOLTERAX_MERCHANT_CONFIG.upi_vpa;
+  
+  const upiQuery = new URLSearchParams({
+    pa: vpa,
+    pn: merchantName,
+    am: amountRs.toFixed(2),
+    cu: 'INR',
+    tn: orderRef
+  }).toString();
+
+  const upiUri = 'upi://pay?' + upiQuery;
+  const phonepeUri = 'phonepe://pay?' + upiQuery;
+  const gpayUri = 'gpay://upi/pay?' + upiQuery;
+  const paytmUri = 'paytmmp://pay?' + upiQuery;
+  const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=8&data=' + encodeURIComponent(upiUri);
+
+  return {
+    orderId: orderRef,
+    title: order.title,
+    amount: amountRs,
+    currency: 'INR',
+    paymentMode: 'ONLINE_ONLY',
+    merchant: merchantName,
+    upiUri,
+    phonepeUri,
+    gpayUri,
+    paytmUri,
+    qrUrl
+  };
+}
+
 const FAKE_PINCODES = new Set([
   '000000', '111111', '222222', '333333', '444444', '555555', '666666', '777777', '888888', '999999',
   '123456', '654321', '012345', '234567', '345678', '456789', '987654', '876543', '765432', '543210',
@@ -942,6 +986,8 @@ async function route(req,res){
       title:title,
       amount_paise:Number(x.amount_paise||0),
       status:String(x.status||'pending'),
+      payment_method: 'ONLINE_ONLY',
+      payment_status: 'pending_online',
       details:String(x.details||'Custom commissioned hardware prototype').slice(0,5000),
       shipping_address: shipping_address,
       createdAt:now(),
@@ -950,7 +996,8 @@ async function route(req,res){
     db.orders.unshift(item);
     save();
     syncRelational('order', item);
-    return json(res,201,{ok:true,order:item});
+    const paymentPayload = generateOrderPaymentPayload(item);
+    return json(res,201,{ok:true,order:item,payment:paymentPayload});
   }
 
   // Customer Delivery Address Update Endpoint
@@ -998,6 +1045,49 @@ async function route(req,res){
       return json(res, 200, { ok: true, order, message: 'Delivery address saved successfully.' });
     }
   }
+  
+  // Payment Details for Order
+  if(req.method==='GET' && p.startsWith('/api/customer/order/') && p.endsWith('/payment')){
+    const c=requireCustomer(req,res);
+    if(!c)return;
+    const segs = p.split('/');
+    const targetOid = segs[4]; // /api/customer/order/:orderId/payment
+    const order = db.orders.find(o => (o.id === targetOid || o.order_id === targetOid) && o.userId === c.id);
+    if(!order) return json(res, 404, { error: 'Order not found.' });
+
+    const payload = generateOrderPaymentPayload(order);
+    return json(res, 200, payload, {
+      'Access-Control-Allow-Origin': '*',
+      'Cache-Control': 'no-cache'
+    });
+  }
+
+  // Payment Confirmation / UTR Submission Endpoint
+  if(req.method==='POST' && p.startsWith('/api/customer/order/') && p.endsWith('/confirm-payment')){
+    const c=requireCustomer(req,res);
+    if(!c)return;
+    const segs = p.split('/');
+    const targetOid = segs[4]; // /api/customer/order/:orderId/confirm-payment
+    const order = db.orders.find(o => (o.id === targetOid || o.order_id === targetOid) && o.userId === c.id);
+    if(!order) return json(res, 404, { error: 'Order not found.' });
+
+    const x = await body(req);
+    const utr = String(x.utr || x.reference || '').trim();
+    order.payment_method = 'ONLINE_ONLY';
+    order.payment_status = 'paid_reported';
+    order.payment_utr = utr || 'VERIFY_PHONEPE';
+    order.status = 'processing';
+    order.updatedAt = now();
+    save();
+    syncRelational('order', order);
+
+    return json(res, 200, {
+      ok: true,
+      order,
+      message: '✓ Online payment recorded successfully! Our engineering team is verifying your transaction.'
+    });
+  }
+
   // Admin
   if(req.method==='POST'&&p==='/api/admin/login'){const x=await body(req);if(String(x.email||'').toLowerCase()!==ADMIN_EMAIL||String(x.password||'')!==ADMIN_PASSWORD)return json(res,401,{error:'Invalid admin credentials.'});const sid=crypto.randomBytes(32).toString('hex');db.adminSessions[sid]={expires:Date.now()+SESSION_TTL};save();return json(res,200,{ok:true},{'Set-Cookie':cookie('vx_admin',sid,SESSION_TTL/1000)})}
   if(req.method==='POST'&&p==='/api/admin/logout'){const sid=cookies(req).vx_admin;if(sid)delete db.adminSessions[sid];save();return json(res,200,{ok:true},{'Set-Cookie':cookie('vx_admin','',0)})}
