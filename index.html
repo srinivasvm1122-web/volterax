@@ -30,7 +30,7 @@
 
 /* V17 POWER-UP ENTRY EXPERIENCE */
 
-#boot{position:fixed;inset:0;z-index:99999;background:#050507;color:#fff;display:grid;place-items:center;overflow:hidden;transition:opacity .35s cubic-bezier(.16,1,.3,1),visibility .35s cubic-bezier(.16,1,.3,1)}#boot.hide{opacity:0;visibility:hidden;pointer-events:none}.boot-grid{position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:70px 70px;mask-image:radial-gradient(circle at center,#000 20%,transparent 78%);opacity:.35}.boot-core{position:relative;width:min(72vw,760px);height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}.boot-core:before{content:"";position:absolute;width:330px;height:330px;border:1px solid rgba(255,255,255,.2);border-radius:50%;box-shadow:0 0 90px rgba(120,150,255,.12);animation:corePulse 2.4s ease-in-out infinite}.boot-line{position:absolute;width:100%;height:1px;background:linear-gradient(90deg,transparent,#fff,transparent);transform:scaleX(0);animation:scan 1.7s .3s ease forwards}.boot-trace{position:absolute;width:68%;height:68%;border:1px solid rgba(255,255,255,.12);clip-path:polygon(0 30%,35% 30%,45% 0,100% 0,100% 70%,70% 70%,60% 100%,0 100%);animation:traceIn 1.6s ease forwards}.boot-brand{position:relative;z-index:4;text-align:center;letter-spacing:.32em;font-size:clamp(28px,5vw,62px);font-weight:800;animation:brandIn 1.5s .6s both}.boot-sub{position:relative;z-index:4;margin-top:15px;font-size:10px;letter-spacing:.32em;opacity:.55}.boot-status{position:absolute;bottom:42px;left:42px;font:10px monospace;letter-spacing:.2em;opacity:.5}.boot-corner{position:absolute;inset:28px;border:1px solid rgba(255,255,255,.08);pointer-events:none}.boot-corner:after{content:"SYSTEM / ONLINE";position:absolute;right:12px;top:-7px;background:#050507;padding:0 8px;font:9px monospace;letter-spacing:.16em;opacity:.45}@keyframes scan{to{transform:scaleX(1)}}@keyframes traceIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}@keyframes brandIn{from{opacity:0;transform:translateY(14px);letter-spacing:.6em}to{opacity:1;transform:none;letter-spacing:.32em}}@keyframes corePulse{50%{transform:scale(1.08);box-shadow:0 0 120px rgba(120,150,255,.2)}}
+#boot{position:fixed;inset:0;z-index:99999;background:#050507;color:#fff;display:grid;place-items:center;overflow:hidden;transition:opacity .25s cubic-bezier(.16,1,.3,1),visibility .25s cubic-bezier(.16,1,.3,1)}#boot.hide{opacity:0;visibility:hidden;pointer-events:none}.boot-grid{position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:70px 70px;mask-image:radial-gradient(circle at center,#000 20%,transparent 78%);opacity:.35}.boot-core{position:relative;width:min(72vw,760px);height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}.boot-core:before{content:"";position:absolute;width:330px;height:330px;border:1px solid rgba(255,255,255,.2);border-radius:50%;box-shadow:0 0 90px rgba(120,150,255,.12);animation:corePulse 1.2s ease-in-out infinite}.boot-line{position:absolute;width:100%;height:1px;background:linear-gradient(90deg,transparent,#fff,transparent);transform:scaleX(0);animation:scan 0.55s ease forwards}.boot-trace{position:absolute;width:68%;height:68%;border:1px solid rgba(255,255,255,.12);clip-path:polygon(0 30%,35% 30%,45% 0,100% 0,100% 70%,70% 70%,60% 100%,0 100%);animation:traceIn 0.55s ease forwards}.boot-brand{position:relative;z-index:4;text-align:center;letter-spacing:.32em;font-size:clamp(28px,5vw,62px);font-weight:800;animation:brandIn 0.45s .05s both}.boot-sub{position:relative;z-index:4;margin-top:15px;font-size:10px;letter-spacing:.32em;opacity:.55}.boot-status{position:absolute;bottom:42px;left:42px;font:10px monospace;letter-spacing:.2em;opacity:.5}.boot-corner{position:absolute;inset:28px;border:1px solid rgba(255,255,255,.08);pointer-events:none}.boot-corner:after{content:"SYSTEM / ONLINE";position:absolute;right:12px;top:-7px;background:#050507;padding:0 8px;font:9px monospace;letter-spacing:.16em;opacity:.45}@keyframes scan{to{transform:scaleX(1)}}@keyframes traceIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}@keyframes brandIn{from{opacity:0;transform:translateY(10px);letter-spacing:.5em}to{opacity:1;transform:none;letter-spacing:.32em}}@keyframes corePulse{50%{transform:scale(1.06);box-shadow:0 0 100px rgba(108,59,255,.35)}}
 
 .hero{min-height:100svh;position:relative;overflow:hidden}.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.72),rgba(0,0,0,.08) 70%),linear-gradient(0deg,#050507 0%,transparent 35%);pointer-events:none}.hero-content{position:relative;z-index:2}.hero-image,.hero img{filter:saturate(.9) contrast(1.06)}
 
@@ -1035,6 +1035,333 @@ color: #fff !important;
 }
 </style>
 
+<style id="vx-upgrades-pincode-legal">
+/* ==================== 1. PINCODE DELIVERY CHECKER ==================== */
+.vx-pincode-widget{
+  max-width:1120px;
+  margin:45px auto 65px;
+  padding:0 24px;
+}
+.vx-pincode-inner{
+  background:linear-gradient(135deg,#0c0c14,#130f24);
+  border:1px solid rgba(108,59,255,.38);
+  box-shadow:0 14px 44px rgba(0,0,0,.7),0 0 28px rgba(108,59,255,.18);
+  border-radius:24px;
+  padding:36px 40px;
+  position:relative;
+  overflow:hidden;
+}
+.vx-pincode-inner:before{
+  content:'';
+  position:absolute;
+  top:-60px;
+  right:-60px;
+  width:220px;
+  height:220px;
+  background:radial-gradient(circle,rgba(0,229,255,.18),transparent 70%);
+  pointer-events:none;
+}
+.vx-pincode-head .vx-pincode-badge{
+  font:700 10px monospace;
+  letter-spacing:.22em;
+  color:#00E5FF;
+  margin-bottom:8px;
+}
+.vx-pincode-head h3{
+  margin:0 0 8px;
+  font-size:clamp(22px,3.2vw,34px);
+  font-weight:900;
+  letter-spacing:-.03em;
+  color:#fff;
+}
+.vx-pincode-head p{
+  margin:0 0 22px;
+  font-size:14px;
+  color:#9da0ad;
+  max-width:620px;
+  line-height:1.55;
+}
+.vx-pincode-form{
+  max-width:640px;
+}
+.vx-pincode-input-wrap{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:#050509;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:14px;
+  padding:6px 8px 6px 16px;
+  transition:border-color .25s ease,box-shadow .25s ease;
+}
+.vx-pincode-input-wrap:focus-within{
+  border-color:#6C3BFF;
+  box-shadow:0 0 22px rgba(108,59,255,.4);
+}
+.vx-pincode-icon{
+  font-size:18px;
+  opacity:.75;
+}
+.vx-pincode-input-wrap input{
+  flex:1;
+  background:transparent;
+  border:none;
+  outline:none;
+  color:#fff;
+  font:15px Arial,sans-serif;
+  letter-spacing:.05em;
+  min-width:0;
+}
+.vx-pincode-input-wrap input::placeholder{
+  color:rgba(255,255,255,.35);
+  font-size:13px;
+}
+.vx-pincode-input-wrap button{
+  background:linear-gradient(135deg,#6C3BFF,#8B5CFF);
+  color:#fff;
+  border:none;
+  padding:12px 24px;
+  border-radius:10px;
+  font:700 11px monospace;
+  letter-spacing:.14em;
+  cursor:pointer;
+  transition:transform .15s ease,box-shadow .2s ease;
+  white-space:nowrap;
+}
+.vx-pincode-input-wrap button:hover{
+  box-shadow:0 0 20px rgba(108,59,255,.65);
+  transform:translateY(-1px);
+}
+.vx-pincode-result{
+  margin-top:14px;
+  padding:12px 18px;
+  border-radius:12px;
+  font-size:13px;
+  font-weight:600;
+  line-height:1.55;
+}
+.vx-pincode-result.karnataka{
+  background:rgba(16,185,129,.12);
+  border:1px solid rgba(16,185,129,.5);
+  color:#10b981;
+}
+.vx-pincode-result.pan-india{
+  background:rgba(108,59,255,.14);
+  border:1px solid rgba(108,59,255,.5);
+  color:#b794f6;
+}
+.vx-pincode-result.error{
+  background:rgba(239,68,68,.12);
+  border:1px solid rgba(239,68,68,.45);
+  color:#f87171;
+}
+.vx-pincode-tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:20px;
+}
+.vx-pincode-tags span{
+  font:9px monospace;
+  letter-spacing:.12em;
+  color:rgba(255,255,255,.6);
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:999px;
+  padding:6px 12px;
+}
+@media(max-width:640px){
+  .vx-pincode-inner{padding:26px 20px}
+  .vx-pincode-input-wrap{flex-direction:column;align-items:stretch;padding:12px;gap:12px}
+  .vx-pincode-input-wrap input{padding:6px 0}
+  .vx-pincode-input-wrap button{width:100%;padding:14px}
+}
+
+/* ==================== 2. UPGRADED COMPLIANT FOOTER ==================== */
+.footer{
+  padding:55px 6vw 30px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:36px !important;
+  background:#050508 !important;
+  border-top:1px solid rgba(255,255,255,.08) !important;
+  color:#8f939e !important;
+}
+.footer-top{
+  display:grid;
+  grid-template-columns:1.3fr 2fr;
+  gap:50px;
+}
+.footer-brand .footer-logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+  color:#fff;
+  font:900 16px Arial,Helvetica,sans-serif;
+  letter-spacing:.15em;
+}
+.footer-brand p{
+  font-size:13px;
+  line-height:1.6;
+  color:#828694;
+  max-width:380px;
+  margin:0;
+}
+.footer-links{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:30px;
+}
+.footer-col{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.footer-col-title{
+  font:700 10px monospace;
+  letter-spacing:.2em;
+  color:#00E5FF;
+  margin-bottom:4px;
+}
+.footer-col a, .footer-col span{
+  font-size:12px;
+  color:#a5a9b8;
+  text-decoration:none;
+  transition:color .2s ease,transform .15s ease;
+}
+.footer-col a:hover{
+  color:#fff;
+  transform:translateX(2px);
+}
+.footer-bottom{
+  padding-top:24px;
+  border-top:1px solid rgba(255,255,255,.06);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:14px;
+  font:9px monospace;
+  letter-spacing:.12em;
+  color:#616574;
+}
+@media(max-width:880px){
+  .footer-top{grid-template-columns:1fr;gap:35px}
+  .footer-links{grid-template-columns:1fr 1fr;gap:25px}
+}
+@media(max-width:540px){
+  .footer-links{grid-template-columns:1fr;gap:24px}
+  .footer-bottom{flex-direction:column;align-items:flex-start;gap:8px}
+}
+
+/* ==================== 3. LEGAL MODAL ==================== */
+.vx-legal-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:100005;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.vx-legal-modal.open{
+  display:flex;
+}
+.vx-legal-backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(3,3,7,.88);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+.vx-legal-shell{
+  position:relative;
+  z-index:2;
+  width:min(900px,94vw);
+  max-height:85vh;
+  background:linear-gradient(145deg,#0d0d16,#08080f);
+  border:1px solid rgba(108,59,255,.45);
+  box-shadow:0 20px 60px rgba(0,0,0,.85),0 0 35px rgba(108,59,255,.25);
+  border-radius:24px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.vx-legal-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:24px 30px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.02);
+}
+.vx-legal-badge{
+  font:700 9px monospace;
+  letter-spacing:.22em;
+  color:#00E5FF;
+  display:block;
+  margin-bottom:4px;
+}
+.vx-legal-top h2{
+  margin:0;
+  font-size:clamp(20px,3vw,28px);
+  font-weight:900;
+  letter-spacing:-.03em;
+  color:#fff;
+}
+.vx-legal-close{
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  border-radius:999px;
+  padding:10px 18px;
+  font:700 11px monospace;
+  letter-spacing:.12em;
+  cursor:pointer;
+  transition:all .2s ease;
+}
+.vx-legal-close:hover{
+  background:#6C3BFF;
+  border-color:#6C3BFF;
+  box-shadow:0 0 16px rgba(108,59,255,.5);
+}
+.vx-legal-body{
+  padding:30px;
+  overflow-y:auto;
+  color:#b0b4c3;
+  font-size:14px;
+  line-height:1.75;
+}
+.vx-legal-body h3{
+  color:#fff;
+  font-size:18px;
+  margin:24px 0 10px;
+  letter-spacing:-.02em;
+}
+.vx-legal-body h3:first-child{
+  margin-top:0;
+}
+.vx-legal-body p{
+  margin:0 0 14px;
+}
+.vx-legal-body ul{
+  margin:0 0 16px;
+  padding-left:22px;
+}
+.vx-legal-body li{
+  margin-bottom:8px;
+}
+.vx-legal-body .legal-highlight{
+  padding:14px 18px;
+  background:rgba(108,59,255,.1);
+  border-left:3px solid #6C3BFF;
+  border-radius:6px;
+  margin:16px 0 20px;
+  color:#ddd;
+}
+</style>
+
 </head>
 
 <body><div id="boot"><div class="boot-grid"></div><div class="boot-corner"></div><div class="boot-core"><img class="boot-logo" src="/assets/volterax-logo.png" alt="VOLTERAX logo" width="320" height="320" decoding="async"><div class="boot-trace"></div><div class="boot-line"></div><div><div class="boot-brand">VOLTERAX</div><div class="boot-sub">POWER BEYOND LIMITS · ENGINEERING SYSTEMS</div></div></div><div class="boot-status">INITIALIZING / HARDWARE / CONTROL / CONNECTIVITY</div><button id="skipBoot" aria-label="Skip intro">ENTER VOLTERAX ↗</button></div>
@@ -1402,6 +1729,42 @@ if (btn) btn.disabled = false;
 
 </div><div class="mobileLead" id="mobileLead"><h3>Leave your mobile number.</h3><p>Tell us where to reach you. Your number is used only for project communication.</p><div class="contactLock" style="display:none" id="contactLock"><div class="lockIcon">🔒</div><div><strong>LOGIN REQUIRED</strong><span>Sign in to your VOLTERAX account before sharing your number for direct project contact.</span></div><button type="button" id="unlockMobile">LOGIN / CREATE ACCOUNT ↗</button></div><form id="mobileContactForm" class="lockedContactForm unlocked" onsubmit="event.preventDefault(); window.volteraxSubmitMobile&&window.volteraxSubmitMobile();"><div class="mobileLeadRow"><input id="customerMobile" type="tel" inputmode="numeric" pattern="[0-9+()\- ]{10,18}" required placeholder="+91 XXXXX XXXXX" aria-label="Customer mobile number" ><button type="submit">SEND MY NUMBER ↗</button></div><div class="note">MOBILE NUMBER · UNLOCKED AFTER ACCOUNT LOGIN</div><div class="securityNote">🔒 Official VOLTERAX contact only. Never share OTPs, UPI PINs, card PINs or passwords over WhatsApp or a call.</div></form></div></section>
 
+<!-- VOLTERAX PINCODE DELIVERY CHECKER WIDGET -->
+<section class="vx-pincode-section" aria-label="Delivery Checker">
+  <div class="vx-pincode-widget" id="pincodeChecker">
+    <div class="vx-pincode-inner">
+      <div class="vx-pincode-head">
+        <div class="vx-pincode-badge">⚡ EXPRESS LOGISTICS · DISPATCH ENGINE</div>
+        <h3>CHECK DELIVERY AVAILABILITY</h3>
+        <p>Enter your 6-digit Indian postal pincode to check verified delivery timelines for custom hardware builds, IoT modules, and robotics kits.</p>
+      </div>
+      <form class="vx-pincode-form" id="vxPincodeForm" onsubmit="event.preventDefault(); window.checkVolteraxPincode&&window.checkVolteraxPincode();">
+        <div class="vx-pincode-input-wrap">
+          <span class="vx-pincode-icon" aria-hidden="true">📍</span>
+          <input 
+            type="text" 
+            id="vxPincodeInput" 
+            name="pincode" 
+            maxlength="6" 
+            inputmode="numeric" 
+            pattern="[0-9]{6}" 
+            placeholder="Enter 6-digit Pincode (e.g. 560001, 570001, 580001)" 
+            aria-label="Enter 6-digit Indian Pincode"
+            autocomplete="postal-code"
+          >
+          <button type="submit" id="vxPincodeBtn">CHECK ↗</button>
+        </div>
+        <div class="vx-pincode-result" id="vxPincodeResult" style="display:none;" aria-live="polite"></div>
+      </form>
+      <div class="vx-pincode-tags">
+        <span>✓ Karnataka Fast-Track (2–4 Days)</span>
+        <span>✓ Pan-India Shipping (4–7 Days)</span>
+        <span>✓ Insured Transit Packaging</span>
+      </div>
+    </div>
+  </div>
+</section>
+
 <div class="accountModal" id="accountModal" aria-hidden="true">
 
 <div class="accountShell">
@@ -1500,7 +1863,62 @@ if (btn) btn.disabled = false;
 
 </div>
 
-</div><footer class="footer"><span>VOLTERAX — POWER BEYOND LIMITS.</span><span>KARNATAKA / INDIA</span></footer>
+</div>
+
+<footer class="footer" role="contentinfo">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <img src="/assets/volterax-logo.png" alt="VOLTERAX" width="28" height="28" style="vertical-align:middle;margin-right:8px;border-radius:6px">
+        <strong>VOLTERAX</strong>
+      </div>
+      <p>Precision electronics engineering, embedded intelligence, and custom hardware prototyping. Engineered in Karnataka, India.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <span class="footer-col-title">PLATFORM</span>
+        <a href="projects.html">Projects Store ↗</a>
+        <a href="#project">Commission Build</a>
+        <a href="#systems">Core Capabilities</a>
+        <a href="#connect">Direct Channel</a>
+      </div>
+      <div class="footer-col">
+        <span class="footer-col-title">LEGAL & POLICIES</span>
+        <a href="privacy.html" class="vx-legal-trigger" data-legal="privacy">Privacy Policy</a>
+        <a href="terms.html" class="vx-legal-trigger" data-legal="terms">Terms & Conditions</a>
+        <a href="refund.html" class="vx-legal-trigger" data-legal="refund">Refund & Cancellation</a>
+      </div>
+      <div class="footer-col">
+        <span class="footer-col-title">CONTACT & LOGISTICS</span>
+        <span>📍 Karnataka, India</span>
+        <a href="mailto:VolteraX.360@gmail.com">VolteraX.360@gmail.com</a>
+        <a href="https://instagram.com/volterax.in" target="_blank" rel="noopener">Instagram: @volterax.in</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 VOLTERAX HARDWARE SYSTEMS · ALL RIGHTS RESERVED</span>
+    <span>PAYMENT GATEWAY VERIFIED · RAZORPAY / CASHFREE READY</span>
+    <span>KARNATAKA / INDIA</span>
+  </div>
+</footer>
+
+<!-- VOLTERAX LEGAL POLICIES MODAL -->
+<div class="vx-legal-modal" id="vxLegalModal" aria-hidden="true" role="dialog" aria-labelledby="vxLegalTitle">
+  <div class="vx-legal-backdrop" id="vxLegalBackdrop"></div>
+  <div class="vx-legal-shell">
+    <div class="vx-legal-top">
+      <div>
+        <span class="vx-legal-badge">VOLTERAX / LEGAL & COMPLIANCE</span>
+        <h2 id="vxLegalTitle">LEGAL POLICY</h2>
+      </div>
+      <button class="vx-legal-close" id="vxLegalClose" aria-label="Close legal policy modal">CLOSE ✕</button>
+    </div>
+    <div class="vx-legal-body" id="vxLegalBody">
+      <!-- Populated dynamically via JavaScript -->
+    </div>
+  </div>
+</div>
 
 
 
@@ -2743,6 +3161,172 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
 
 
 
+<script id="vx-legal-and-pincode-logic">
+(function() {
+  // --- 1. Pincode Availability Logic ---
+  window.checkVolteraxPincode = function() {
+    const input = document.getElementById('vxPincodeInput');
+    const result = document.getElementById('vxPincodeResult');
+    if (!input || !result) return;
+    
+    const val = (input.value || '').trim().replace(/\D/g, '');
+    result.style.display = 'block';
+
+    const isValidIndianPincode = /^[1-8][0-9]{5}$/.test(val);
+    if (!isValidIndianPincode) {
+      result.className = 'vx-pincode-result error';
+      result.innerHTML = '⚠️ Please enter a valid 6-digit Indian pincode.';
+      return;
+    }
+
+    const prefix2 = val.substring(0, 2);
+    const isKarnataka = ['56', '57', '58', '59'].includes(prefix2);
+
+    if (isKarnataka) {
+      result.className = 'vx-pincode-result karnataka';
+      result.innerHTML = '⚡ <b>Delivery available in 2–4 days across Karnataka.</b> Express courier dispatch from Bengaluru/Mysuru with priority engineering support.';
+    } else {
+      result.className = 'vx-pincode-result pan-india';
+      result.innerHTML = '📦 <b>Pan-India shipping available in 4–7 working days.</b> Insured express transit with live consignment tracking across India.';
+    }
+  };
+
+  // --- 2. Razorpay/Cashfree Compliant Legal Policy Content ---
+  const legalDocs = {
+    privacy: {
+      title: 'PRIVACY POLICY',
+      content: `
+        <div class="legal-highlight">
+          <strong>VOLTERAX DATA ETHICS:</strong> We respect your privacy. Customer information is gathered strictly for prototype build execution, order fulfillment, and verified technical support. We never sell, rent, or trade your personal data.
+        </div>
+        <h3>1. Information We Collect</h3>
+        <p>When you place an order, commission a custom engineering build, or submit a project brief to VolteraX (Karnataka, India), we collect:</p>
+        <ul>
+          <li><strong>Identity & Contact Details:</strong> Full name, mobile number, email address, and academic/corporate affiliation (if provided).</li>
+          <li><strong>Delivery Address:</strong> Shipping location, street address, state, and 6-digit Indian postal pincode for dispatch.</li>
+          <li><strong>Project Specifications:</strong> Hardware requirements, microcontroller specifications, component bills of materials, and engineering schematics shared by you.</li>
+        </ul>
+
+        <h3>2. How We Use Your Data</h3>
+        <p>Your data is utilized exclusively for:</p>
+        <ul>
+          <li>Fabricating, testing, assembling, and programming your commissioned electronics and hardware prototypes.</li>
+          <li>Delivering shipments through licensed logistics partners and providing live courier tracking details.</li>
+          <li>Direct engineering communication regarding component alternatives, testing videos, and invoice receipts via official WhatsApp (+91 99000 00000 / official channel) and email (VolteraX.360@gmail.com).</li>
+          <li>Administering our verified referral program rewards on qualifying completed projects.</li>
+        </ul>
+
+        <h3>3. Payment Information & Security</h3>
+        <p>All online payments and advance deposits are processed securely through RBI-authorized, PCI-DSS Level 1 compliant payment gateways (such as Razorpay / Cashfree / UPI). <strong>VolteraX never accesses, stores, or handles raw credit/debit card numbers, CVVs, net banking credentials, or UPI PINs.</strong></p>
+
+        <h3>4. Zero Third-Party Selling</h3>
+        <p>We do not sell, rent, lease, or monetize your contact details with external advertising brokers, telemarketers, or commercial agencies. Your information is accessed only by authorized VolteraX engineers and our delivery couriers.</p>
+
+        <h3>5. Your Rights & Data Contact</h3>
+        <p>You may request an update, review, or permanent deletion of your customer profile at any time by emailing us at <strong>VolteraX.360@gmail.com</strong> with your registered mobile number.</p>
+      `
+    },
+    terms: {
+      title: 'TERMS & CONDITIONS',
+      content: `
+        <div class="legal-highlight">
+          <strong>ENGINEERING AGREEMENT:</strong> By commissioning a hardware build, ordering a project kit, or using the VolteraX platform, you agree to these Terms & Conditions governed by Indian law.
+        </div>
+        <h3>1. Platform Scope & Services</h3>
+        <p>VolteraX operates as a specialized engineering and technology prototyping brand based in Karnataka, India. We design, program, and build custom electronics, embedded systems, IoT devices, robotics mechanisms, and educational technology demonstration units.</p>
+
+        <h3>2. Prototype & Educational Nature</h3>
+        <p>Hardware prototypes and electronics kits supplied by VolteraX are created for research, rapid prototyping, proof-of-concept validation, and educational demonstrations. While engineered to strict quality standards, they are not certified for medical, life-support, aerospace flight-critical, or high-voltage commercial industrial operations unless explicitly certified under a custom enterprise agreement.</p>
+
+        <h3>3. Supply Chain & Component Substitutions</h3>
+        <p>Due to ongoing semiconductor and electronics market fluctuations, VolteraX reserves the right to replace secondary discrete components (e.g., sensor modules, microcontrollers, passive components, 3D printed chassis colors) with components of equivalent or superior functional performance to ensure timely delivery without compromising project specifications.</p>
+
+        <h3>4. Standard Delivery Timelines</h3>
+        <ul>
+          <li><strong>Karnataka State:</strong> 2 to 4 working days from completion of hardware assembly and quality assurance bench testing.</li>
+          <li><strong>Pan-India Shipments:</strong> 4 to 7 working days from completion of fabrication via insured domestic express couriers.</li>
+        </ul>
+
+        <h3>5. Intellectual Property</h3>
+        <p>Proprietary firmware libraries, circuit board designs, and mechanical CAD models created by VolteraX remain the intellectual property of VolteraX unless an explicit full-IP transfer agreement has been executed and compensated.</p>
+
+        <h3>6. Governing Law & Dispute Jurisdiction</h3>
+        <p>These terms are governed in accordance with the laws of India. Any legal dispute, claim, or proceedings shall be subject to the exclusive jurisdiction of the competent courts in Bengaluru, Karnataka, India.</p>
+      `
+    },
+    refund: {
+      title: 'REFUND & CANCELLATION POLICY',
+      content: `
+        <div class="legal-highlight">
+          <strong>TRANSPARENT POLICY:</strong> Because hardware prototyping involves custom circuit assembly and dedicated electronic parts procurement, please review our refund and cancellation terms carefully prior to placing your order.
+        </div>
+        <h3>1. 50% Advance Payment Policy (Custom Builds)</h3>
+        <p>All custom commissioned engineering builds and customized hardware systems require a <strong>minimum 50% advance deposit</strong> prior to project initiation. This advance deposit is strictly non-refundable once procurement of project-specific electronic components, sensors, microcontrollers, or fabrication materials has commenced.</p>
+
+        <h3>2. Order Cancellation</h3>
+        <ul>
+          <li><strong>Before Component Procurement:</strong> If an order cancellation request is received in writing within 6 hours of payment AND before any parts have been ordered or circuit fabrication has started, a refund may be granted subject to a 5% payment gateway processing fee deduction.</li>
+          <li><strong>After Assembly / Procurement Begins:</strong> Once hardware parts procurement, printed circuit board (PCB) etching, 3D printing, or soldering has begun, <strong>no cancellations or refunds will be entertained</strong> under any circumstances.</li>
+        </ul>
+
+        <h3>3. Transit Damage & Free Replacement Guarantee</h3>
+        <p>We pack every prototype and electronic system with shock-absorbent multi-layer industrial bubble cushioning and rigid outer boxes. If your build sustains damage during courier transit:</p>
+        <div class="legal-highlight" style="border-color:#10b981;background:rgba(16,185,129,.1);color:#10b981">
+          <strong>MANDATORY UNBOXING VIDEO REQUIREMENT:</strong> To claim a free replacement or repair for transit damage, the customer must record a single, continuous, uncut 360-degree video from the initial unopened outer courier shipping seal through opening and inspection.
+        </div>
+        <p>The unboxing video must be submitted to <strong>VolteraX.360@gmail.com</strong> or our official WhatsApp support within <strong>24 hours of delivery</strong>. Upon verification, VolteraX will dispatch replacement modules or arrange free return pickup and re-assembly at our cost.</p>
+
+        <h3>4. Technical Troubleshooting & Support</h3>
+        <p>If you encounter difficulties operating your system, our core engineering team provides dedicated remote technical assistance via WhatsApp or Google Meet within 48 hours of your notification to ensure your system functions as intended.</p>
+      `
+    }
+  };
+
+  // --- 3. Modal Open / Close Logic ---
+  window.openVolteraxLegal = function(policyKey) {
+    const doc = legalDocs[policyKey];
+    if (!doc) return;
+    const modal = document.getElementById('vxLegalModal');
+    const titleEl = document.getElementById('vxLegalTitle');
+    const bodyEl = document.getElementById('vxLegalBody');
+    if (!modal || !titleEl || !bodyEl) return;
+
+    titleEl.textContent = doc.title;
+    bodyEl.innerHTML = doc.content;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeVolteraxLegal = function() {
+    const modal = document.getElementById('vxLegalModal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  };
+
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.vx-legal-trigger').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const policy = link.getAttribute('data-legal');
+        window.openVolteraxLegal(policy);
+      });
+    });
+
+    const closeBtn = document.getElementById('vxLegalClose');
+    const backdrop = document.getElementById('vxLegalBackdrop');
+    if (closeBtn) closeBtn.addEventListener('click', window.closeVolteraxLegal);
+    if (backdrop) backdrop.addEventListener('click', window.closeVolteraxLegal);
+
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') window.closeVolteraxLegal();
+    });
+  });
+})();
+</script>
+
 <script id="vx-project-order-login-route">
 (function(){
   const params = new URLSearchParams(window.location.search);
@@ -2759,34 +3343,33 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
   }
 
   function launchModal(){
-    const boot = document.getElementById('boot');
-    if (boot) {
-      boot.classList.add('hide');
-      boot.style.display = 'none';
-    }
+    const hasSeenBoot = Boolean(sessionStorage.getItem('vx_boot_seen'));
+    const delay = hasSeenBoot ? 50 : 720;
 
-    function doOpen(){
-      if (typeof window.volteraxOpenAccount === 'function') {
-        if (window.volteraxSessionPromise) {
-          window.volteraxSessionPromise.finally(() => {
+    setTimeout(function() {
+      function doOpen(){
+        if (typeof window.volteraxOpenAccount === 'function') {
+          if (window.volteraxSessionPromise) {
+            window.volteraxSessionPromise.finally(() => {
+              if (window.volteraxHasAccount && window.volteraxHasAccount()) {
+                window.volteraxOpenAccount();
+              } else {
+                window.volteraxOpenAccount('login');
+              }
+            });
+          } else {
             if (window.volteraxHasAccount && window.volteraxHasAccount()) {
               window.volteraxOpenAccount();
             } else {
               window.volteraxOpenAccount('login');
             }
-          });
-        } else {
-          if (window.volteraxHasAccount && window.volteraxHasAccount()) {
-            window.volteraxOpenAccount();
-          } else {
-            window.volteraxOpenAccount('login');
           }
+        } else {
+          setTimeout(doOpen, 40);
         }
-      } else {
-        setTimeout(doOpen, 40);
       }
-    }
-    doOpen();
+      doOpen();
+    }, delay);
   }
 
   if (document.readyState === 'loading') {

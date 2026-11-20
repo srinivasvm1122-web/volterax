@@ -238,7 +238,26 @@ async function route(req,res){
   if(req.method==='GET'&&p==='/api/diag'){return json(res,200,{hasPgPool:!!pgPool,hasPgModule:!!PgPool,users:db.users.length,orders:db.orders.length,dbError:globalThis.__lastDbError||null})}
   if(req.method==='GET'&&p==='/api/customer/me'){const c=customer(req);return c?json(res,200,customerBundle(c)):json(res,401,{error:'Not logged in'})}
   if(req.method==='GET'&&p==='/api/customer/orders'){const c=customer(req);return c?json(res,200,db.orders.filter(o=>o.userId===c.id)):json(res,401,{error:'Not logged in'})}
-  if(req.method==='GET'&&p==='/api/projects'){return json(res,200,db.projects||[],{'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache','Expires':'0','Access-Control-Allow-Origin':'*'})}
+  if(req.method==='GET'&&p==='/api/projects'){
+    if(SUPABASE_URL&&SUPABASE_KEY){
+      try{
+        const pRes=await fetch(SUPABASE_URL+'/rest/v1/projects?select=*&order=id.asc',{
+          headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},
+          signal:AbortSignal.timeout(3500)
+        });
+        if(pRes.ok){
+          const pRows=await pRes.json();
+          if(Array.isArray(pRows)&&pRows.length>0){
+            db.projects=pRows;
+            return json(res,200,pRows,{'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache','Expires':'0','Access-Control-Allow-Origin':'*'});
+          }
+        }
+      }catch(err){
+        console.warn('[VolteraX] Live projects fetch fallback to memory:', err.message);
+      }
+    }
+    return json(res,200,db.projects||[],{'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache','Expires':'0','Access-Control-Allow-Origin':'*'});
+  }
   if(req.method==='POST'&&p==='/api/customer/signup'){
     const x=await body(req);
     const name=String(x.name||'').trim();
@@ -346,7 +365,7 @@ async function route(req,res){
   }
   if(req.method==='GET'&&p==='/admin'){return serveFile(res,path.join(__dirname,'public','admin.html'),'text/html; charset=utf-8')}
   if(req.method==='GET'&&p==='/admin/login'){return serveFile(res,path.join(__dirname,'public','admin.html'),'text/html; charset=utf-8')}
-  if(req.method==='GET'){let fp;if(p==='/'||p==='/index.html')fp=path.join(__dirname,'public','index.html');else if(p==='/projects'||p==='/projects.html')fp=path.join(__dirname,'public','projects.html');else if(p.startsWith('/assets/'))fp=path.join(__dirname,'public',p);else if(fs.existsSync(path.join(__dirname,'public',p.slice(1))))fp=path.join(__dirname,'public',p.slice(1));else return json(res,404,{error:'Not found'});return serveFile(res,fp)}
+  if(req.method==='GET'){let fp;if(p==='/'||p==='/index.html')fp=path.join(__dirname,'public','index.html');else if(p==='/projects'||p==='/projects.html')fp=path.join(__dirname,'public','projects.html');else if(p==='/privacy'||p==='/privacy.html')fp=path.join(__dirname,'public','privacy.html');else if(p==='/terms'||p==='/terms.html')fp=path.join(__dirname,'public','terms.html');else if(p==='/refund'||p==='/refund.html'||p==='/cancellation'||p==='/cancellation.html')fp=path.join(__dirname,'public','refund.html');else if(p.startsWith('/assets/'))fp=path.join(__dirname,'public',p);else if(fs.existsSync(path.join(__dirname,'public',p.slice(1))))fp=path.join(__dirname,'public',p.slice(1));else return json(res,404,{error:'Not found'});return serveFile(res,fp)}
   json(res,404,{error:'Not found'});
  }catch(e){console.error(e);json(res,500,{error:'Server error.'})}
 }

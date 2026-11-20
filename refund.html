@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Refund & Cancellation Policy | VOLTERAX Hardware Systems</title>
+  <meta name="description" content="Clear, transparent policies for custom prototypes and project kits - Official policy document for VolteraX hardware systems and custom electronics builds.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="/assets/volterax-logo.png">
+  <style>
+    :root {
+      --bg: #050508;
+      --card-bg: #0d0d14;
+      --text: #f0f0f5;
+      --muted: #9da0ad;
+      --purple: #6C3BFF;
+      --purple-light: #8B5CFF;
+      --cyan: #00E5FF;
+      --border: rgba(255, 255, 255, 0.08);
+      --font-heading: 'Space Grotesk', -apple-system, sans-serif;
+      --font-body: 'Inter', -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.65;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header.vx-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(5, 5, 8, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+    }
+    .vx-nav-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .vx-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #fff;
+      font-family: var(--font-heading);
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      font-size: 18px;
+    }
+    .vx-brand img {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+    }
+    .vx-nav-links {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .vx-nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color .2s ease;
+    }
+    .vx-nav-links a:hover {
+      color: #fff;
+    }
+    .vx-btn-action {
+      background: linear-gradient(135deg, var(--purple), var(--purple-light));
+      color: #fff !important;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    main.legal-container {
+      flex: 1;
+      max-width: 900px;
+      width: 100%;
+      margin: 48px auto;
+      padding: 0 24px;
+    }
+    .legal-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(108, 59, 255, 0.25);
+      border-radius: 16px;
+      padding: clamp(24px, 5vw, 48px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    .legal-badge {
+      display: inline-block;
+      font: 700 11px monospace;
+      letter-spacing: 0.2em;
+      color: var(--cyan);
+      background: rgba(0, 229, 255, 0.08);
+      border: 1px solid rgba(0, 229, 255, 0.25);
+      padding: 4px 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .legal-subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .legal-body h3 {
+      font-family: var(--font-heading);
+      font-size: 18px;
+      color: #fff;
+      margin: 28px 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .legal-body p {
+      color: #d1d5db;
+      font-size: 14.5px;
+      line-height: 1.7;
+      margin-bottom: 14px;
+    }
+    .legal-body ul {
+      margin: 10px 0 18px 24px;
+      color: #d1d5db;
+      font-size: 14.5px;
+      line-height: 1.7;
+    }
+    .legal-body li {
+      margin-bottom: 8px;
+    }
+    .legal-highlight {
+      background: rgba(108, 59, 255, 0.1);
+      border-left: 3px solid var(--purple);
+      padding: 14px 18px;
+      border-radius: 0 10px 10px 0;
+      margin: 18px 0;
+      font-size: 14px;
+      color: #e2e8f0;
+      line-height: 1.6;
+    }
+    .legal-contact-box {
+      margin-top: 36px;
+      padding: 20px;
+      background: #050508;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .legal-contact-box strong {
+      color: #fff;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .legal-contact-box a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-size: 14px;
+    }
+    footer.vx-footer {
+      border-top: 1px solid var(--border);
+      background: #030305;
+      padding: 32px 24px;
+      margin-top: 60px;
+    }
+    .footer-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 20px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .footer-inner a {
+      color: var(--muted);
+      text-decoration: none;
+      margin-right: 16px;
+    }
+    .footer-inner a:hover {
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <header class="vx-nav">
+    <div class="vx-nav-inner">
+      <a href="index.html" class="vx-brand">
+        <img src="/assets/volterax-logo.png" alt="VolteraX Logo">
+        <span>VOLTERAX</span>
+      </a>
+      <div class="vx-nav-links">
+        <a href="index.html">Home</a>
+        <a href="projects.html">Hardware Projects</a>
+        <a href="index.html#connect" class="vx-btn-action">Contact Us ↗</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="legal-container">
+    <article class="legal-card">
+      <div class="legal-badge">VOLTERAX / REFUND POLICY</div>
+      <h1>Refund & Cancellation Policy</h1>
+      <div class="legal-subtitle">Clear, transparent policies for custom prototypes and project kits</div>
+      <div class="legal-body">
+        
+  <div class="legal-highlight" style="border-color:#10b981;background:rgba(16,185,129,.1);color:#10b981">
+    <strong>MANDATORY TRANSIT DAMAGE REQUIREMENT:</strong> To claim a free replacement or repair for transit damage, customers must record a continuous, uncut 360-degree unboxing video from the unopened outer courier packaging through opening and initial inspection.
+  </div>
+
+  <h3>1. Advance Payment & Custom Commission Policy</h3>
+  <p>For custom engineering prototypes and made-to-order hardware assemblies, VolteraX requires a <strong>50% non-refundable advance deposit</strong> before hardware assembly commences. This deposit is allocated immediately to procure specialized microcontrollers, sensors, modules, and custom chassis components tailored to your project.</p>
+
+  <h3>2. Cancellation Timeline</h3>
+  <ul>
+    <li><strong>Ready-Made Project Kits:</strong> Cancellation requests are accepted within <strong>6 hours</strong> of order placement, provided the consignment has not been handed over to the courier partner. A full refund will be processed to the original payment method within 5–7 working days.</li>
+    <li><strong>Custom Prototype Builds:</strong> Once hardware assembly, circuit wiring, PCB layout etching, or soldering has commenced, <strong>no cancellations or refunds can be entertained</strong> under any circumstances.</li>
+  </ul>
+
+  <h3>3. Free Transit Damage Replacement Guarantee</h3>
+  <p>Every VolteraX build is packaged with multi-layer anti-static cushioning, bubble wrap, and rigid outer enclosures. In the rare event that courier transit causes physical or structural damage:</p>
+  <div class="legal-highlight">
+    The uncut unboxing video must be submitted to <strong>VolteraX.360@gmail.com</strong> or our official WhatsApp support within <strong>24 hours of delivery</strong>. Upon verification, VolteraX will dispatch replacement modules or arrange free return pickup and re-assembly at our cost.
+  </div>
+
+  <h3>4. Technical Assistance & Defect Resolution</h3>
+  <p>If a module fails to operate according to provided technical documentation, our core engineering team provides dedicated remote technical assistance via WhatsApp or Google Meet within 48 hours to troubleshoot code, wiring, and power supply issues.</p>
+
+      </div>
+
+      <div class="legal-contact-box">
+        <div>
+          <strong>Official Compliance & Escalations</strong>
+          <span style="color:#9da0ad;font-size:13px">VolteraX Hardware Systems, Karnataka, India</span>
+        </div>
+        <div>
+          <a href="mailto:VolteraX.360@gmail.com">VolteraX.360@gmail.com ↗</a>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer class="vx-footer">
+    <div class="footer-inner">
+      <div>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms & Conditions</a>
+        <a href="refund.html">Refund & Cancellation</a>
+      </div>
+      <div>© 2026 VOLTERAX HARDWARE SYSTEMS. ALL RIGHTS RESERVED.</div>
+    </div>
+  </footer>
+</body>
+</html>
