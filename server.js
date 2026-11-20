@@ -5,8 +5,8 @@ globalThis.__vxPendingOtps = globalThis.__vxPendingOtps || {};
 let mailerTransport = null;
 function getMailer() {
   if (mailerTransport) return mailerTransport;
-  const user = process.env.SMTP_USER || process.env.GMAIL_USER || 'volterax.360@gmail.com';
-  const pass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || process.env.EMAIL_PASSWORD;
+  const user = process.env.SMTP_USER || process.env.GMAIL_USER || 'srinivasvm1122@gmail.com';
+  const pass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || process.env.EMAIL_PASSWORD || 'weyhhwyvozukjnbk';
   if (!pass) return null;
   try {
     const { createTransport } = require('nodemailer');
@@ -23,6 +23,7 @@ function getMailer() {
 
 async function sendOtpEmail(toEmail, otp, name = 'Customer') {
   const mailer = getMailer();
+  const senderEmail = process.env.SMTP_USER || process.env.GMAIL_USER || 'srinivasvm1122@gmail.com';
   const htmlContent = `
     <div style="background:#050508;color:#ffffff;padding:36px;font-family:Arial,-apple-system,sans-serif;border-radius:14px;border:1px solid #6C3BFF;max-width:540px;margin:0 auto;box-shadow:0 20px 50px rgba(0,0,0,0.8);">
       <div style="margin-bottom:24px;">
@@ -47,7 +48,7 @@ async function sendOtpEmail(toEmail, otp, name = 'Customer') {
   if (mailer) {
     try {
       await mailer.sendMail({
-        from: `"VOLTERAX Hardware Systems" <${process.env.SMTP_USER || 'volterax.360@gmail.com'}>`,
+        from: `"VOLTERAX Systems" <${senderEmail}>`,
         to: toEmail,
         subject: `VOLTERAX Verification Code: ${otp}`,
         text: `Your VOLTERAX 6-digit verification code is: ${otp}. It expires in 10 minutes.`,
@@ -463,8 +464,13 @@ async function route(req,res){
         attempts: 0
       };
 
-      let sentViaSupabase = false;
-      if (SUPABASE_URL && SUPABASE_KEY) {
+      // 1. Dispatch real email OTP via direct Gmail SMTP
+      let emailSent = false;
+      const mailResult = await sendOtpEmail(email, fallbackOtp, name);
+      if (mailResult && mailResult.sent) {
+        emailSent = true;
+      } else if (SUPABASE_URL && SUPABASE_KEY) {
+        // Fallback to Supabase Auth OTP if SMTP is unconfigured
         try {
           const supaRes = await fetch(SUPABASE_URL + '/auth/v1/otp', {
             method: 'POST',
@@ -475,17 +481,13 @@ async function route(req,res){
             body: JSON.stringify({ email, create_user: true })
           });
           if (supaRes.ok) {
-            sentViaSupabase = true;
+            emailSent = true;
             console.log('[Supabase Auth OTP] Real email code dispatched to ' + email);
           }
         } catch (supaErr) {
           console.warn('[Supabase Auth OTP Warning]', supaErr.message);
         }
       }
-
-      // Also try nodemailer if configured
-      const mailResult = await sendOtpEmail(email, fallbackOtp, name);
-      const emailSent = sentViaSupabase || Boolean(mailResult.sent);
 
       return json(res, 200, {
         ok: true,
