@@ -1155,6 +1155,144 @@ color: #fff !important;
   border:1px solid rgba(239,68,68,.45);
   color:#f87171;
 }
+
+/* ==================== KARNATAKA 31 DISTRICTS & TALUKS EXPLORER ==================== */
+.vx-ka-coverage{
+  margin-top:22px;
+  padding-top:22px;
+  border-top:1px solid rgba(255,255,255,.09);
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  text-align:left;
+}
+.vx-ka-coverage-header .vx-ka-badge{
+  font:700 10px monospace;
+  letter-spacing:.12em;
+  color:#10b981;
+  background:rgba(16,185,129,.1);
+  border:1px solid rgba(16,185,129,.3);
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:999px;
+  margin-bottom:6px;
+}
+.vx-ka-coverage-header h4{
+  font:700 16px/1.3 Inter,sans-serif;
+  letter-spacing:-.02em;
+  color:#f1f5f9;
+  margin:4px 0 6px;
+}
+.vx-ka-coverage-header p{
+  font-size:12px;
+  line-height:1.5;
+  color:rgba(255,255,255,.65);
+  margin:0;
+}
+.vx-ka-controls{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+@media(max-width:640px){
+  .vx-ka-controls{grid-template-columns:1fr}
+}
+.vx-ka-search-wrap{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:#08080f;
+  border:1px solid rgba(108,59,255,.35);
+  border-radius:10px;
+  padding:10px 14px;
+}
+.vx-ka-search-wrap:focus-within{
+  border-color:#00E5FF;
+  box-shadow:0 0 16px rgba(0,229,255,.2);
+}
+.vx-ka-search-wrap input{
+  flex:1;
+  background:transparent;
+  border:none;
+  outline:none;
+  color:#fff;
+  font-size:13px;
+}
+.vx-ka-selector-wrap select{
+  width:100%;
+  background:#08080f;
+  border:1px solid rgba(255,255,255,.15);
+  color:#f1f5f9;
+  border-radius:10px;
+  padding:10px 14px;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  outline:none;
+}
+.vx-ka-selector-wrap select:focus{
+  border-color:#7d55ff;
+}
+.vx-ka-taluks-card{
+  background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:12px;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.vx-ka-taluks-title{
+  font-size:14px;
+  font-weight:700;
+  color:#10b981;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.vx-ka-taluks-pills{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.vx-ka-taluk-pill{
+  font-size:12px;
+  font-weight:500;
+  color:#e2e8f0;
+  background:rgba(108,59,255,.12);
+  border:1px solid rgba(108,59,255,.3);
+  padding:5px 12px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  cursor:default;
+}
+.vx-ka-taluk-pill.matched{
+  background:rgba(0,229,255,.25) !important;
+  border-color:#00E5FF !important;
+  color:#00E5FF !important;
+  font-weight:700 !important;
+  box-shadow:0 0 12px rgba(0,229,255,.35);
+}
+.vx-ka-taluks-footer{
+  font-size:12px;
+  color:#94a3b8;
+  line-height:1.55;
+  border-top:1px dashed rgba(255,255,255,.08);
+  padding-top:10px;
+}
+.vx-po-chip{
+  font-size:11px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.12);
+  color:#cbd5e1;
+  padding:3px 9px;
+  border-radius:6px;
+  display:inline-block;
+  margin:2px 3px 2px 0;
+}
+
 .vx-pincode-tags{
   display:flex;
   flex-wrap:wrap;
@@ -2091,6 +2229,38 @@ if (btn) btn.disabled = false;
         </div>
         <div class="vx-pincode-result" id="vxPincodeResult" style="display:none;" aria-live="polite"></div>
       </form>
+      
+      <!-- ALL 31 KARNATAKA DISTRICTS & 233 TALUKS COVERAGE EXPLORER -->
+      <div class="vx-ka-coverage" id="vxKaCoverage">
+        <div class="vx-ka-coverage-header">
+          <div class="vx-ka-badge">🗺️ ALL 31 KARNATAKA DISTRICTS &amp; 230+ TALUKS</div>
+          <h4>100% Doorstep Fast-Track Delivery Across Karnataka</h4>
+          <p>Every single district and taluk in Karnataka has dedicated express dispatch (2–4 working days). Select any district or search your taluk below:</p>
+        </div>
+
+        <div class="vx-ka-controls">
+          <div class="vx-ka-search-wrap">
+            <span aria-hidden="true">🔍</span>
+            <input type="text" id="vxKaSearchInput" placeholder="Search District / Taluk (e.g. Mandya, Maddur, Sirsi, Gokak, Sedam...)" oninput="window.vxSearchKarnataka&&window.vxSearchKarnataka(this.value)">
+          </div>
+          <div class="vx-ka-selector-wrap">
+            <select id="vxDistrictSelect" aria-label="Select Karnataka District" onchange="window.vxSelectDistrict&&window.vxSelectDistrict(this.value)">
+              <option value="" disabled selected>Choose a Karnataka District (31 Total)...</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="vx-ka-taluks-card" id="vxKaTaluksCard">
+          <div class="vx-ka-taluks-title" id="vxKaSelectedDistrictTitle">📍 Mandya District (7 Taluks)</div>
+          <div class="vx-ka-taluks-pills" id="vxKaTaluksPills">
+            <!-- Taluks dynamically populated -->
+          </div>
+          <div class="vx-ka-taluks-footer" id="vxKaTaluksFooter">
+            ⚡ <b>Karnataka Fast-Track Dispatch:</b> Direct insured delivery in <b>2–4 working days</b> across all rural &amp; urban areas in this Taluk.
+          </div>
+        </div>
+      </div>
+
       <div class="vx-pincode-tags">
         <span>✓ Karnataka Fast-Track (2–4 Days)</span>
         <span>✓ Pan-India Shipping (4–7 Days)</span>
@@ -4061,13 +4231,88 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
 
 <script id="vx-legal-and-pincode-logic">
 (function() {
-  // --- 1. Pincode Availability Logic (Strict Anti-Fake & Real India Post Verification) ---
+  
+  // --- Karnataka 31 Districts & 233 Taluks Dataset & Logic ---
+  const VX_KARNATAKA_DISTRICTS = {"Bagalkote":["Bagalkote","Badami","Bilagi","Hungund","Jamkhandi","Mudhol","Guledagudda","Rabkavi Banhatti","Ilkal"],"Ballari":["Ballari","Kurugodu","Kampli","Sanduru","Siraguppa"],"Belagavi":["Belagavi","Athani","Bailhongal","Chikkodi","Gokak","Hukkeri","Khanapur","Ramdurg","Raybag","Saundatti (Yaragatti)","Kagawad","Mudalgi","Kittur","Nippani"],"Bengaluru Rural":["Devanahalli","Doddaballapura","Hosakote","Nelamangala"],"Bengaluru Urban":["Bengaluru North","Bengaluru South","Bengaluru East","Yelahanka","Anekal"],"Bidar":["Bidar","Basavakalyan","Bhalki","Homnabad","Aurad","Hulsoor","Kamalnagar"],"Chamarajanagar":["Chamarajanagar","Gundlupete","Kollegala","Yelandur","Hanur"],"Chikkaballapura":["Chikkaballapura","Bagepalli","Chintamani","Gauribidanur","Gudibanda","Sidlaghatta","Chelur"],"Chikkamagaluru":["Chikkamagaluru","Kadur","Koppa","Mudigere","Narasimharajapura","Sringeri","Tarikere","Ajjampura","Kalasa"],"Chitradurga":["Chitradurga","Challakere","Hiriyur","Holalkere","Hosadurga","Molakalmuru"],"Dakshina Kannada":["Mangaluru","Bantwal","Belthangady","Puttur","Sullia","Moodabidri","Kadaba","Ullal"],"Davanagere":["Davanagere","Harihara","Honnali","Channagiri","Jagalur","Nyamathi"],"Dharwad":["Dharwad","Hubballi (Urban)","Hubballi (Rural)","Kalghatgi","Kundgol","Navalgund","Alnavar","Annigeri"],"Gadag":["Gadag","Nargund","Ron","Shirahatti","Mundargi","Gajendragad","Lakshmeshwar"],"Hassan":["Hassan","Alur","Arkalgud","Arsikere","Belur","Channarayapatna","Holenarasipura","Sakleshpur"],"Haveri":["Haveri","Byadgi","Hangal","Hirekerur","Ranebennur","Shiggaon","Savanur","Rattihalli"],"Kalaburagi":["Kalaburagi","Afzalpur","Aland","Chincholi","Chitapur","Jevargi","Sedam","Kamalapur","Shahabad","Kalagi","Yedrami"],"Kodagu":["Madikeri","Somwarpet","Virajpet","Kushalnagar","Ponnampet"],"Kolar":["Kolar","Bangarapet","Malur","Mulbagal","Srinivaspur","KGF (Robertsonpet)"],"Koppal":["Koppal","Gangavathi","Kushtagi","Yelburga","Karatagi","Kanakagiri","Kukanoor"],"Mandya":["Mandya","Maddur","Malavalli","Pandavapura","Nagamangala","Krishnarajpet (K.R. Pet)","Srirangapatna"],"Mysuru":["Mysuru","Hunsur","Krishnarajanagara (K.R. Nagar)","Nanjangud","Heggadadevankote (H.D. Kote)","Piriyapatna","Tirumakudalu Narasipura (T. Narasipura)","Saragur","Saligrama"],"Raichur":["Raichur","Devadurga","Lingsugur","Manvi","Sindhanur","Maski","Sirwar"],"Ramanagara":["Ramanagara","Channapatna","Kanakapura","Magadi","Harohalli"],"Shivamogga":["Shivamogga","Bhadravathi","Hosanagara","Sagara","Shikaripura","Soraba","Thirthahalli"],"Tumakuru":["Tumakuru","Chikkanayakanahalli","Gubbi","Koratagere","Kunigal","Madhugiri","Pavagada","Sira","Tiptur","Turuvekere"],"Udupi":["Udupi","Karkala","Kundapura","Brahmavara","Byndoor","Hebri","Kaup"],"Uttara Kannada":["Karwar","Ankola","Bhatkal","Haliyal","Honnavar","Joida (Supa)","Kumta","Mundgod","Siddapur","Sirsi","Yellapur","Dandeli"],"Vijayapura":["Vijayapura","Basavana Bagewadi","Indi","Muddebihal","Sindagi","Babaleshwar","Chadchan","Devar Hippargi","Nidagundi","Tikota","Kolhar","Almel"],"Yadgir":["Yadgir","Shahapur","Shorapur","Gurmitkal","Hunasagi","Wadgera"],"Vijayanagara":["Hosapete","Harapanahalli","Hoovina Hadagali","Hagaribommanahalli","Kotturu","Kudligi"]};
+
   function escapeHtml(str) {
     return String(str || '').replace(/[&<>"']/g, function(c) {
       return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]);
     });
   }
 
+  window.initKarnatakaCoverage = function() {
+    const sel = document.getElementById('vxDistrictSelect');
+    if (!sel) return;
+    sel.innerHTML = '<option value="" disabled>Choose a Karnataka District (31 Total)...</option>';
+    const districts = Object.keys(VX_KARNATAKA_DISTRICTS).sort();
+    districts.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d;
+      opt.textContent = d + ' (' + VX_KARNATAKA_DISTRICTS[d].length + ' Taluks)';
+      sel.appendChild(opt);
+    });
+
+    // Default to Bengaluru Urban or Mandya
+    window.vxSelectDistrict('Bengaluru Urban');
+  };
+
+  window.vxSelectDistrict = function(districtName, matchedTaluk = '') {
+    const titleEl = document.getElementById('vxKaSelectedDistrictTitle');
+    const pillsEl = document.getElementById('vxKaTaluksPills');
+    const footerEl = document.getElementById('vxKaTaluksFooter');
+    const sel = document.getElementById('vxDistrictSelect');
+    if (!pillsEl || !titleEl) return;
+
+    const taluks = VX_KARNATAKA_DISTRICTS[districtName];
+    if (!taluks) return;
+
+    if (sel && sel.value !== districtName) {
+      sel.value = districtName;
+    }
+
+    titleEl.innerHTML = '📍 <b>' + escapeHtml(districtName) + ' District</b> <span style="font-size:12px;font-weight:600;color:#94a3b8">(' + taluks.length + ' Taluks Covered)</span>';
+    pillsEl.innerHTML = taluks.map(t => {
+      const isMatch = matchedTaluk && t.toLowerCase() === matchedTaluk.toLowerCase();
+      return '<span class="vx-ka-taluk-pill ' + (isMatch ? 'matched' : '') + '">✓ ' + escapeHtml(t) + '</span>';
+    }).join('');
+
+    if (footerEl) {
+      footerEl.innerHTML = '⚡ <b>Karnataka Fast-Track Dispatch:</b> Direct doorstep delivery in <b>2–4 working days</b> across all villages and towns in <b>' + escapeHtml(districtName) + '</b> (' + taluks.length + ' Taluks).';
+    }
+  };
+
+  window.vxSearchKarnataka = function(query) {
+    const q = (query || '').trim().toLowerCase();
+    if (!q) {
+      const sel = document.getElementById('vxDistrictSelect');
+      window.vxSelectDistrict(sel?.value || 'Bengaluru Urban');
+      return;
+    }
+
+    // 1. Check exact/partial taluk match
+    for (const [dist, taluks] of Object.entries(VX_KARNATAKA_DISTRICTS)) {
+      const foundTaluk = taluks.find(t => t.toLowerCase() === q || t.toLowerCase().includes(q));
+      if (foundTaluk) {
+        window.vxSelectDistrict(dist, foundTaluk);
+        const footerEl = document.getElementById('vxKaTaluksFooter');
+        if (footerEl) {
+          footerEl.innerHTML = '🎯 <b>Found Taluk:</b> <span style="color:#00E5FF">' + escapeHtml(foundTaluk) + '</span> in <b>' + escapeHtml(dist) + ' District</b>. ⚡ Express Doorstep Transit in 2–4 working days!';
+        }
+        return;
+      }
+    }
+
+    // 2. Check district match
+    for (const dist of Object.keys(VX_KARNATAKA_DISTRICTS)) {
+      if (dist.toLowerCase().includes(q)) {
+        window.vxSelectDistrict(dist);
+        return;
+      }
+    }
+  };
+
+  // --- Strict Anti-Fake & India Post Pincode Logic (with All Offices & Taluks) ---
   window.checkVolteraxPincode = async function() {
     const input = document.getElementById('vxPincodeInput');
     const result = document.getElementById('vxPincodeResult');
@@ -4083,7 +4328,6 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
       return;
     }
 
-    // Anti-fake checks (dummy repeating numbers, sequential patterns, invalid circle prefixes)
     const FAKE_PINS = ['000000', '111111', '222222', '333333', '444444', '555555', '666666', '777777', '888888', '999999', '123456', '654321', '012345', '234567', '345678', '456789', '987654', '876543', '765432', '543210', '100000', '200000', '300000', '400000', '500000', '600000', '700000', '800000', '900000', '121212', '123123'];
     if (FAKE_PINS.includes(val) || /^(\d)\1{5}$/.test(val) || !/^[1-8]/.test(val)) {
       result.className = 'vx-pincode-result error';
@@ -4111,12 +4355,18 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
         const res2 = await fetch('https://api.postalpincode.in/pincode/' + encodeURIComponent(val));
         const d2 = await res2.json();
         if (Array.isArray(d2) && d2[0] && d2[0].Status === 'Success' && Array.isArray(d2[0].PostOffice) && d2[0].PostOffice.length > 0) {
-          const po = d2[0].PostOffice[0];
+          const poList = d2[0].PostOffice;
+          const po = poList[0];
+          const offices = [...new Set(poList.map(p => p.Name).filter(Boolean))];
+          const taluks = [...new Set(poList.map(p => p.Block || p.Taluk).filter(Boolean))];
           data = {
             valid: true,
             pincode: val,
             office: po.Name,
+            offices: offices,
             district: po.District,
+            taluk: taluks.length > 0 ? taluks.join(', ') : (po.Block || po.Taluk || po.District || ''),
+            taluks: taluks,
             state: po.State,
             isKarnataka: (po.State || '').toLowerCase() === 'karnataka' || ['56', '57', '58', '59'].includes(val.slice(0, 2))
           };
@@ -4128,15 +4378,36 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
       if (data && data.valid) {
         const isKarnataka = data.isKarnataka;
         result.className = 'vx-pincode-result ' + (isKarnataka ? 'karnataka' : 'pan-india');
+        
+        const officesList = Array.isArray(data.offices) && data.offices.length > 0 ? data.offices : [data.office || 'Main Branch'];
+        const officesBadges = officesList.map(o => '<span class="vx-po-chip">📮 ' + escapeHtml(o) + '</span>').join(' ');
+
         result.innerHTML = 
-          '<div style="display:flex;align-items:center;gap:6px;font-weight:800;font-size:13px;margin-bottom:5px;color:' + (isKarnataka ? '#10b981' : '#00E5FF') + '">' +
-            '<span>✓</span> VERIFIED INDIA POST PINCODE: ' + escapeHtml((data.office ? data.office + ', ' : '') + (data.district || '') + ' (' + (data.state || '') + ')') +
+          '<div style="display:flex;align-items:center;gap:6px;font-weight:800;font-size:13.5px;margin-bottom:6px;color:' + (isKarnataka ? '#10b981' : '#00E5FF') + '">' +
+            '<span>✓</span> VERIFIED INDIA POST PINCODE: ' + escapeHtml(val) + ' &nbsp;•&nbsp; ' + escapeHtml(data.district || '') + ' District' +
           '</div>' +
-          '<div style="font-size:13px;line-height:1.55;color:#e2e8f0">' +
+          '<div style="font-size:13px;line-height:1.6;color:#e2e8f0;margin-bottom:8px">' +
+            '<b>📍 District:</b> ' + escapeHtml(data.district || 'Karnataka') + ' &nbsp;|&nbsp; ' +
+            '<b>🏛️ Taluk:</b> ' + escapeHtml(data.taluk || data.district || 'All Taluks') + ' &nbsp;|&nbsp; ' +
+            '<b>State:</b> ' + escapeHtml(data.state || '') +
+          '</div>' +
+          '<div style="font-size:12px;margin-bottom:10px">' +
+            '<div style="font-weight:700;color:#94a3b8;margin-bottom:5px">Covered Post Offices & Localities (' + officesList.length + '):</div>' +
+            '<div style="max-height:85px;overflow-y:auto;padding-right:4px">' + officesBadges + '</div>' +
+          '</div>' +
+          '<div style="font-size:13px;line-height:1.55;color:#e2e8f0;background:rgba(16,185,129,0.08);padding:10px 14px;border-radius:8px;border:1px solid rgba(16,185,129,0.25)">' +
             (isKarnataka 
-              ? '⚡ <b>Karnataka Fast-Track:</b> Express courier delivery in <b>2–4 working days</b>. Direct dispatch from our Bengaluru / Mysuru hub with live tracking.'
+              ? '⚡ <b>Karnataka Fast-Track:</b> Express doorstep delivery in <b>2–4 working days</b> across all villages and towns in <b>' + escapeHtml(data.taluk || data.district) + ' Taluk</b> and all 31 Karnataka Districts!'
               : '📦 <b>Pan-India Shipping:</b> Insured express transit in <b>4–7 working days</b> with live tracking across India.') +
           '</div>';
+
+        // Auto-select district in the explorer if found in Karnataka
+        if (isKarnataka && data.district) {
+          const matchedDist = Object.keys(VX_KARNATAKA_DISTRICTS).find(d => d.toLowerCase() === (data.district || '').toLowerCase());
+          if (matchedDist) {
+            window.vxSelectDistrict(matchedDist, data.taluk);
+          }
+        }
       } else {
         result.className = 'vx-pincode-result error';
         result.innerHTML = '❌ <b>Fake / Unrecognized PIN Code (' + escapeHtml(val) + ')</b><br><span style="font-size:12px;opacity:.9">' + escapeHtml(data?.error || 'No official India Post office found for this pincode. Please enter a genuine 6-digit postal code.') + '</span>';
@@ -4150,6 +4421,14 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
       if (btn) btn.disabled = false;
     }
   };
+
+  // Initialize coverage explorer on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', window.initKarnatakaCoverage);
+  } else {
+    window.initKarnatakaCoverage();
+  }
+
 
   // --- 2. Razorpay/Cashfree Compliant Legal Policy Content ---
   const legalDocs = {

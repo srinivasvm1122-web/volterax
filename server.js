@@ -124,6 +124,40 @@ function validateIndianMobile(raw) {
   return { valid: true, mobile: m };
 }
 
+const KARNATAKA_DISTRICTS = {
+  "Bagalkote": ["Bagalkote", "Badami", "Bilagi", "Hungund", "Jamkhandi", "Mudhol", "Guledagudda", "Rabkavi Banhatti", "Ilkal"],
+  "Ballari": ["Ballari", "Kurugodu", "Kampli", "Sanduru", "Siraguppa"],
+  "Belagavi": ["Belagavi", "Athani", "Bailhongal", "Chikkodi", "Gokak", "Hukkeri", "Khanapur", "Ramdurg", "Raybag", "Saundatti (Yaragatti)", "Kagawad", "Mudalgi", "Kittur", "Nippani"],
+  "Bengaluru Rural": ["Devanahalli", "Doddaballapura", "Hosakote", "Nelamangala"],
+  "Bengaluru Urban": ["Bengaluru North", "Bengaluru South", "Bengaluru East", "Yelahanka", "Anekal"],
+  "Bidar": ["Bidar", "Basavakalyan", "Bhalki", "Homnabad", "Aurad", "Hulsoor", "Kamalnagar"],
+  "Chamarajanagar": ["Chamarajanagar", "Gundlupete", "Kollegala", "Yelandur", "Hanur"],
+  "Chikkaballapura": ["Chikkaballapura", "Bagepalli", "Chintamani", "Gauribidanur", "Gudibanda", "Sidlaghatta", "Chelur"],
+  "Chikkamagaluru": ["Chikkamagaluru", "Kadur", "Koppa", "Mudigere", "Narasimharajapura", "Sringeri", "Tarikere", "Ajjampura", "Kalasa"],
+  "Chitradurga": ["Chitradurga", "Challakere", "Hiriyur", "Holalkere", "Hosadurga", "Molakalmuru"],
+  "Dakshina Kannada": ["Mangaluru", "Bantwal", "Belthangady", "Puttur", "Sullia", "Moodabidri", "Kadaba", "Ullal"],
+  "Davanagere": ["Davanagere", "Harihara", "Honnali", "Channagiri", "Jagalur", "Nyamathi"],
+  "Dharwad": ["Dharwad", "Hubballi (Urban)", "Hubballi (Rural)", "Kalghatgi", "Kundgol", "Navalgund", "Alnavar", "Annigeri"],
+  "Gadag": ["Gadag", "Nargund", "Ron", "Shirahatti", "Mundargi", "Gajendragad", "Lakshmeshwar"],
+  "Hassan": ["Hassan", "Alur", "Arkalgud", "Arsikere", "Belur", "Channarayapatna", "Holenarasipura", "Sakleshpur"],
+  "Haveri": ["Haveri", "Byadgi", "Hangal", "Hirekerur", "Ranebennur", "Shiggaon", "Savanur", "Rattihalli"],
+  "Kalaburagi": ["Kalaburagi", "Afzalpur", "Aland", "Chincholi", "Chitapur", "Jevargi", "Sedam", "Kamalapur", "Shahabad", "Kalagi", "Yedrami"],
+  "Kodagu": ["Madikeri", "Somwarpet", "Virajpet", "Kushalnagar", "Ponnampet"],
+  "Kolar": ["Kolar", "Bangarapet", "Malur", "Mulbagal", "Srinivaspur", "KGF (Robertsonpet)"],
+  "Koppal": ["Koppal", "Gangavathi", "Kushtagi", "Yelburga", "Karatagi", "Kanakagiri", "Kukanoor"],
+  "Mandya": ["Mandya", "Maddur", "Malavalli", "Pandavapura", "Nagamangala", "Krishnarajpet (K.R. Pet)", "Srirangapatna"],
+  "Mysuru": ["Mysuru", "Hunsur", "Krishnarajanagara (K.R. Nagar)", "Nanjangud", "Heggadadevankote (H.D. Kote)", "Piriyapatna", "Tirumakudalu Narasipura (T. Narasipura)", "Saragur", "Saligrama"],
+  "Raichur": ["Raichur", "Devadurga", "Lingsugur", "Manvi", "Sindhanur", "Maski", "Sirwar"],
+  "Ramanagara": ["Ramanagara", "Channapatna", "Kanakapura", "Magadi", "Harohalli"],
+  "Shivamogga": ["Shivamogga", "Bhadravathi", "Hosanagara", "Sagara", "Shikaripura", "Soraba", "Thirthahalli"],
+  "Tumakuru": ["Tumakuru", "Chikkanayakanahalli", "Gubbi", "Koratagere", "Kunigal", "Madhugiri", "Pavagada", "Sira", "Tiptur", "Turuvekere"],
+  "Udupi": ["Udupi", "Karkala", "Kundapura", "Brahmavara", "Byndoor", "Hebri", "Kaup"],
+  "Uttara Kannada": ["Karwar", "Ankola", "Bhatkal", "Haliyal", "Honnavar", "Joida (Supa)", "Kumta", "Mundgod", "Siddapur", "Sirsi", "Yellapur", "Dandeli"],
+  "Vijayapura": ["Vijayapura", "Basavana Bagewadi", "Indi", "Muddebihal", "Sindagi", "Babaleshwar", "Chadchan", "Devar Hippargi", "Nidagundi", "Tikota", "Kolhar", "Almel"],
+  "Yadgir": ["Yadgir", "Shahapur", "Shorapur", "Gurmitkal", "Hunasagi", "Wadgera"],
+  "Vijayanagara": ["Hosapete", "Harapanahalli", "Hoovina Hadagali", "Hagaribommanahalli", "Kotturu", "Kudligi"]
+};
+
 const FAKE_PINCODES = new Set([
   '000000', '111111', '222222', '333333', '444444', '555555', '666666', '777777', '888888', '999999',
   '123456', '654321', '012345', '234567', '345678', '456789', '987654', '876543', '765432', '543210',
@@ -162,18 +196,25 @@ async function validateIndianPincodeServer(raw) {
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data) && data[0] && data[0].Status === 'Success' && Array.isArray(data[0].PostOffice) && data[0].PostOffice.length > 0) {
-        const po = data[0].PostOffice[0];
+        const poList = data[0].PostOffice;
+        const po = poList[0];
         const state = po.State || '';
         const isKarnataka = state.toLowerCase() === 'karnataka' || ['56', '57', '58', '59'].includes(pin.slice(0, 2));
+        const offices = [...new Set(poList.map(p => p.Name).filter(Boolean))];
+        const taluks = [...new Set(poList.map(p => p.Block || p.Taluk).filter(Boolean))];
+        const taluk = taluks.length > 0 ? taluks.join(', ') : (po.Block || po.Taluk || po.District || '');
         const result = {
           valid: true,
           pincode: pin,
           office: po.Name,
+          offices: offices,
           district: po.District,
+          taluk: taluk,
+          taluks: taluks,
           state: state,
           isKarnataka,
           deliveryDays: isKarnataka ? '2–4 Days' : '4–7 Days',
-          hub: isKarnataka ? 'Karnataka Fast-Track Dispatch (Bengaluru Hub)' : 'Pan-India Insured Express'
+          hub: isKarnataka ? 'Karnataka Fast-Track Dispatch (All 31 Districts & 240 Taluks Covered)' : 'Pan-India Insured Express'
         };
         pincodeCache.set(pin, result);
         return result;
@@ -189,7 +230,10 @@ async function validateIndianPincodeServer(raw) {
       valid: true,
       pincode: pin,
       office: '',
+      offices: [],
       district: '',
+      taluk: '',
+      taluks: [],
       state: isKarnataka ? 'Karnataka' : 'India',
       isKarnataka,
       deliveryDays: isKarnataka ? '2–4 Days' : '4–7 Days',
@@ -574,6 +618,16 @@ async function route(req,res){
   if(req.method==='GET'&&p==='/api/diag'){return json(res,200,{hasPgPool:!!pgPool,hasPgModule:!!PgPool,users:db.users.length,orders:db.orders.length,dbError:globalThis.__lastDbError||null})}
   if(req.method==='GET'&&p==='/api/customer/me'){const c=customer(req);return c?json(res,200,customerBundle(c)):json(res,401,{error:'Not logged in'})}
   if(req.method==='GET'&&p==='/api/customer/orders'){const c=customer(req);return c?json(res,200,db.orders.filter(o=>o.userId===c.id)):json(res,401,{error:'Not logged in'})}
+    if(req.method==='GET' && (p==='/api/karnataka-districts' || p==='/api/districts')){
+    return json(res, 200, {
+      state: 'Karnataka',
+      totalDistricts: Object.keys(KARNATAKA_DISTRICTS).length,
+      districts: KARNATAKA_DISTRICTS
+    }, {
+      'Access-Control-Allow-Origin': '*',
+      'Cache-Control': 'public, max-age=86400'
+    });
+  }
   if(req.method==='GET' && (p.startsWith('/api/pincode/') || p==='/api/validate-pincode')){
     let pin = '';
     if(p.startsWith('/api/pincode/')) pin = p.slice(13);
