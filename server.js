@@ -188,20 +188,42 @@ try{const envPath=path.join(__dirname,'.env');if(fs.existsSync(envPath)){for(con
 const {MongoClient}=require('mongodb');
 const {Pool:PgPool}=(()=>{try{return require('pg')}catch(_){return {Pool:null}}})();
 const PORT=Number(process.env.PORT||3000);const HOST=process.env.HOST||'0.0.0.0';
-const DEFAULT_DB = Buffer.from('cG9zdGdyZXNxbDovL3Bvc3RncmVzOnNyaW5pdmFzdm0xMTIyJTQwZ21haWwuY29tQGRiLmZlbXhyZXVjYm1xZnVuYWRsamFwLnN1cGFiYXNlLmNvOjY1NDMvcG9zdGdyZXM=','base64').toString('utf8');
+const DEFAULT_DB = Buffer.from('cG9zdGdyZXNxbDovL3Bvc3RncmVzOiUyM0NoYW5kYW4uMzYwQGRiLmFyd3d3Y2ZneGl1aHJrcWV2ZG92LnN1cGFiYXNlLmNvOjU0MzIvcG9zdGdyZXM=','base64').toString('utf8');
 const ADMIN_EMAIL=(process.env.ADMIN_EMAIL||'srinivasvm1122@gmail.com').toLowerCase();
 const ADMIN_PASSWORD=process.env.ADMIN_PASSWORD||Buffer.from('ODEwNTIyNzY0NA==','base64').toString('utf8');
 const SESSION_TTL=1000*60*60*24*7;
 const MONGODB_URI=process.env.MONGODB_URI||'';
 const MONGODB_DB=process.env.MONGODB_DB||'volterax';
-const SUPABASE_URL=process.env.SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL||'https://femxreucbmqfunadljap.supabase.co';
+const SUPABASE_URL=process.env.SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL||'https://arwwwcfgxiuhrkqevdov.supabase.co';
 const SUPABASE_KEY=process.env.SUPABASE_ANON_KEY||process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||'sb_publishable_zkN2gnKmhUXwbGiuorYyKQ_-mURTLot';
 const DATABASE_URL=process.env.DATABASE_URL||process.env.SUPABASE_DB_URL||DEFAULT_DB;
-const pgPool=DATABASE_URL&&PgPool?new PgPool({connectionString:DATABASE_URL,ssl:{rejectUnauthorized:false},connectionTimeoutMillis:4000,idleTimeoutMillis:10000}):null;
+const pgPool=DATABASE_URL&&PgPool?new PgPool({connectionString:DATABASE_URL,ssl:{rejectUnauthorized:false},connectionTimeoutMillis:5000,idleTimeoutMillis:10000}):null;
 const mongoClient=MONGODB_URI?new MongoClient(MONGODB_URI):null;
 let db=blank(),storeDoc;
 function blank(){return {users:[],orders:[],feedback:[],leads:[],sessions:{},adminSessions:{},projects:[]}}
 async function initDb(){
+  if(pgPool){
+    try{
+      console.log('[VolteraX] Connecting to Supabase PostgreSQL (arwwwcfgxiuhrkqevdov)...');
+      await pgPool.query(`CREATE TABLE IF NOT EXISTS volterax_store (id VARCHAR(64) PRIMARY KEY, data JSONB NOT NULL, updated_at TIMESTAMPTZ DEFAULT NOW());`);
+      const r=await pgPool.query(`SELECT data FROM volterax_store WHERE id = 'main'`);
+      if(r.rows.length===0){
+        await pgPool.query(`INSERT INTO volterax_store (id, data, updated_at) VALUES ('main', $1, NOW())`,[JSON.stringify(db)]);
+      } else {
+        db=r.rows[0].data||blank();
+        for(const k of Object.keys(blank()))if(db[k]==null)db[k]=blank()[k];
+      }
+      try{
+        const pR=await pgPool.query(`SELECT * FROM projects ORDER BY id ASC`);
+        if(pR.rows&&pR.rows.length>0) db.projects=pR.rows;
+      }catch(_){}
+      console.log(`[VolteraX] PostgreSQL connected! Users: ${db.users.length}, Orders: ${db.orders.length}, Projects: ${db.projects?.length||0}`);
+      return;
+    }catch(err){
+      globalThis.__lastDbError = err.message + ' | stack: ' + err.stack;
+      console.error('[VolteraX] PostgreSQL init error:', err.message);
+    }
+  }
   if(SUPABASE_URL&&SUPABASE_KEY){
     try{
       const res=await fetch(`${SUPABASE_URL}/rest/v1/volterax_store?id=eq.main&select=*`,{
@@ -212,32 +234,12 @@ async function initDb(){
         if(rows&&rows.length>0&&rows[0].data){
           db=rows[0].data;
           for(const k of Object.keys(blank()))if(db[k]==null)db[k]=blank()[k];
-          if(!db.projects||db.projects.length===0){
-            try{
-              const pRes=await fetch(`${SUPABASE_URL}/rest/v1/projects?select=*&order=id.asc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-              if(pRes.ok){const pRows=await pRes.json();if(Array.isArray(pRows)&&pRows.length>0)db.projects=pRows;}
-            }catch(pe){console.warn('[VolteraX] Projects table load warning:',pe.message);}
-          }
           console.log(`[VolteraX] Supabase REST connected! Users: ${db.users.length}, Orders: ${db.orders.length}, Projects: ${db.projects?.length||0}`);
           return;
         }
       }
     }catch(err){
       console.error('[VolteraX] Supabase REST init failed:', err.message);
-    }
-  }
-  if(pgPool){
-    try{
-      console.log('[VolteraX] Connecting to Supabase PostgreSQL...');
-      await pgPool.query(`CREATE TABLE IF NOT EXISTS volterax_store (id VARCHAR(64) PRIMARY KEY, data JSONB NOT NULL, updated_at TIMESTAMPTZ DEFAULT NOW());`);
-      const r=await pgPool.query(`SELECT data FROM volterax_store WHERE id = 'main'`);
-      if(r.rows.length===0){await pgPool.query(`INSERT INTO volterax_store (id, data, updated_at) VALUES ('main', $1, NOW())`,[JSON.stringify(db)])}
-      else{db=r.rows[0].data||blank();for(const k of Object.keys(blank()))if(db[k]==null)db[k]=blank()[k]}
-      console.log('[VolteraX] Supabase PostgreSQL connected and store loaded!');
-      return;
-    }catch(err){
-      globalThis.__lastDbError = err.message + ' | stack: ' + err.stack;
-      console.error('[VolteraX] Supabase init failed, running with memory store:', err.message);
     }
   }
   if(MONGODB_URI){
@@ -259,6 +261,60 @@ async function initDb(){
 }
 let saveQueue=Promise.resolve();
 async function syncRelational(type, item) {
+  if (pgPool) {
+    try {
+      if (type === 'customer') {
+        await pgPool.query(`
+          INSERT INTO customers (id, name, email, mobile, referral_code, referred_by, created_at)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          ON CONFLICT (id) DO UPDATE SET
+            name = EXCLUDED.name,
+            email = EXCLUDED.email,
+            mobile = EXCLUDED.mobile,
+            referral_code = EXCLUDED.referral_code;
+        `, [item.id, item.name, item.email || null, item.mobile || null, item.ref, item.referredBy || null, item.createdAt || new Date()]);
+      } else if (type === 'order') {
+        await pgPool.query(`
+          INSERT INTO orders (id, order_id, user_id, title, amount_paise, status, details, created_at, updated_at)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          ON CONFLICT (id) DO UPDATE SET
+            title = EXCLUDED.title,
+            amount_paise = EXCLUDED.amount_paise,
+            status = EXCLUDED.status,
+            details = EXCLUDED.details,
+            updated_at = NOW();
+        `, [item.id, item.order_id || item.id, item.userId, item.title, Number(item.amount_paise || 0), item.status || 'pending', item.details || '', item.createdAt || new Date(), item.updatedAt || new Date()]);
+      } else if (type === 'lead') {
+        await pgPool.query(`
+          INSERT INTO leads (id, user_id, name, mobile, message, status, created_at)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          ON CONFLICT (id) DO UPDATE SET
+            status = EXCLUDED.status;
+        `, [item.id, item.userId || null, item.name, item.mobile, item.message, item.status || 'new', item.createdAt || new Date()]);
+      } else if (type === 'feedback') {
+        await pgPool.query(`
+          INSERT INTO feedback (id, user_id, name, rating, message, status, created_at)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          ON CONFLICT (id) DO UPDATE SET
+            status = EXCLUDED.status;
+        `, [item.id, item.userId || null, item.name, Number(item.rating || 5), item.feedbackText || item.message, item.status || 'new', item.createdAt || new Date()]);
+      } else if (type === 'project') {
+        await pgPool.query(`
+          INSERT INTO projects (id, code, title, category, price, image, specs, features, badge, created_at)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+          ON CONFLICT (id) DO UPDATE SET
+            title = EXCLUDED.title,
+            category = EXCLUDED.category,
+            price = EXCLUDED.price,
+            image = EXCLUDED.image;
+        `, [item.id, item.code || item.id, item.title, item.category || 'HARDWARE', Number(item.price || 0), item.image || '', JSON.stringify(item.specs || []), JSON.stringify(item.features || []), item.badge || '', item.createdAt || new Date()]);
+      } else if (type === 'delete_project') {
+        await pgPool.query(`DELETE FROM projects WHERE id = $1`, [item.id]);
+      }
+    } catch (pgSyncErr) {
+      console.warn('[pgPool Sync Warning]', pgSyncErr.message);
+    }
+  }
   if (!SUPABASE_URL || !SUPABASE_KEY) return;
   const headers = {
     'apikey': SUPABASE_KEY,
@@ -424,6 +480,17 @@ async function route(req,res){
   if(req.method==='GET'&&p==='/api/customer/me'){const c=customer(req);return c?json(res,200,customerBundle(c)):json(res,401,{error:'Not logged in'})}
   if(req.method==='GET'&&p==='/api/customer/orders'){const c=customer(req);return c?json(res,200,db.orders.filter(o=>o.userId===c.id)):json(res,401,{error:'Not logged in'})}
   if(req.method==='GET'&&p==='/api/projects'){
+    if(pgPool){
+      try{
+        const pRes=await pgPool.query('SELECT * FROM projects ORDER BY id ASC');
+        if(pRes.rows && pRes.rows.length>0){
+          db.projects=pRes.rows;
+          return json(res,200,pRes.rows,{'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache','Expires':'0','Access-Control-Allow-Origin':'*'});
+        }
+      }catch(err){
+        console.warn('[VolteraX] Live projects pgPool fetch fallback:', err.message);
+      }
+    }
     if(SUPABASE_URL&&SUPABASE_KEY){
       try{
         const pRes=await fetch(SUPABASE_URL+'/rest/v1/projects?select=*&order=id.asc',{
