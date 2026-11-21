@@ -4620,6 +4620,16 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
   
   
   // Dynamic Locality & Place Name Interactive Helpers
+  window.vxHandleChipClick = function(btn) {
+    if (!btn) return;
+    const place = btn.getAttribute('data-place') || btn.innerText.replace(/^📍\s*/, '').trim();
+    const taluk = btn.getAttribute('data-taluk') || '';
+    const district = btn.getAttribute('data-district') || '';
+    const pin = btn.getAttribute('data-pin') || '';
+    const state = btn.getAttribute('data-state') || 'Karnataka';
+    window.vxSelectPlaceName(place, taluk, district, pin, state, btn);
+  };
+
   window.vxSelectPlaceName = function(place, taluk, district, pincode, state, el) {
     if (el) {
       const container = el.closest('.vx-pincode-result, #orderPincodeStatus, #modalPincodeStatus, #orderPincodeLocalities, #modalPincodeLocalities') || document;
@@ -4822,7 +4832,7 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
         result.className = 'vx-pincode-result ' + (isKarnataka ? 'karnataka' : 'pan-india');
         
         const officesList = Array.isArray(data.offices) && data.offices.length > 0 ? data.offices : [data.office || 'Main Branch'];
-        const officesBadges = officesList.map(o => '<button type="button" class="vx-po-chip" onclick="window.vxSelectPlaceName(' + JSON.stringify(o) + ', ' + JSON.stringify(data.taluk || '') + ', ' + JSON.stringify(data.district || '') + ', ' + JSON.stringify(val) + ', ' + JSON.stringify(data.state || 'Karnataka') + ', this)">📍 ' + escapeHtml(o) + '</button>').join(' ');
+        const officesBadges = officesList.map(o => '<button type="button" class="vx-po-chip" data-place="' + escapeHtml(o) + '" data-taluk="' + escapeHtml(data.taluk || '') + '" data-district="' + escapeHtml(data.district || '') + '" data-pin="' + escapeHtml(val) + '" data-state="' + escapeHtml(data.state || 'Karnataka') + '" onclick="window.vxHandleChipClick(this)">📍 ' + escapeHtml(o) + '</button>').join(' ');
 
         result.innerHTML = 
           '<div style="display:flex;align-items:center;gap:6px;font-weight:800;font-size:13.5px;margin-bottom:6px;color:' + (isKarnataka ? '#10b981' : '#00E5FF') + '">' +
