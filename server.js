@@ -269,20 +269,10 @@ async function validateIndianPincodeServer(raw) {
       }
     }
   } catch (err) {
-    const isKarnataka = ['56', '57', '58', '59'].includes(pin.slice(0, 2));
+    console.warn('[Pincode Lookup Error]', pin, err.message);
     return {
-      valid: true,
-      pincode: pin,
-      office: '',
-      offices: [],
-      district: '',
-      taluk: '',
-      taluks: [],
-      state: isKarnataka ? 'Karnataka' : 'India',
-      isKarnataka,
-      deliveryDays: isKarnataka ? '2–4 Days' : '4–7 Days',
-      hub: isKarnataka ? 'Karnataka Fast-Track (Bengaluru Hub)' : 'Pan-India Express',
-      fallback: true
+      valid: false,
+      error: 'Unable to verify PIN code (' + pin + ') with official postal database. Please ensure you entered a genuine 6-digit Indian PIN code.'
     };
   }
 
@@ -1053,6 +1043,15 @@ async function route(req,res){
       shipping_address.phone = customerPhone;
     }
 
+    // Enforce fixed catalog price if title matches any project in catalog
+    ensureProjectsLoaded();
+    const pIdx = matchProject(db.projects, title);
+    let enforcedPricePaise = Number(x.amount_paise || 0);
+    if (pIdx !== -1 && db.projects[pIdx] && Number(db.projects[pIdx].price) > 0) {
+      enforcedPricePaise = Number(db.projects[pIdx].price) * 100;
+      title = db.projects[pIdx].title;
+    }
+
     const item={
       id:id('ORD'),
       order_id:String(x.order_id||id('VX-ORD-')),
@@ -1060,7 +1059,7 @@ async function route(req,res){
       title:title,
       mobile: customerPhone || c.mobile || '',
       phone: customerPhone || c.mobile || '',
-      amount_paise:Number(x.amount_paise||0),
+      amount_paise: enforcedPricePaise,
       status:String(x.status||'pending'),
       payment_method: 'ONLINE_ONLY',
       payment_status: 'pending_online',

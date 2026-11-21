@@ -1612,10 +1612,8 @@
         result.innerHTML = '❌ <b>Fake / Unrecognized PIN Code (' + escapeHtml(val) + ')</b><br><span style="font-size:12px;opacity:.9">' + escapeHtml(data?.error || 'No official India Post office found for this pincode. Please enter a genuine 6-digit postal code.') + '</span>';
       }
     } catch (err) {
-      const prefix2 = val.substring(0, 2);
-      const isKarnataka = ['56', '57', '58', '59'].includes(prefix2);
-      result.className = 'vx-pincode-result ' + (isKarnataka ? 'karnataka' : 'pan-india');
-      result.innerHTML = '⚡ <b>Postal Code ' + escapeHtml(val) + ':</b> ' + (isKarnataka ? 'Karnataka Fast-Track (2–4 days)' : 'Pan-India shipping available (4–7 days).');
+      result.className = 'vx-pincode-result error';
+      result.innerHTML = '❌ <b>PIN Code Verification Failed (' + escapeHtml(val) + ')</b><br><span style="font-size:12px;opacity:.9">Unable to verify with India Post records. Please enter a genuine 6-digit Indian postal PIN code.</span>';
     } finally {
       if (btn) btn.disabled = false;
     }

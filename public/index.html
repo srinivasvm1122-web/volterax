@@ -2347,9 +2347,14 @@ if (btn) btn.disabled = false;
 
 <input class="accountInput" id="newOrderTitle" placeholder="e.g. Autonomous Telemetry Flight Controller" required>
 
-<label class="accountLabel">ESTIMATED BUDGET (₹ INR)</label>
-
-<input class="accountInput" id="newOrderAmount" type="number" placeholder="e.g. 25000" min="0">
+<div style="display:flex;justify-content:space-between;align-items:center">
+  <label class="accountLabel" style="margin:0">PROJECT BUILD PRICE (₹ INR) · FIXED</label>
+  <span id="vxFixedPriceBadge" style="font-size:10px;color:#10b981;font-weight:700">🔒 FIXED PRICE (ಬದಲಾಯಿಸಲಾಗುವುದಿಲ್ಲ)</span>
+</div>
+<div style="position:relative;margin-top:6px">
+  <input class="accountInput" id="newOrderAmount" type="number" placeholder="Fixed build price" min="1" readonly style="margin:0;background:rgba(255,255,255,0.03);border-color:rgba(16,185,129,0.35);color:#10b981;font-weight:800;font-size:15px;cursor:not-allowed;padding-left:36px">
+  <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#10b981;font-size:15px;font-weight:900">₹</span>
+</div>
 
 <label class="accountLabel">ENGINEERING REQUIREMENTS / SPECIFICATIONS</label>
 
@@ -2379,7 +2384,8 @@ if (btn) btn.disabled = false;
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
     <div>
       <label class="accountLabel" style="margin-top:6px">PINCODE (6-DIGIT) *</label>
-      <input class="accountInput" id="newOrderPincode" maxlength="6" placeholder="e.g. 560038" required>
+      <input class="accountInput" id="newOrderPincode" maxlength="6" inputmode="numeric" placeholder="e.g. 560038" required oninput="window.vxValidateOrderPincode&&window.vxValidateOrderPincode(this.value)">
+      <div id="orderPincodeStatus" style="font-size:11px;margin-top:4px;display:none"></div>
     </div>
     <div>
       <label class="accountLabel" style="margin-top:6px">CONTACT PHONE (OPTIONAL)</label>
@@ -3103,8 +3109,16 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
       const titleInput = document.getElementById('newOrderTitle');
       const amountInput = document.getElementById('newOrderAmount');
       const detailsInput = document.getElementById('newOrderDetails');
-      if (titleInput) titleInput.value = pending;
-      if (amountInput && price) amountInput.value = price;
+      if (titleInput) {
+        titleInput.value = pending;
+        titleInput.readOnly = true;
+        titleInput.style.background = 'rgba(255,255,255,0.03)';
+        titleInput.style.cursor = 'not-allowed';
+      }
+      if (amountInput) {
+        if (price) amountInput.value = price;
+        amountInput.readOnly = true;
+      }
       if (detailsInput && !detailsInput.value) detailsInput.value = 'Requesting custom engineering prototype for: ' + pending;
 
       const orderBox = document.getElementById('accOrderBox');
@@ -3607,6 +3621,19 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
           msg.textContent = '❌ Please enter an authentic, verified 6-digit Indian postal PIN code.';
           return;
         }
+
+        msg.style.display = 'block';
+        msg.style.color = '#00E5FF';
+        msg.textContent = 'Verifying delivery PIN code with India Post database…';
+        try {
+          const pinRes = await fetch('/api/pincode/' + encodeURIComponent(pincode));
+          const pinData = await pinRes.json();
+          if (!pinRes.ok || !pinData || !pinData.valid) {
+            msg.style.color = '#ef4444';
+            msg.textContent = '❌ ' + (pinData?.error || 'Fake or unrecognized Indian PIN code (' + pincode + '). No India Post office found.');
+            return;
+          }
+        } catch (_) {}
         shipping_address = { street, city, state, pincode, phone, landmark };
       }
 
@@ -4650,10 +4677,8 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
         result.innerHTML = '❌ <b>Fake / Unrecognized PIN Code (' + escapeHtml(val) + ')</b><br><span style="font-size:12px;opacity:.9">' + escapeHtml(data?.error || 'No official India Post office found for this pincode. Please enter a genuine 6-digit postal code.') + '</span>';
       }
     } catch (err) {
-      const prefix2 = val.substring(0, 2);
-      const isKarnataka = ['56', '57', '58', '59'].includes(prefix2);
-      result.className = 'vx-pincode-result ' + (isKarnataka ? 'karnataka' : 'pan-india');
-      result.innerHTML = '⚡ <b>Postal Code ' + escapeHtml(val) + ':</b> ' + (isKarnataka ? 'Karnataka Fast-Track (2–4 days)' : 'Pan-India shipping available (4–7 days).');
+      result.className = 'vx-pincode-result error';
+      result.innerHTML = '❌ <b>PIN Code Verification Failed (' + escapeHtml(val) + ')</b><br><span style="font-size:12px;opacity:.9">Unable to verify with India Post records. Please enter a genuine 6-digit Indian postal PIN code.</span>';
     } finally {
       if (btn) btn.disabled = false;
     }
