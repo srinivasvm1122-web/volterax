@@ -821,7 +821,7 @@ async function route(req,res){
  try{
   await ensureDb();
   const u=new URL(req.url,'http://localhost');const p=u.pathname;
-  if(req.method==='GET'&&p==='/api/diag'){return json(res,200,{hasPgPool:!!pgPool,hasPgModule:!!PgPool,users:db.users.length,orders:db.orders.length,dbError:globalThis.__lastDbError||null})}
+  if(req.method==='GET'&&p==='/api/diag'){return json(res,200,{hasPgPool:!!pgPool,hasPgModule:!!PgPool,users:db.users.length,orders:db.orders.length,dbError:globalThis.__lastDbError||null,envKeys:Object.keys(process.env).filter(k=>!k.includes('PASS')&&!k.includes('SECRET')&&!k.includes('KEY'))})}
   if(req.method==='GET'&&p==='/api/customer/me'){const c=customer(req);return c?json(res,200,customerBundle(c)):json(res,401,{error:'Not logged in'})}
   if(req.method==='GET'&&p==='/api/customer/orders'){const c=customer(req);return c?json(res,200,db.orders.filter(o=>o.userId===c.id)):json(res,401,{error:'Not logged in'})}
     if(req.method==='GET' && (p==='/api/karnataka-districts' || p==='/api/districts')){
