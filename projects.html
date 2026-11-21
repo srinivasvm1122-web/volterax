@@ -1274,77 +1274,148 @@
   updateCardRoutes();
 
   // Dynamic live sync with backend / Supabase database
-  fetch('/api/projects', { cache: 'no-store' })
+  fetch('/api/projects?t=' + Date.now(), { cache: 'no-store' })
     .then(function(res) {
       if (!res.ok) throw new Error('Status ' + res.status);
       return res.json();
     })
     .then(function(projects) {
-      if (!Array.isArray(projects) || projects.length === 0) return;
+      if (!Array.isArray(projects)) return;
 
-      var byCode = {};
+      // Filter active projects
+      var activeProjects = projects.filter(function(p) {
+        return p && p.status !== 'archived' && p.status !== 'inactive' && p.status !== 'deleted';
+      });
+
+      var byClean = {};
       var byNum = {};
       var byTitle = {};
 
-      projects.forEach(function(p, i) {
-        if (p.code) {
-          byCode[p.code.toUpperCase().replace(/\s+/g, '')] = p;
-          var num = p.code.replace(/\D/g, '');
-          if (num) byNum[String(parseInt(num, 10))] = p;
-        }
+      activeProjects.forEach(function(p) {
         if (p.id) {
-          byCode[p.id.toUpperCase().replace(/\s+/g, '')] = p;
-          var numId = p.id.replace(/\D/g, '');
-          if (numId) byNum[String(parseInt(numId, 10))] = p;
+          var cId = String(p.id).toUpperCase().replace(/[^A-Z0-9]/g, '');
+          byClean[cId] = p;
+          var n1 = String(p.id).replace(/\D/g, '');
+          if (n1) byNum[String(parseInt(n1, 10))] = p;
+        }
+        if (p.code) {
+          var cCode = String(p.code).toUpperCase().replace(/[^A-Z0-9]/g, '');
+          byClean[cCode] = p;
+          var n2 = String(p.code).replace(/\D/g, '');
+          if (n2) byNum[String(parseInt(n2, 10))] = p;
         }
         if (p.title) {
-          byTitle[p.title.toLowerCase().trim()] = p;
+          byTitle[String(p.title).trim().toLowerCase()] = p;
         }
       });
 
-      document.querySelectorAll('.project-card').forEach(function(card, index) {
+      function matchCard(card) {
         var codeEl = card.querySelector('.visual-index');
         var titleEl = card.querySelector('.card-info h2');
-        var priceValEl = card.querySelector('.price-val');
-        var descEl = card.querySelector('.card-info p');
-        var imgEl = card.querySelector('.project-visual img');
+        var metaEl = card.querySelector('.card-meta');
 
-        var matched = null;
         if (codeEl) {
-          var raw = codeEl.textContent.toUpperCase().replace(/\s+/g, '');
-          matched = byCode[raw];
-          if (!matched) {
-            var n = codeEl.textContent.replace(/\D/g, '');
-            if (n) matched = byNum[String(parseInt(n, 10))];
-          }
+          var raw = String(codeEl.textContent || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+          if (byClean[raw]) return byClean[raw];
+          var num = String(codeEl.textContent || '').replace(/\D/g, '');
+          if (num && byNum[String(parseInt(num, 10))]) return byNum[String(parseInt(num, 10))];
         }
-        if (!matched && titleEl) {
-          matched = byTitle[titleEl.textContent.toLowerCase().trim()];
+        if (titleEl) {
+          var t = String(titleEl.textContent || '').trim().toLowerCase();
+          if (byTitle[t]) return byTitle[t];
         }
-        if (!matched && projects[index]) {
-          matched = projects[index];
+        if (metaEl) {
+          var mNum = String(metaEl.textContent || '').replace(/\D/g, '');
+          if (mNum && byNum[String(parseInt(mNum, 10))]) return byNum[String(parseInt(mNum, 10))];
+        }
+        return null;
+      }
+
+      var cards = document.querySelectorAll('.project-card');
+      var matchedSet = new Set();
+
+      cards.forEach(function(card) {
+        var matched = matchCard(card);
+        // If this card is not in active projects, it has been deleted or deactivated in dashboard: REMOVE IT!
+        if (!matched) {
+          card.style.display = 'none';
+          card.remove();
+          return;
         }
 
-        if (matched) {
-          if (priceValEl && matched.price != null && !isNaN(matched.price)) {
-            priceValEl.textContent = '₹' + Number(matched.price).toLocaleString('en-IN');
-          }
-          if (titleEl && matched.title && titleEl.textContent !== matched.title) {
-            titleEl.textContent = matched.title;
-          }
-          if (descEl && matched.description && descEl.textContent !== matched.description) {
-            descEl.textContent = matched.description;
-          }
-          if (imgEl && matched.image && matched.image.startsWith('http') && imgEl.src !== matched.image) {
-            imgEl.src = matched.image;
-          }
-          if (matched.status === 'archived' || matched.status === 'inactive') {
-            card.style.display = 'none';
-          } else {
-            card.style.display = '';
+        matchedSet.add(matched.id || matched.code);
+
+        // Update Price
+        var priceValEl = card.querySelector('.price-val');
+        if (priceValEl && matched.price != null && !isNaN(matched.price)) {
+          priceValEl.textContent = '₹' + Number(matched.price).toLocaleString('en-IN');
+        }
+
+        // Update Title
+        var titleEl = card.querySelector('.card-info h2');
+        if (titleEl && matched.title && titleEl.textContent !== matched.title) {
+          titleEl.textContent = matched.title;
+        }
+
+        // Update Description
+        var descEl = card.querySelector('.card-info p');
+        if (descEl && matched.description && descEl.textContent !== matched.description) {
+          descEl.textContent = matched.description;
+        }
+
+        // Update Image
+        var imgEl = card.querySelector('.project-visual img');
+        if (imgEl && matched.image && String(matched.image).trim() !== '') {
+          var cleanImg = String(matched.image).trim();
+          if (imgEl.src !== cleanImg && imgEl.getAttribute('src') !== cleanImg) {
+            imgEl.src = cleanImg;
           }
         }
+
+        // Update Category/Caption if changed
+        var catEl = card.querySelector('.visual-caption');
+        if (catEl && matched.category) {
+          catEl.textContent = String(matched.category).toUpperCase();
+        }
+
+        // Ensure visible
+        card.style.display = '';
       });
+
+      // If there are new projects in activeProjects not yet in DOM, append to grid
+      var grid = document.querySelector('.project-grid');
+      if (grid) {
+        activeProjects.forEach(function(p, idx) {
+          var key = p.id || p.code;
+          if (!matchedSet.has(key)) {
+            var article = document.createElement('article');
+            article.className = 'project-card';
+            var pCode = p.code || ('VX / ' + (idx + 1 < 10 ? '0' + (idx+1) : (idx+1)));
+            var pPrice = Number(p.price || 0);
+            var pImg = p.image || 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80';
+            var pCat = p.category || 'HARDWARE';
+            var pTitle = p.title || 'Hardware Project';
+            var pDesc = p.description || 'Custom engineering build.';
+
+            article.innerHTML = 
+              '<div class="project-visual">' +
+                '<img src="' + pImg + '" alt="' + pTitle + '" loading="lazy" decoding="async" referrerpolicy="no-referrer"/>' +
+                '<span class="visual-index">' + pCode + '</span>' +
+                '<span class="visual-caption">' + pCat + '</span>' +
+              '</div>' +
+              '<div class="card-info">' +
+                '<div class="card-meta"><span>PROJECT ' + (idx+1) + '</span><span>' + pCat + '</span></div>' +
+                '<h2>' + pTitle + '</h2>' +
+                '<p>' + pDesc + '</p>' +
+                '<div class="card-action">' +
+                  '<div class="card-price"><small>BUILD PRICE</small><div class="price-val">₹' + pPrice.toLocaleString('en-IN') + '</div></div>' +
+                  '<a class="order-btn" href="index.html?orderProject=' + encodeURIComponent(pTitle) + '&orderPrice=' + encodeURIComponent(pPrice) + '">ORDER NOW <span>↗</span></a>' +
+                '</div>' +
+              '</div>';
+            grid.appendChild(article);
+          }
+        });
+      }
 
       // Refresh link URLs with live prices
       updateCardRoutes();

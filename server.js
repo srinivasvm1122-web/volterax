@@ -365,6 +365,62 @@ const DATABASE_URL=process.env.DATABASE_URL||process.env.SUPABASE_DB_URL||DEFAUL
 const pgPool=DATABASE_URL&&PgPool?new PgPool({connectionString:DATABASE_URL,ssl:{rejectUnauthorized:false},connectionTimeoutMillis:5000,idleTimeoutMillis:10000}):null;
 const mongoClient=MONGODB_URI?new MongoClient(MONGODB_URI):null;
 let db=blank(),storeDoc;
+
+function loadSeedProjects() {
+  try {
+    const seedPath = path.join(__dirname, 'seed-projects.json');
+    if (fs.existsSync(seedPath)) {
+      const data = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
+      if (Array.isArray(data) && data.length > 0) return data;
+    }
+  } catch (err) {
+    console.warn('[VolteraX] loadSeedProjects error:', err.message);
+  }
+  return [];
+}
+
+function matchProject(pList, rawId) {
+  if (!Array.isArray(pList) || !rawId) return -1;
+  const target = String(rawId).trim().toUpperCase();
+  const cleanTarget = target.replace(/[^A-Z0-9]/g, '');
+  const targetNum = target.replace(/\D/g, '');
+  const targetNumVal = targetNum ? parseInt(targetNum, 10) : null;
+
+  return pList.findIndex(v => {
+    if (!v) return false;
+    const vid = String(v.id || '').trim().toUpperCase();
+    const vcode = String(v.code || '').trim().toUpperCase();
+    const vtitle = String(v.title || '').trim().toLowerCase();
+
+    if (vid === target || vcode === target) return true;
+
+    const cleanId = vid.replace(/[^A-Z0-9]/g, '');
+    const cleanCode = vcode.replace(/[^A-Z0-9]/g, '');
+    if (cleanTarget && (cleanId === cleanTarget || cleanCode === cleanTarget)) return true;
+
+    if (targetNumVal !== null) {
+      const vNum1 = vid.replace(/\D/g, '');
+      const vNum2 = vcode.replace(/\D/g, '');
+      if (vNum1 && parseInt(vNum1, 10) === targetNumVal) return true;
+      if (vNum2 && parseInt(vNum2, 10) === targetNumVal) return true;
+    }
+
+    if (vtitle && vtitle === String(rawId).trim().toLowerCase()) return true;
+
+    return false;
+  });
+}
+
+function ensureProjectsLoaded() {
+  if (!Array.isArray(db.projects) || db.projects.length === 0) {
+    const seeds = loadSeedProjects();
+    if (seeds.length > 0) {
+      db.projects = seeds;
+      save();
+    }
+  }
+}
+
 function blank(){return {users:[],orders:[],feedback:[],leads:[],sessions:{},adminSessions:{},projects:[]}}
 async function initDb(){
   if(pgPool){
@@ -426,22 +482,25 @@ async function initDb(){
   const localDbPath=path.join(__dirname,'volterax-local-db.json');
   if(fs.existsSync(localDbPath)){try{db=JSON.parse(fs.readFileSync(localDbPath,'utf8'))}catch(_){db=blank()}}
   for(const k of Object.keys(blank()))if(db[k]==null)db[k]=blank()[k];
-}
-let 
-    // Auto-repair order phone numbers from shipping_address or customer profile
-    if (Array.isArray(db.orders)) {
-      for (const o of db.orders) {
-        if (!o.mobile) {
-          const user = (db.users || []).find(u => u.id === o.userId);
-          const sa = typeof o.shipping_address === 'object' && o.shipping_address ? o.shipping_address : {};
-          const p = o.phone || sa.phone || sa.mobile || user?.mobile || '';
-          if (p) {
-            o.mobile = p;
-            o.phone = p;
-          }
+
+  // Auto-repair order phone numbers
+  if (Array.isArray(db.orders)) {
+    for (const o of db.orders) {
+      if (!o.mobile) {
+        const user = (db.users || []).find(u => u.id === o.userId);
+        const sa = typeof o.shipping_address === 'object' && o.shipping_address ? o.shipping_address : {};
+        const p = o.phone || sa.phone || sa.mobile || user?.mobile || '';
+        if (p) {
+          o.mobile = p;
+          o.phone = p;
         }
       }
     }
+  }
+
+  // Ensure projects are seeded
+  ensureProjectsLoaded();
+}
 
 let saveQueue=Promise.resolve();
 async function syncRelational(type, item) {
@@ -700,6 +759,7 @@ async function route(req,res){
     });
   }
   if(req.method==='GET'&&p==='/api/projects'){
+    ensureProjectsLoaded();
     if(pgPool){
       try{
         const pRes=await pgPool.query('SELECT * FROM projects ORDER BY id ASC');
@@ -708,24 +768,7 @@ async function route(req,res){
           return json(res,200,pRes.rows,{'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache','Expires':'0','Access-Control-Allow-Origin':'*'});
         }
       }catch(err){
-        console.warn('[VolteraX] Live projects pgPool fetch fallback:', err.message);
-      }
-    }
-    if(SUPABASE_URL&&SUPABASE_KEY){
-      try{
-        const pRes=await fetch(SUPABASE_URL+'/rest/v1/projects?select=*&order=id.asc',{
-          headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},
-          signal:AbortSignal.timeout(3500)
-        });
-        if(pRes.ok){
-          const pRows=await pRes.json();
-          if(Array.isArray(pRows)&&pRows.length>0){
-            db.projects=pRows;
-            return json(res,200,pRows,{'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache','Expires':'0','Access-Control-Allow-Origin':'*'});
-          }
-        }
-      }catch(err){
-        console.warn('[VolteraX] Live projects fetch fallback to memory:', err.message);
+        console.warn('[VolteraX] Live projects pgPool fetch notice:', err.message);
       }
     }
     return json(res,200,db.projects||[],{'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache','Expires':'0','Access-Control-Allow-Origin':'*'});
@@ -1124,18 +1167,23 @@ async function route(req,res){
   if(req.method==='POST'&&p==='/api/admin/logout'){const sid=cookies(req).vx_admin;if(sid)delete db.adminSessions[sid];save();return json(res,200,{ok:true},{'Set-Cookie':cookie('vx_admin','',0)})}
   if(p.startsWith('/api/admin/')){if(!requireAdmin(req,res))return;
     if(req.method==='GET'&&p==='/api/admin/summary')return json(res,200,{customers:db.users.length,orders:db.orders.length,feedback:db.feedback.length,newFeedback:db.feedback.filter(x=>x.status==='new').length,leads:db.leads.length,newLeads:db.leads.filter(x=>x.status==='new').length,revenuePaise:db.orders.reduce((a,o)=>a+Number(o.amount_paise||0),0),projects:(db.projects||[]).length,updatedAt:now()});
-    if(req.method==='GET'&&(p==='/api/admin/projects'||p==='/api/admin/project'))return json(res,200,db.projects||[]);
+    if(req.method==='GET'&&(p==='/api/admin/projects'||p==='/api/admin/project')){
+      ensureProjectsLoaded();
+      return json(res,200,db.projects||[]);
+    }
     if(req.method==='PATCH'&&(p.startsWith('/api/admin/projects/')||p.startsWith('/api/admin/project/'))){
+      ensureProjectsLoaded();
       const rawPid=decodeURIComponent(p.split('/').pop());
-      const pid=rawPid.toUpperCase().replace(/\s+/g,'');
       const x=await body(req);
-      const proj=(db.projects||[]).find(v=>(v.id&&v.id.toUpperCase().replace(/\s+/g,'')===pid)||(v.code&&v.code.toUpperCase().replace(/\s+/g,'')===pid));
-      if(!proj)return json(res,404,{error:'Project not found: '+rawPid});
+      const idx=matchProject(db.projects, rawPid);
+      if(idx===-1)return json(res,404,{error:'Project not found: '+rawPid});
+      const proj=db.projects[idx];
       if(x.price!==undefined)proj.price=Number(x.price);
       if(x.title!==undefined)proj.title=String(x.title).trim();
       if(x.category!==undefined)proj.category=String(x.category).trim().toUpperCase();
       if(x.description!==undefined)proj.description=String(x.description).trim();
       if(x.image!==undefined)proj.image=String(x.image).trim();
+      if(x.code!==undefined)proj.code=String(x.code).trim();
       if(x.status!==undefined)proj.status=String(x.status);
       if(x.featured!==undefined)proj.featured=Boolean(x.featured);
       proj.updatedAt=now();
@@ -1144,6 +1192,7 @@ async function route(req,res){
       return json(res,200,{ok:true,project:proj});
     }
     if(req.method==='POST'&&(p==='/api/admin/projects'||p==='/api/admin/project')){
+      ensureProjectsLoaded();
       const x=await body(req);
       const newId=x.id||id('VX-');
       const item={
@@ -1166,10 +1215,10 @@ async function route(req,res){
       return json(res,201,{ok:true,project:item});
     }
     if(req.method==='DELETE'&&(p.startsWith('/api/admin/projects/')||p.startsWith('/api/admin/project/'))){
+      ensureProjectsLoaded();
       const rawPid=decodeURIComponent(p.split('/').pop());
-      const pid=rawPid.toUpperCase().replace(/\s+/g,'');
-      const idx=(db.projects||[]).findIndex(v=>(v.id&&v.id.toUpperCase().replace(/\s+/g,'')===pid)||(v.code&&v.code.toUpperCase().replace(/\s+/g,'')===pid));
-      if(idx===-1)return json(res,404,{error:'Project not found.'});
+      const idx=matchProject(db.projects, rawPid);
+      if(idx===-1)return json(res,404,{error:'Project not found: '+rawPid});
       const removed=db.projects.splice(idx,1)[0];
       save();
       syncRelational('delete_project', removed);
