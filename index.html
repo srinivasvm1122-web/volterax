@@ -3385,6 +3385,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
   // 2-Step OTP Authentication State Machine
   let authStep = 'input'; // 'input' | 'otp'
   let activeOtpEmail = '';
+  let activeOtpToken = null;
   let resendTimerInterval = null;
 
   function resetAuthToInput() {
@@ -3398,9 +3399,10 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
     clearInterval(resendTimerInterval);
   }
 
-  function showOtpStep(email, previewCode) {
+  function showOtpStep(email, previewCode, otpToken) {
     authStep = 'otp';
     activeOtpEmail = email;
+    if (otpToken) activeOtpToken = otpToken;
     document.getElementById('accCreateFields').style.display = 'none';
     document.getElementById('accLoginFields').style.display = 'none';
     document.getElementById('accOtpFields').style.display = 'block';
@@ -3459,9 +3461,10 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to resend code.');
+      if (data.otpToken) activeOtpToken = data.otpToken;
       msg.style.color = '#10b981';
       msg.textContent = '✓ Fresh 6-digit code dispatched to ' + activeOtpEmail;
-      showOtpStep(activeOtpEmail, data.previewCode);
+      showOtpStep(activeOtpEmail, data.previewCode, data.otpToken);
     } catch (err) {
       msg.style.color = '#ef4444';
       msg.textContent = '✕ ' + err.message;
@@ -3530,10 +3533,11 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to send verification code.');
+        if (data.otpToken) activeOtpToken = data.otpToken;
 
         msg.style.color = '#10b981';
         msg.textContent = '✓ Code sent! Check your Gmail inbox.';
-        showOtpStep(email, data.previewCode);
+        showOtpStep(email, data.previewCode, data.otpToken);
       } catch (err) {
         msg.style.color = '#ef4444';
         msg.textContent = '✕ ' + err.message;
@@ -3565,7 +3569,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
-          body: JSON.stringify({ email: activeOtpEmail, otp, name, mobile, mode, ref })
+          body: JSON.stringify({ email: activeOtpEmail, otp, otpToken: activeOtpToken, name, mobile, mode, ref })
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Verification failed. Please check the code.');

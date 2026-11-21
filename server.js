@@ -796,6 +796,29 @@ function signCustomerToken(userId, expires) {
   const sig = crypto.createHmac('sha256', TOKEN_SECRET).update(payload).digest('hex');
   return `${payload}.${sig}`;
 }
+
+function signOtpToken(data) {
+  const payloadStr = Buffer.from(JSON.stringify(data)).toString('base64url');
+  const sig = crypto.createHmac('sha256', TOKEN_SECRET).update(payloadStr).digest('base64url');
+  return `${payloadStr}.${sig}`;
+}
+
+function verifyOtpToken(token) {
+  if (!token || typeof token !== 'string') return null;
+  const dotIdx = token.lastIndexOf('.');
+  if (dotIdx === -1) return null;
+  const payloadStr = token.slice(0, dotIdx);
+  const sig = token.slice(dotIdx + 1);
+  const expectedSig = crypto.createHmac('sha256', TOKEN_SECRET).update(payloadStr).digest('base64url');
+  try {
+    if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expectedSig))) return null;
+    const data = JSON.parse(Buffer.from(payloadStr, 'base64url').toString('utf8'));
+    if (!data.expires || Date.now() > data.expires) return null;
+    return data;
+  } catch(_) {
+    return null;
+  }
+}
 function verifyCustomerToken(token) {
   if (!token || typeof token !== 'string') return null;
   const parts = token.split('.');
@@ -910,15 +933,21 @@ async function route(req,res){
       }
 
       const fallbackOtp = String(Math.floor(100000 + Math.random() * 900000));
-      globalThis.__vxPendingOtps[email] = {
+      const otpPayload = {
         otp: fallbackOtp,
-        expires: Date.now() + 10 * 60 * 1000,
+        expires: Date.now() + 15 * 60 * 1000,
+        email,
         name,
         mobile: mobile || '',
         mode,
         ref: String(x.ref||'').trim().toUpperCase(),
         attempts: 0
       };
+      const otpToken = signOtpToken(otpPayload);
+      globalThis.__vxPendingOtps[email] = otpPayload;
+      if (!db.pending_otps) db.pending_otps = {};
+      db.pending_otps[email] = otpPayload;
+      save().catch(() => {});
 
       // 1. Dispatch real email OTP via direct Gmail SMTP
       let emailSent = false;
@@ -949,6 +978,7 @@ async function route(req,res){
         ok: true,
         message: 'Verification code sent to ' + email + '. Please check your Inbox and Spam folder.',
         email: email,
+        otpToken: otpToken,
         hasSmtp: emailSent,
         previewCode: emailSent ? null : fallbackOtp
       });
@@ -958,15 +988,36 @@ async function route(req,res){
       const x=await body(req);
       const email=String(x.email||x.gmail||'').trim().toLowerCase();
       const inputOtp=String(x.otp||x.code||'').trim().replace(/\D/g,'');
+      const inputToken=String(x.otpToken||x.token||'').trim();
 
       if(!email) return json(res, 400, { error: 'Email address is required.' });
       if(!inputOtp || inputOtp.length !== 6) return json(res, 400, { error: 'Please enter the 6-digit verification code.' });
 
-      const pending = globalThis.__vxPendingOtps[email];
       let verified = false;
+      let verifiedData = null;
 
-      // 1. Verify with Supabase Auth
-      if (SUPABASE_URL && SUPABASE_KEY) {
+      // 1. First priority: Cryptographic HMAC OTP token (Stateless, survives Vercel instance restarts/cold starts)
+      if (inputToken) {
+        const decoded = verifyOtpToken(inputToken);
+        if (decoded && decoded.email === email && decoded.otp === inputOtp && Date.now() <= decoded.expires) {
+          verified = true;
+          verifiedData = decoded;
+          console.log('[OTP Verified via HMAC Token]', email);
+        }
+      }
+
+      // 2. Second priority: In-memory & db.pending_otps check
+      if (!verified) {
+        const pending = globalThis.__vxPendingOtps[email] || (db.pending_otps && db.pending_otps[email]);
+        if (pending && pending.otp === inputOtp && Date.now() <= pending.expires) {
+          verified = true;
+          verifiedData = pending;
+          console.log('[OTP Verified via Memory/Store]', email);
+        }
+      }
+
+      // 3. Fallback: Supabase Auth
+      if (!verified && SUPABASE_URL && SUPABASE_KEY) {
         try {
           const supaVerify = await fetch(SUPABASE_URL + '/auth/v1/verify', {
             method: 'POST',
@@ -989,25 +1040,20 @@ async function route(req,res){
         }
       }
 
-      // 2. Verify with local fallback OTP
-      if (!verified && pending && pending.otp === inputOtp && Date.now() <= pending.expires) {
-        verified = true;
-      }
-
       if (!verified) {
-        if (pending) pending.attempts++;
         return json(res, 400, { error: 'Incorrect or expired verification code. Please check your Gmail or click Resend.' });
       }
 
       // Validated! Clear pending record
       delete globalThis.__vxPendingOtps[email];
+      if (db.pending_otps) delete db.pending_otps[email];
 
       // Find or create customer
       let user = db.users.find(u => (u.email && u.email.toLowerCase() === email) || (u.mobile && u.mobile === email));
-      const userMobile = String(x.mobile || (pending && pending.mobile) || '').trim();
+      const userMobile = String(x.mobile || (verifiedData && verifiedData.mobile) || '').trim();
       if(!user){
-        const userName = String(x.name || (pending && pending.name) || email.split('@')[0]).trim() || 'Volterax Customer';
-        const userRef = (pending && pending.ref) || '';
+        const userName = String(x.name || (verifiedData && verifiedData.name) || email.split('@')[0]).trim() || 'Volterax Customer';
+        const userRef = (verifiedData && verifiedData.ref) || '';
         const hp = hashPassword(crypto.randomBytes(16).toString('hex'));
         const idv = id('VX');
         user = {
