@@ -35,7 +35,31 @@ async function loadAll(){try{const [s,c,o,f,l,q]=await Promise.all([api('/api/ad
 }).join('')||'<p class="muted">No orders yet.</p>';$('qContent').innerHTML=`<h3 style="color:#f59e0b;margin:12px 0">Quarantined Users (${q.records.users.length})</h3>`+(q.records.users.map(x=>`<div class="row"><div><b>${safe(x.name)}</b><br><span class="muted">${safe(x._id)}</span></div><div>${safe(x.mobile)}<br><span class="pill" style="border-color:#f59e0b;color:#f59e0b">UNVERIFIED LEGACY</span></div><div>Ref: ${safe(x.referralCode||x.ref||'—')}</div><div>Created: ${new Date(x.createdAt).toLocaleString()}</div></div>`).join('')||'<p class="muted">None.</p>')+`<h3 style="color:#f59e0b;margin:18px 0 12px">Quarantined Orders (${q.records.orders.length})</h3>`+(q.records.orders.map(x=>`<div class="row"><div><b>${safe(x.orderId||x.id)}</b><br>${safe(x.project||x.title)}</div><div>${safe(x.customerName||'Unknown')}<br>${safe(x.customerMobile||'')}</div><div>₹${Number(x.amount||(x.amount_paise?x.amount_paise/100:0)).toLocaleString('en-IN')}<br><span class="pill" style="border-color:#f59e0b;color:#f59e0b">${safe(x.status)} (LEGACY)</span></div><div>${new Date(x.createdAt).toLocaleString()}<br>${safe(x.details)}</div></div>`).join('')||'<p class="muted">None.</p>')+`<h3 style="color:#f59e0b;margin:18px 0 12px">Quarantined Reviews & Feedback (${q.records.feedbacks.length})</h3>`+(q.records.feedbacks.map(x=>`<div class="row"><div><b>${'★'.repeat(x.rating||5)}</b><br>${safe(x.customerName||x.name)}</div><div>${safe(x.customerMobile||'—')}<br><span class="pill" style="border-color:#f59e0b;color:#f59e0b">ISOLATED FROM PUBLIC</span></div><div>${safe(x.text||x.feedbackText)}</div><div>${new Date(x.createdAt).toLocaleString()}</div></div>`).join('')||'<p class="muted">None.</p>')+`<h3 style="color:#f59e0b;margin:18px 0 12px">Quarantined Leads (${q.records.leads.length})</h3>`+(q.records.leads.map(x=>`<div class="row"><div><b>${safe(x.name)}</b><br><span class="muted">${safe(x._id)}</span></div><div>${safe(x.mobile)}<br><span class="pill" style="border-color:#f59e0b;color:#f59e0b">UNVERIFIED LEAD</span></div><div style="white-space:pre-wrap">${safe(x.projectIdea?`[${x.projectIdea}] `: '')}${safe(x.message)}</div><div>${new Date(x.createdAt).toLocaleString()}<br><span class="pill">${safe(x.status)}</span></div></div>`).join('')||'<p class="muted">None.</p>');
 
 window.currentViewingOrderId = null;
+
+let scZoomScale = 1.0;
+window.scSetZoom = function(scale) {
+  scZoomScale = Math.max(0.6, Math.min(3.5, scale));
+  const img = $('scModalImg');
+  if (img) {
+    img.style.transform = 'scale(' + scZoomScale + ')';
+    img.style.cursor = scZoomScale > 1.05 ? 'zoom-out' : 'zoom-in';
+  }
+  const lbl = $('scZoomLabel');
+  if (lbl) lbl.textContent = Math.round(scZoomScale * 100) + '%';
+};
+window.scZoomIn = function() { window.scSetZoom(scZoomScale + 0.3); };
+window.scZoomOut = function() { window.scSetZoom(scZoomScale - 0.3); };
+window.scZoomReset = function() { window.scSetZoom(1.0); };
+window.scToggleZoom = function() {
+  if (scZoomScale > 1.1) window.scZoomReset();
+  else window.scSetZoom(1.85);
+};
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeScreenshotModal();
+});
+
 window.viewScreenshot = function(id) {
+  window.scZoomReset();
   const ord = (window.__currentOrders || []).find(k => String(k.id) === String(id) || String(k.order_id) === String(id) || String(k.orderId) === String(id));
   if (!ord) return;
   window.currentViewingOrderId = ord.id;
