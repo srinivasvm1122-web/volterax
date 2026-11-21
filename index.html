@@ -2639,7 +2639,7 @@ window.open(url, '_blank', 'noopener,noreferrer');
 
 
 
-function vxCustomerFetch(url, options = {}) {
+window.vxCustomerFetch = function vxCustomerFetch(url, options = {}) {
   const opts = { ...options };
   opts.credentials = opts.credentials || 'same-origin';
   opts.headers = opts.headers ? { ...opts.headers } : {};
@@ -2649,7 +2649,8 @@ function vxCustomerFetch(url, options = {}) {
     opts.headers['Authorization'] = 'Bearer ' + token;
   }
   return fetch(url, opts);
-}
+};
+var vxCustomerFetch = window.vxCustomerFetch;
 
 async function loadSession() {
   try {
@@ -2991,6 +2992,18 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
 
 <script id="volterax-account-js">
 (function() {
+  const vxCustomerFetch = window.vxCustomerFetch || function(url, options = {}) {
+    const opts = { ...options };
+    opts.credentials = opts.credentials || 'same-origin';
+    opts.headers = opts.headers ? { ...opts.headers } : {};
+    const token = localStorage.getItem('vx_customer_token');
+    if (token) {
+      opts.headers['x-volterax-session'] = token;
+      opts.headers['Authorization'] = 'Bearer ' + token;
+    }
+    return fetch(url, opts);
+  };
+
   const modal = document.getElementById('accountModal');
   const loginGrid = document.getElementById('accountLoginGrid');
   const dash = document.getElementById('accountDash');
@@ -3722,7 +3735,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
         if (document.getElementById('newOrderPhone')) document.getElementById('newOrderPhone').value = '';
         if (document.getElementById('newOrderLandmark')) document.getElementById('newOrderLandmark').value = '';
 
-        const meRes = await fetch('/api/customer/me', { credentials: 'same-origin' });
+        const meRes = await vxCustomerFetch('/api/customer/me');
         if (meRes.ok) {
           const freshData = await meRes.json();
           window.volteraxAccountData = freshData;
@@ -3768,9 +3781,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
     document.body.style.overflow = 'hidden';
 
     try {
-      const res = await fetch('/api/customer/order/' + encodeURIComponent(orderId) + '/payment', {
-        credentials: 'same-origin'
-      });
+      const res = await vxCustomerFetch('/api/customer/order/' + encodeURIComponent(orderId) + '/payment');
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to initialize payment.');
 
@@ -4043,7 +4054,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
         msg.style.color = '#10b981';
         msg.textContent = '✓ Delivery address saved successfully!';
 
-        const meRes = await fetch('/api/customer/me', { credentials: 'same-origin' });
+        const meRes = await vxCustomerFetch('/api/customer/me');
         if (meRes.ok) {
           const freshData = await meRes.json();
           window.volteraxAccountData = freshData;
