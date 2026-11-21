@@ -1,1 +1,18 @@
-{"name":"volterax-platform","version":"1.0.0","private":true,"scripts":{"start":"node server.js"},"engines":{"node":">=18"},"dependencies":{"mongodb":"^6.19.0","nodemailer":"^10.6.1","pg":"^8.23.1"}}
+{
+  "name": "volterax-platform",
+  "version": "1.0.0",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "node -e \"console.log('Build complete')\""
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "mongodb": "^6.19.0",
+    "nodemailer": "^10.6.1",
+    "pg": "^8.23.1"
+  }
+}

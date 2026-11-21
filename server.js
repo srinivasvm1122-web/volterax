@@ -1278,3 +1278,4 @@ http.createServer(route).listen(PORT,HOST,()=>{
   console.log(`VOLTERAX platform running on http://${HOST==='0.0.0.0'?'localhost':HOST}:${PORT}`);
   initDb().catch(e=>console.error('[VolteraX] Startup DB error:',e.message));
 });
+module.exports = route;
