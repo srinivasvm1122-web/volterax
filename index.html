@@ -1284,13 +1284,34 @@ color: #fff !important;
 }
 .vx-po-chip{
   font-size:11px;
-  background:rgba(255,255,255,.07);
-  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);
   color:#cbd5e1;
-  padding:3px 9px;
-  border-radius:6px;
-  display:inline-block;
-  margin:2px 3px 2px 0;
+  padding:4px 10px;
+  border-radius:8px;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  margin:3px 3px 3px 0;
+  cursor:pointer !important;
+  transition:all .18s ease;
+  user-select:none;
+  font-family:inherit;
+  line-height:1.2;
+}
+.vx-po-chip:hover{
+  background:rgba(0,229,255,.25) !important;
+  border-color:#00E5FF !important;
+  color:#fff !important;
+  transform:translateY(-1px);
+  box-shadow:0 2px 10px rgba(0,229,255,.35);
+}
+.vx-po-chip.selected{
+  background:rgba(16,185,129,.28) !important;
+  border-color:#10b981 !important;
+  color:#fff !important;
+  font-weight:700 !important;
+  box-shadow:0 0 12px rgba(16,185,129,.5) !important;
 }
 
 .vx-pincode-tags{
@@ -2348,11 +2369,11 @@ if (btn) btn.disabled = false;
 <input class="accountInput" id="newOrderTitle" placeholder="e.g. Autonomous Telemetry Flight Controller" required>
 
 <div style="display:flex;justify-content:space-between;align-items:center">
-  <label class="accountLabel" style="margin:0">PROJECT BUILD PRICE (₹ INR) · FIXED</label>
-  <span id="vxFixedPriceBadge" style="font-size:10px;color:#10b981;font-weight:700">🔒 FIXED PRICE (ಬದಲಾಯಿಸಲಾಗುವುದಿಲ್ಲ)</span>
+  <label class="accountLabel" style="margin:0">ESTIMATED BUDGET (₹ INR) · FIXED PRICE</label>
+  <span id="vxFixedPriceBadge" style="font-size:10px;color:#10b981;font-weight:700">🔒 FIXED PRICE · CANNOT BE MODIFIED</span>
 </div>
 <div style="position:relative;margin-top:6px">
-  <input class="accountInput" id="newOrderAmount" type="number" placeholder="Fixed build price" min="1" readonly style="margin:0;background:rgba(255,255,255,0.03);border-color:rgba(16,185,129,0.35);color:#10b981;font-weight:800;font-size:15px;cursor:not-allowed;padding-left:36px">
+  <input class="accountInput" id="newOrderAmount" type="number" placeholder="6500" min="1" readonly style="margin:0;background:rgba(255,255,255,0.03);border-color:rgba(16,185,129,0.35);color:#10b981;font-weight:800;font-size:15px;cursor:not-allowed;padding-left:36px">
   <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#10b981;font-size:15px;font-weight:900">₹</span>
 </div>
 
@@ -3621,10 +3642,10 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
 
       let shipping_address = null;
       if (street || city || pincode) {
-        if (!street || street.length < 4) {
+        if (!street || street.trim().length < 2) {
           msg.style.display = 'block';
           msg.style.color = '#ef4444';
-          msg.textContent = 'Please enter your complete house/flat and street address.';
+          msg.textContent = 'Please enter your street address or village/locality name.';
           return;
         }
         if (!city || city.length < 2) {
@@ -3875,7 +3896,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
       if (msg) {
         msg.style.display = 'block';
         msg.style.color = '#ef4444';
-        msg.textContent = '❌ ಪಾವತಿ ಮಾಡಿದ ಸ್ಕ್ರೀನ್‌ಶಾಟ್ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ / Please upload your payment screenshot to confirm.';
+        msg.textContent = '❌ Please upload your UPI payment screenshot to verify payment.';
       }
       document.getElementById('vxScreenshotDropzone')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
@@ -4596,6 +4617,144 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
   };
 
   // --- Strict Anti-Fake & India Post Pincode Logic (with All Offices & Taluks) ---
+  
+  
+  // Dynamic Locality & Place Name Interactive Helpers
+  window.vxSelectPlaceName = function(place, taluk, district, pincode, state, el) {
+    if (el) {
+      const container = el.closest('.vx-pincode-result, #orderPincodeStatus, #modalPincodeStatus, #orderPincodeLocalities, #modalPincodeLocalities') || document;
+      container.querySelectorAll('.vx-po-chip').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+
+    const banner = document.getElementById('vxSelectedPlaceBanner');
+    const bannerText = document.getElementById('vxSelectedPlaceText');
+    const applyBtn = document.getElementById('vxApplyPlaceBtn');
+    if (banner && bannerText) {
+      banner.style.display = 'flex';
+      bannerText.textContent = place + (taluk ? (', ' + taluk + ' Taluk') : '') + (district ? (', ' + district + ' District') : '') + ' (' + pincode + ')';
+      if (applyBtn) {
+        applyBtn.onclick = function() {
+          window.vxApplyPlaceToAddress(place, taluk, district, pincode, state, true);
+        };
+      }
+    }
+
+    window.vxApplyPlaceToAddress(place, taluk, district, pincode, state, false);
+  };
+
+  window.vxApplyPlaceToAddress = function(place, taluk, district, pincode, state, shouldScroll) {
+    const streetStr = place + (taluk ? (', ' + taluk + ' Taluk') : '');
+    const cityStr = taluk || district || '';
+
+    // Update in Order Form
+    const orderStreet = document.getElementById('newOrderStreet');
+    const orderCity = document.getElementById('newOrderCity');
+    const orderState = document.getElementById('newOrderState');
+    const orderPincode = document.getElementById('newOrderPincode');
+    if (orderStreet) orderStreet.value = streetStr;
+    if (orderCity) orderCity.value = cityStr;
+    if (orderState) orderState.value = state || 'Karnataka';
+    if (orderPincode) orderPincode.value = pincode;
+
+    // Update in Address Modal
+    const modalStreet = document.getElementById('vxModalStreet');
+    const modalCity = document.getElementById('vxModalCity');
+    const modalState = document.getElementById('vxModalState');
+    const modalPincode = document.getElementById('vxModalPincode');
+    if (modalStreet) modalStreet.value = streetStr;
+    if (modalCity) modalCity.value = cityStr;
+    if (modalState) modalState.value = state || 'Karnataka';
+    if (modalPincode) modalPincode.value = pincode;
+
+    if (shouldScroll) {
+      const orderBox = document.getElementById('accOrderBox');
+      if (orderBox && orderBox.offsetParent !== null) {
+        orderBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (orderStreet) {
+          orderStreet.focus();
+          orderStreet.style.transition = 'box-shadow .3s';
+          orderStreet.style.boxShadow = '0 0 20px rgba(0,229,255,0.7)';
+          setTimeout(() => { if (orderStreet) orderStreet.style.boxShadow = ''; }, 2500);
+        }
+      } else {
+        alert('✓ Selected "' + place + '" has been set as your delivery locality! Pincode: ' + pincode);
+      }
+    }
+  };
+
+  window.vxValidateOrderPincode = async function(pinRaw) {
+    const pin = (pinRaw || '').replace(/\D/g, '').slice(0, 6);
+    const box = document.getElementById('orderPincodeStatus');
+    if (!box) return;
+    if (pin.length !== 6) {
+      box.style.display = 'none';
+      box.innerHTML = '';
+      return;
+    }
+    box.style.display = 'block';
+    box.innerHTML = '<span style="color:#00E5FF;font-size:11px">⏳ Checking pincode ' + pin + '…</span>';
+    try {
+      const res = await fetch('/api/pincode/' + encodeURIComponent(pin));
+      const data = await res.json();
+      if (data && data.valid) {
+        const cEl = document.getElementById('newOrderCity');
+        if (cEl && !cEl.value) cEl.value = data.taluk || data.district || '';
+        const sEl = document.getElementById('newOrderState');
+        if (sEl && !sEl.value) sEl.value = data.state || 'Karnataka';
+
+        const poList = Array.isArray(data.offices) && data.offices.length > 0 ? data.offices : (data.office ? [data.office] : []);
+        let chipsHtml = '';
+        if (poList.length > 0) {
+          chipsHtml = '<div style="font-size:11px;color:#94a3b8;margin-top:6px;margin-bottom:4px">Tap your post office / locality to auto-fill address:</div><div style="max-height:85px;overflow-y:auto">' +
+            poList.map(o => '<button type="button" class="vx-po-chip" onclick="window.vxSelectPlaceName(' + JSON.stringify(o) + ', ' + JSON.stringify(data.taluk || '') + ', ' + JSON.stringify(data.district || '') + ', ' + JSON.stringify(pin) + ', ' + JSON.stringify(data.state || 'Karnataka') + ', this)">📍 ' + escapeHtml(o) + '</button>').join(' ') +
+            '</div>';
+        }
+        box.innerHTML = '<div style="color:#10b981;font-weight:700;font-size:11px">✓ ' + escapeHtml(data.district || 'Verified') + ' District (' + (data.taluk ? escapeHtml(data.taluk) + ' Taluk' : 'Karnataka') + ')</div>' + chipsHtml;
+      } else {
+        box.innerHTML = '<span style="color:#94a3b8;font-size:11px">Custom PIN code accepted (' + pin + ')</span>';
+      }
+    } catch (_) {
+      box.innerHTML = '<span style="color:#94a3b8;font-size:11px">Custom PIN code accepted (' + pin + ')</span>';
+    }
+  };
+
+  window.vxValidateModalPincode = async function(pinRaw) {
+    const pin = (pinRaw || '').replace(/\D/g, '').slice(0, 6);
+    const box = document.getElementById('modalPincodeStatus');
+    if (!box) return;
+    if (pin.length !== 6) {
+      box.style.display = 'none';
+      box.innerHTML = '';
+      return;
+    }
+    box.style.display = 'block';
+    box.innerHTML = '<span style="color:#00E5FF;font-size:11px">⏳ Checking pincode ' + pin + '…</span>';
+    try {
+      const res = await fetch('/api/pincode/' + encodeURIComponent(pin));
+      const data = await res.json();
+      if (data && data.valid) {
+        const cEl = document.getElementById('vxModalCity');
+        if (cEl && !cEl.value) cEl.value = data.taluk || data.district || '';
+        const sEl = document.getElementById('vxModalState');
+        if (sEl && !sEl.value) sEl.value = data.state || 'Karnataka';
+
+        const poList = Array.isArray(data.offices) && data.offices.length > 0 ? data.offices : (data.office ? [data.office] : []);
+        let chipsHtml = '';
+        if (poList.length > 0) {
+          chipsHtml = '<div style="font-size:11px;color:#94a3b8;margin-top:6px;margin-bottom:4px">Tap your post office / locality to auto-fill address:</div><div style="max-height:85px;overflow-y:auto">' +
+            poList.map(o => '<button type="button" class="vx-po-chip" onclick="window.vxSelectPlaceName(' + JSON.stringify(o) + ', ' + JSON.stringify(data.taluk || '') + ', ' + JSON.stringify(data.district || '') + ', ' + JSON.stringify(pin) + ', ' + JSON.stringify(data.state || 'Karnataka') + ', this)">📍 ' + escapeHtml(o) + '</button>').join(' ') +
+            '</div>';
+        }
+        box.innerHTML = '<div style="color:#10b981;font-weight:700;font-size:11px">✓ ' + escapeHtml(data.district || 'Verified') + ' District (' + (data.taluk ? escapeHtml(data.taluk) + ' Taluk' : 'Karnataka') + ')</div>' + chipsHtml;
+      } else {
+        box.innerHTML = '<span style="color:#94a3b8;font-size:11px">Custom PIN code accepted (' + pin + ')</span>';
+      }
+    } catch (_) {
+      box.innerHTML = '<span style="color:#94a3b8;font-size:11px">Custom PIN code accepted (' + pin + ')</span>';
+    }
+  };
+
   window.checkVolteraxPincode = async function() {
     const input = document.getElementById('vxPincodeInput');
     const result = document.getElementById('vxPincodeResult');
@@ -4663,7 +4822,7 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
         result.className = 'vx-pincode-result ' + (isKarnataka ? 'karnataka' : 'pan-india');
         
         const officesList = Array.isArray(data.offices) && data.offices.length > 0 ? data.offices : [data.office || 'Main Branch'];
-        const officesBadges = officesList.map(o => '<span class="vx-po-chip">📮 ' + escapeHtml(o) + '</span>').join(' ');
+        const officesBadges = officesList.map(o => '<button type="button" class="vx-po-chip" onclick="window.vxSelectPlaceName(' + JSON.stringify(o) + ', ' + JSON.stringify(data.taluk || '') + ', ' + JSON.stringify(data.district || '') + ', ' + JSON.stringify(val) + ', ' + JSON.stringify(data.state || 'Karnataka') + ', this)">📍 ' + escapeHtml(o) + '</button>').join(' ');
 
         result.innerHTML = 
           '<div style="display:flex;align-items:center;gap:6px;font-weight:800;font-size:13.5px;margin-bottom:6px;color:' + (isKarnataka ? '#10b981' : '#00E5FF') + '">' +
@@ -4675,8 +4834,12 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
             '<b>State:</b> ' + escapeHtml(data.state || '') +
           '</div>' +
           '<div style="font-size:12px;margin-bottom:10px">' +
-            '<div style="font-weight:700;color:#94a3b8;margin-bottom:5px">Covered Post Offices & Localities (' + officesList.length + '):</div>' +
-            '<div style="max-height:85px;overflow-y:auto;padding-right:4px">' + officesBadges + '</div>' +
+            '<div style="font-weight:700;color:#94a3b8;margin-bottom:5px">Covered Post Offices & Localities (' + officesList.length + ') · <span style="color:#00E5FF;font-weight:normal">Click any place name to select</span>:</div>' +
+            '<div style="max-height:95px;overflow-y:auto;padding-right:4px">' + officesBadges + '</div>' +
+            '<div id="vxSelectedPlaceBanner" style="display:none;margin-top:10px;padding:10px 14px;background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.4);border-radius:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">' +
+              '<div><span style="font-size:11px;color:#00E5FF;font-weight:800;letter-spacing:1px">✓ SELECTED LOCALITY:</span><div id="vxSelectedPlaceText" style="font-weight:700;color:#fff;font-size:13px;margin-top:2px"></div></div>' +
+              '<button type="button" id="vxApplyPlaceBtn" style="background:#00E5FF;color:#020617;font-weight:800;font-size:12px;padding:8px 16px;border:none;border-radius:6px;cursor:pointer;letter-spacing:.5px;box-shadow:0 0 15px rgba(0,229,255,.4)">USE IN DELIVERY ADDRESS ↗</button>' +
+            '</div>' +
           '</div>' +
           '<div style="font-size:13px;line-height:1.55;color:#e2e8f0;background:rgba(16,185,129,0.08);padding:10px 14px;border-radius:8px;border:1px solid rgba(16,185,129,0.25)">' +
             (isKarnataka 
@@ -5041,7 +5204,7 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
           <div id="vxScreenshotPlaceholder">
             <div style="font-size:26px;margin-bottom:4px">📱 📸</div>
             <div style="font-size:13px;font-weight:700;color:#fff">Click or Tap to Upload Payment Screenshot</div>
-            <div style="font-size:11px;color:#94a3b8;margin-top:2px">PhonePe / Google Pay / Paytm ಪಾವತಿ ಸ್ಕ್ರೀನ್‌ಶಾಟ್ ಆಯ್ಕೆಮಾಡಿ</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:2px">Select PhonePe / Google Pay / Paytm payment screenshot</div>
           </div>
 
           <!-- Preview box -->

@@ -270,13 +270,30 @@ async function validateIndianPincodeServer(raw) {
     }
   } catch (err) {
     console.warn('[Pincode Lookup Error]', pin, err.message);
-    return {
-      valid: false,
-      error: 'Unable to verify PIN code (' + pin + ') with official postal database. Please ensure you entered a genuine 6-digit Indian PIN code.'
-    };
   }
 
-  return { valid: false, error: 'Unable to verify postal pincode. Please check and try again.' };
+  // Graceful fallback for genuine custom addresses:
+  // If pin is a standard 6-digit Indian PIN (starts with 1-8, not fake sequence or repeating digits), accept it
+  if (/^[1-8][0-9]{5}$/.test(pin) && !FAKE_PINCODES.has(pin) && !/^(\d)\1{5}$/.test(pin)) {
+    const isKarnataka = ['56', '57', '58', '59'].includes(pin.slice(0, 2));
+    const fallback = {
+      valid: true,
+      pincode: pin,
+      office: 'Local Postal Area',
+      offices: [],
+      district: isKarnataka ? 'Karnataka' : 'India',
+      taluk: '',
+      taluks: [],
+      state: isKarnataka ? 'Karnataka' : 'India',
+      isKarnataka,
+      deliveryDays: isKarnataka ? '2–4 Days' : '4–7 Days',
+      hub: isKarnataka ? 'Karnataka Fast-Track Dispatch (Doorstep Delivery)' : 'Pan-India Insured Express'
+    };
+    pincodeCache.set(pin, fallback);
+    return fallback;
+  }
+
+  return { valid: false, error: 'Invalid or dummy PIN code (' + pin + '). Please enter a genuine 6-digit Indian postal code.' };
 }
 
 async function validateEmailServer(raw, checkMx = false) {
@@ -1202,8 +1219,8 @@ async function route(req,res){
       const phone = String(x.phone || c.mobile || '').replace(/\D/g, '').slice(0, 10);
       const landmark = String(x.landmark || '').slice(0, 200).trim();
 
-      if(!street || street.length < 4) return json(res, 400, { error: 'Please enter your complete house/flat and street address.' });
-      if(!city || city.length < 2) return json(res, 400, { error: 'Please enter your city or town name.' });
+      if(!street || street.trim().length < 2) return json(res, 400, { error: 'Please enter your street address or village/locality name.' });
+      if(!city || city.trim().length < 2) return json(res, 400, { error: 'Please enter your city, town, or taluk name.' });
       if(!pincode || pincode.length !== 6) return json(res, 400, { error: 'Please enter a valid 6-digit postal PIN code.' });
 
       const pinCheck = await validateIndianPincodeServer(pincode);
