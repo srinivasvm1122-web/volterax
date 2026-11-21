@@ -495,7 +495,21 @@ async function initDb(){
               finalOrders.push(ord);
             }
           }
-          db.orders = finalOrders;
+          // Only keep verified orders with uploaded payment screenshot
+          db.orders = finalOrders.filter(ord => {
+            const ss = ord.payment_screenshot || ord.payment_proof || (ord.shipping_address && ord.shipping_address.payment_screenshot) || '';
+            return Boolean(ss && String(ss).trim().length > 15);
+          });
+          // Clean up legacy unverified orders with no payment screenshot in Postgres
+          if (pgPool) {
+            try {
+              await pgPool.query(`
+                DELETE FROM orders 
+                WHERE (payment_screenshot IS NULL OR LENGTH(TRIM(payment_screenshot)) < 15)
+                  AND (payment_proof IS NULL OR LENGTH(TRIM(payment_proof)) < 15)
+              `);
+            } catch(e) {}
+          }
         }
       } catch(ordErr) {
         console.error('[VolteraX] Orders sync error on startup:', ordErr.message);
@@ -1184,7 +1198,7 @@ async function route(req,res){
       mobile: customerPhone || c.mobile || '',
       phone: customerPhone || c.mobile || '',
       amount_paise: enforcedPricePaise,
-      status:String(x.status||'pending'),
+      status: 'pending_payment',
       payment_method: 'ONLINE_ONLY',
       payment_status: 'pending_online',
       details:String(x.details||'Custom commissioned hardware prototype').slice(0,5000),
@@ -1194,7 +1208,8 @@ async function route(req,res){
     };
     db.orders.unshift(item);
     await save();
-    await syncRelational('order', item);
+    // Do NOT sync to admin dashboard yet!
+    // The order stays pending until customer uploads their payment screenshot.
     const paymentPayload = generateOrderPaymentPayload(item);
     return json(res,201,{ok:true,order:item,payment:paymentPayload});
   }
@@ -1369,7 +1384,12 @@ async function route(req,res){
     if(req.method==='GET'&&p==='/api/admin/orders'){
       if(pgPool){
         try{
-          const r = await pgPool.query(`SELECT * FROM orders ORDER BY created_at DESC`);
+          const r = await pgPool.query(`
+            SELECT * FROM orders 
+            WHERE (payment_screenshot IS NOT NULL AND LENGTH(TRIM(payment_screenshot)) > 15)
+               OR (payment_proof IS NOT NULL AND LENGTH(TRIM(payment_proof)) > 15)
+            ORDER BY created_at DESC
+          `);
           if(r.rows && r.rows.length > 0){
             return json(res, 200, r.rows.map(o => {
               const user = db.users.find(u => u.id === o.user_id);
@@ -1393,7 +1413,11 @@ async function route(req,res){
           console.error('[Admin Orders PG direct query error]', e.message);
         }
       }
-      return json(res, 200, db.orders.map(o => {
+      return json(res, 200, db.orders.filter(o => {
+        const sa = typeof o.shipping_address === 'object' && o.shipping_address ? o.shipping_address : {};
+        const ss = o.payment_screenshot || o.payment_proof || sa.payment_screenshot || '';
+        return Boolean(ss && String(ss).trim().length > 15);
+      }).map(o => {
         const user = db.users.find(u => u.id === o.userId);
         const sa = typeof o.shipping_address === 'object' && o.shipping_address ? o.shipping_address : {};
         const phone = o.mobile || o.phone || sa.phone || sa.mobile || user?.mobile || '';
@@ -1409,6 +1433,32 @@ async function route(req,res){
           phone: phone
         };
       }));
+    }
+    if(req.method==='DELETE'&&(p.startsWith('/api/admin/orders/')||p.startsWith('/api/admin/order/'))){
+      const oid = decodeURIComponent(p.split('/').pop());
+      const idx = db.orders.findIndex(v => v.id === oid || v.order_id === oid);
+      let removed = null;
+      if (idx !== -1) {
+        removed = db.orders.splice(idx, 1)[0];
+        await save();
+      }
+      if (pgPool) {
+        try {
+          await pgPool.query(`DELETE FROM orders WHERE id = $1 OR order_id = $1`, [oid]);
+        } catch(e) {}
+      }
+      if (SUPABASE_URL && SUPABASE_KEY) {
+        try {
+          await fetch(`${SUPABASE_URL}/rest/v1/orders?or=(id.eq.${oid},order_id.eq.${oid})`, {
+            method: 'DELETE',
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`
+            }
+          });
+        } catch(e) {}
+      }
+      return json(res, 200, { ok: true, deleted: oid, order: removed });
     }
     if(req.method==='GET'&&p==='/api/admin/feedback')return json(res,200,db.feedback.map(f=>({...f,customer:db.users.find(u=>u.id===f.userId)?.name||f.name,mobile:db.users.find(u=>u.id===f.userId)?.mobile||''})));
     if(req.method==='GET'&&p==='/api/admin/leads')return json(res,200,db.leads.map(l=>({...l,customer:db.users.find(u=>u.id===l.userId)?.name||l.name})));
