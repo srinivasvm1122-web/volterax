@@ -1428,6 +1428,54 @@ async function route(req,res){
       return json(res,200,{ok:true,deleted:removed});
     }
     if(req.method==='GET'&&p==='/api/admin/customers')return json(res,200,db.users.map(safeUser));
+    if(req.method==='DELETE'&&(p.startsWith('/api/admin/customers/')||p.startsWith('/api/admin/customer/'))){
+      const cid = decodeURIComponent(p.split('/').pop());
+      const idx = db.users.findIndex(v => v.id === cid || v.email === cid || v.mobile === cid);
+      let removed = null;
+      if (idx !== -1) {
+        removed = db.users.splice(idx, 1)[0];
+        for (const [sid, sess] of Object.entries(db.sessions || {})) {
+          if (sess.userId === cid || (removed && sess.userId === removed.id)) {
+            delete db.sessions[sid];
+          }
+        }
+        await save();
+      }
+      if (pgPool) {
+        try {
+          await pgPool.query(`DELETE FROM customers WHERE id = $1 OR email = $1 OR mobile = $1`, [cid]);
+        } catch(e) {}
+      }
+      return json(res, 200, { ok: true, deleted: cid, customer: removed });
+    }
+    if(req.method==='POST'&&p==='/api/admin/clear-test-data'){
+      const clearedCount = {
+        users: (db.users || []).length,
+        orders: (db.orders || []).length,
+        feedback: (db.feedback || []).length,
+        leads: (db.leads || []).length
+      };
+      db.users = [];
+      db.orders = [];
+      db.feedback = [];
+      db.leads = [];
+      db.sessions = {};
+      if (db.pending_otps) db.pending_otps = {};
+      globalThis.__vxPendingOtps = {};
+      await save();
+
+      if (pgPool) {
+        try {
+          await pgPool.query(`DELETE FROM customers;`);
+          await pgPool.query(`DELETE FROM orders;`);
+          await pgPool.query(`DELETE FROM feedback;`);
+          await pgPool.query(`DELETE FROM leads;`);
+        } catch(e) {
+          console.error('[Clear test data SQL error]', e.message);
+        }
+      }
+      return json(res, 200, { ok: true, message: 'All test data cleared successfully. System ready for live production customers.', cleared: clearedCount });
+    }
     if(req.method==='GET'&&p==='/api/admin/orders'){
       if(pgPool){
         try{
