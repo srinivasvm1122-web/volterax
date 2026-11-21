@@ -996,7 +996,7 @@ async function route(req,res){
     const c=requireCustomer(req,res);
     if(!c)return;
     const x=await body(req);
-    const title=String(x.title||'VOLTERAX PROJECT').slice(0,200).trim();
+    let title=String(x.title||'VOLTERAX PROJECT').slice(0,200).trim();
     if(!title)return json(res,400,{error:'Project title is required.'});
 
     let shipping_address = null;
@@ -1278,4 +1278,3 @@ http.createServer(route).listen(PORT,HOST,()=>{
   console.log(`VOLTERAX platform running on http://${HOST==='0.0.0.0'?'localhost':HOST}:${PORT}`);
   initDb().catch(e=>console.error('[VolteraX] Startup DB error:',e.message));
 });
-module.exports = route;
