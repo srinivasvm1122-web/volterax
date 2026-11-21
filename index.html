@@ -2388,8 +2388,8 @@ if (btn) btn.disabled = false;
     <strong style="font-size:11px;letter-spacing:1.5px;color:#00E5FF">DELIVERY / SHIPPING ADDRESS</strong>
     <span style="font-size:10px;color:rgba(255,255,255,.5);margin-left:auto">(Hardware delivery location)</span>
   </div>
-  <label class="accountLabel" style="margin-top:8px">HOUSE / FLAT / BUILDING & STREET ADDRESS *</label>
-  <input class="accountInput" id="newOrderStreet" placeholder="e.g. #42, 2nd Floor, Silicon Towers, 5th Cross" required>
+  <label class="accountLabel" style="margin-top:8px">FULL ADDRESS *</label>
+  <textarea class="accountInput" id="newOrderStreet" style="min-height:75px;resize:vertical;font-family:inherit" placeholder="Enter your full delivery address (e.g. Village/Town, House No, Street, Landmark, Taluk, District)" required></textarea>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
     <div>
@@ -2504,8 +2504,8 @@ if (btn) btn.disabled = false;
     <form id="vxAddressForm" novalidate>
       <input type="hidden" id="vxModalOrderId">
       
-      <label class="accountLabel">HOUSE / FLAT / BUILDING & STREET ADDRESS *</label>
-      <textarea class="accountInput" id="vxModalStreet" style="min-height:65px;resize:vertical;font-family:inherit" placeholder="e.g. #42, 2nd Floor, Silicon Towers, 5th Cross" required></textarea>
+      <label class="accountLabel">FULL ADDRESS *</label>
+      <textarea class="accountInput" id="vxModalStreet" style="min-height:75px;resize:vertical;font-family:inherit" placeholder="Enter your full delivery address (e.g. Village/Town, House No, Street, Landmark, Taluk, District)" required></textarea>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
         <div>
@@ -3645,7 +3645,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
         if (!street || street.trim().length < 2) {
           msg.style.display = 'block';
           msg.style.color = '#ef4444';
-          msg.textContent = 'Please enter your street address or village/locality name.';
+          msg.textContent = 'Please enter your full delivery address.';
           return;
         }
         if (!city || city.length < 2) {
@@ -4713,14 +4713,7 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
         const sEl = document.getElementById('newOrderState');
         if (sEl && !sEl.value) sEl.value = data.state || 'Karnataka';
 
-        const poList = Array.isArray(data.offices) && data.offices.length > 0 ? data.offices : (data.office ? [data.office] : []);
-        let chipsHtml = '';
-        if (poList.length > 0) {
-          chipsHtml = '<div style="font-size:11px;color:#94a3b8;margin-top:6px;margin-bottom:4px">Tap your post office / locality to auto-fill address:</div><div style="max-height:85px;overflow-y:auto">' +
-            poList.map(o => '<button type="button" class="vx-po-chip" onclick="window.vxSelectPlaceName(' + JSON.stringify(o) + ', ' + JSON.stringify(data.taluk || '') + ', ' + JSON.stringify(data.district || '') + ', ' + JSON.stringify(pin) + ', ' + JSON.stringify(data.state || 'Karnataka') + ', this)">📍 ' + escapeHtml(o) + '</button>').join(' ') +
-            '</div>';
-        }
-        box.innerHTML = '<div style="color:#10b981;font-weight:700;font-size:11px">✓ ' + escapeHtml(data.district || 'Verified') + ' District (' + (data.taluk ? escapeHtml(data.taluk) + ' Taluk' : 'Karnataka') + ')</div>' + chipsHtml;
+        box.innerHTML = '<div style="color:#10b981;font-weight:700;font-size:11.5px">✓ ' + escapeHtml(data.district || 'Verified') + ' District (' + (data.taluk ? escapeHtml(data.taluk) + ' Taluk' : 'Karnataka') + ')</div>';
       } else {
         box.innerHTML = '<span style="color:#94a3b8;font-size:11px">Custom PIN code accepted (' + pin + ')</span>';
       }
@@ -4749,14 +4742,7 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
         const sEl = document.getElementById('vxModalState');
         if (sEl && !sEl.value) sEl.value = data.state || 'Karnataka';
 
-        const poList = Array.isArray(data.offices) && data.offices.length > 0 ? data.offices : (data.office ? [data.office] : []);
-        let chipsHtml = '';
-        if (poList.length > 0) {
-          chipsHtml = '<div style="font-size:11px;color:#94a3b8;margin-top:6px;margin-bottom:4px">Tap your post office / locality to auto-fill address:</div><div style="max-height:85px;overflow-y:auto">' +
-            poList.map(o => '<button type="button" class="vx-po-chip" onclick="window.vxSelectPlaceName(' + JSON.stringify(o) + ', ' + JSON.stringify(data.taluk || '') + ', ' + JSON.stringify(data.district || '') + ', ' + JSON.stringify(pin) + ', ' + JSON.stringify(data.state || 'Karnataka') + ', this)">📍 ' + escapeHtml(o) + '</button>').join(' ') +
-            '</div>';
-        }
-        box.innerHTML = '<div style="color:#10b981;font-weight:700;font-size:11px">✓ ' + escapeHtml(data.district || 'Verified') + ' District (' + (data.taluk ? escapeHtml(data.taluk) + ' Taluk' : 'Karnataka') + ')</div>' + chipsHtml;
+        box.innerHTML = '<div style="color:#10b981;font-weight:700;font-size:11.5px">✓ ' + escapeHtml(data.district || 'Verified') + ' District (' + (data.taluk ? escapeHtml(data.taluk) + ' Taluk' : 'Karnataka') + ')</div>';
       } else {
         box.innerHTML = '<span style="color:#94a3b8;font-size:11px">Custom PIN code accepted (' + pin + ')</span>';
       }

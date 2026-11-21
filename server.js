@@ -1219,7 +1219,7 @@ async function route(req,res){
       const phone = String(x.phone || c.mobile || '').replace(/\D/g, '').slice(0, 10);
       const landmark = String(x.landmark || '').slice(0, 200).trim();
 
-      if(!street || street.trim().length < 2) return json(res, 400, { error: 'Please enter your street address or village/locality name.' });
+      if(!street || street.trim().length < 2) return json(res, 400, { error: 'Please enter your full delivery address.' });
       if(!city || city.trim().length < 2) return json(res, 400, { error: 'Please enter your city, town, or taluk name.' });
       if(!pincode || pincode.length !== 6) return json(res, 400, { error: 'Please enter a valid 6-digit postal PIN code.' });
 
