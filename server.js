@@ -429,6 +429,8 @@ async function initDb(){
       await pgPool.query(`CREATE TABLE IF NOT EXISTS volterax_store (id VARCHAR(64) PRIMARY KEY, data JSONB NOT NULL, updated_at TIMESTAMPTZ DEFAULT NOW());`);
       try {
         await pgPool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_address JSONB;`);
+        await pgPool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_screenshot TEXT;`);
+        await pgPool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_proof TEXT;`);
       } catch(_) {}
       const r=await pgPool.query(`SELECT data FROM volterax_store WHERE id = 'main'`);
       if(r.rows.length===0){
@@ -1136,7 +1138,7 @@ async function route(req,res){
     });
   }
 
-  // Payment Confirmation / UTR Submission Endpoint
+  // Payment Confirmation / Screenshot Submission Endpoint
   if(req.method==='POST' && p.startsWith('/api/customer/order/') && p.endsWith('/confirm-payment')){
     const c=requireCustomer(req,res);
     if(!c)return;
@@ -1146,19 +1148,35 @@ async function route(req,res){
     if(!order) return json(res, 404, { error: 'Order not found.' });
 
     const x = await body(req);
+    const screenshot = String(x.payment_screenshot || x.screenshot || x.image || '').trim();
+    if (!screenshot) {
+      return json(res, 400, { error: 'Payment screenshot is required. Please upload your payment screenshot to verify payment.' });
+    }
+
     const utr = String(x.utr || x.reference || '').trim();
     order.payment_method = 'ONLINE_ONLY';
-    order.payment_status = 'paid_reported';
-    order.payment_utr = utr || 'VERIFY_PHONEPE';
+    order.payment_status = 'proof_submitted';
+    order.payment_screenshot = screenshot;
+    order.payment_proof = screenshot;
+    order.payment_utr = utr || '';
     order.status = 'processing';
+    order.payment_submitted_at = now();
     order.updatedAt = now();
+
+    // Also attach to shipping_address object if present for persistent backup
+    if (order.shipping_address && typeof order.shipping_address === 'object') {
+      order.shipping_address.payment_screenshot = screenshot;
+      order.shipping_address.payment_utr = utr || '';
+      order.shipping_address.payment_status = 'proof_submitted';
+    }
+
     save();
     syncRelational('order', order);
 
     return json(res, 200, {
       ok: true,
       order,
-      message: '✓ Online payment recorded successfully! Our engineering team is verifying your transaction.'
+      message: '✓ Payment screenshot submitted successfully! Our engineering team is verifying your payment.'
     });
   }
 
@@ -1230,8 +1248,11 @@ async function route(req,res){
         const user = db.users.find(u => u.id === o.userId);
         const sa = typeof o.shipping_address === 'object' && o.shipping_address ? o.shipping_address : {};
         const phone = o.mobile || o.phone || sa.phone || sa.mobile || user?.mobile || '';
+        const screenshot = o.payment_screenshot || o.payment_proof || sa.payment_screenshot || null;
         return {
           ...o,
+          payment_screenshot: screenshot,
+          payment_proof: screenshot,
           user: user?.name || o.user || 'Customer',
           userName: user?.name || o.user || 'Customer',
           userEmail: user?.email || '',
@@ -1243,7 +1264,7 @@ async function route(req,res){
     if(req.method==='GET'&&p==='/api/admin/feedback')return json(res,200,db.feedback.map(f=>({...f,customer:db.users.find(u=>u.id===f.userId)?.name||f.name,mobile:db.users.find(u=>u.id===f.userId)?.mobile||''})));
     if(req.method==='GET'&&p==='/api/admin/leads')return json(res,200,db.leads.map(l=>({...l,customer:db.users.find(u=>u.id===l.userId)?.name||l.name})));
     if(req.method==='POST'&&p==='/api/admin/order'){const x=await body(req);const user=db.users.find(v=>v.id===x.userId||v.mobile===String(x.mobile||'').replace(/\D/g,''));if(!user)return json(res,404,{error:'Customer not found.'});const item={id:id('ORD'),order_id:String(x.order_id||id('VX-ORD-')),userId:user.id,title:String(x.title||'VOLTERAX PROJECT').slice(0,200),amount_paise:Number(x.amount_paise||0),status:String(x.status||'pending'),details:String(x.details||'').slice(0,5000),shipping_address:x.shipping_address||null,createdAt:now(),updatedAt:now()};db.orders.unshift(item);save();syncRelational('order', item);return json(res,201,{ok:true,order:item})}
-    if(req.method==='PATCH'&&p.startsWith('/api/admin/order/')){const oid=p.split('/').pop();const x=await body(req);const o=db.orders.find(v=>v.id===oid||v.order_id===oid);if(!o)return json(res,404,{error:'Order not found.'});for(const k of ['title','status','details'])if(x[k]!==undefined)o[k]=String(x[k]);if(x.amount_paise!==undefined)o.amount_paise=Number(x.amount_paise);if(x.shipping_address!==undefined)o.shipping_address=x.shipping_address;o.updatedAt=now();save();syncRelational('order', o);return json(res,200,{ok:true,order:o})}
+    if(req.method==='PATCH'&&p.startsWith('/api/admin/order/')){const oid=p.split('/').pop();const x=await body(req);const o=db.orders.find(v=>v.id===oid||v.order_id===oid);if(!o)return json(res,404,{error:'Order not found.'});for(const k of ['title','status','details','payment_status','payment_utr','payment_screenshot'])if(x[k]!==undefined)o[k]=String(x[k]);if(x.amount_paise!==undefined)o.amount_paise=Number(x.amount_paise);if(x.shipping_address!==undefined)o.shipping_address=x.shipping_address;o.updatedAt=now();save();syncRelational('order', o);return json(res,200,{ok:true,order:o})}
     if(req.method==='PATCH'&&p.startsWith('/api/admin/feedback/')){const fid=p.split('/').pop();const x=await body(req);const f=db.feedback.find(v=>v.id===fid);if(!f)return json(res,404,{error:'Feedback not found.'});if(x.status)f.status=String(x.status);save();syncRelational('feedback', f);return json(res,200,{ok:true,feedback:f})}
     if(req.method==='PATCH'&&p.startsWith('/api/admin/lead/')){const lid=p.split('/').pop();if(!lid||!/^LD[A-Za-z0-9_-]+$/.test(lid))return json(res,400,{error:'Invalid lead ID format.'});const x=await body(req);const allowed=['new','contacted','quoted','closed'];const status=String(x.status||'').toLowerCase().trim();if(!allowed.includes(status))return json(res,400,{error:'Invalid status. Allowed: '+allowed.join(', ')});const l=db.leads.find(v=>v.id===lid);if(!l)return json(res,404,{error:'Lead not found.'});l.status=status;l.updatedAt=now();save();syncRelational('lead', l);return json(res,200,{ok:true,lead:l})}
   }

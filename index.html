@@ -3686,6 +3686,8 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
     const modal = document.getElementById('vxPaymentModal');
     if (!modal) return;
     
+    window.vxClearScreenshot();
+
     // Set loading state
     document.getElementById('vxPayOrderId').textContent = '#' + (orderId || 'ORD');
     document.getElementById('vxPayOrderTitle').textContent = 'Loading Order…';
@@ -3744,30 +3746,119 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
     }
   };
 
+  let activePaymentScreenshotBase64 = null;
+
+  window.vxHandleScreenshotSelect = function(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file (JPG, PNG, WebP).');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        const maxDim = 1200;
+
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        activePaymentScreenshotBase64 = compressedDataUrl;
+
+        const previewImg = document.getElementById('vxScreenshotPreviewImg');
+        const previewBox = document.getElementById('vxScreenshotPreviewBox');
+        const placeholder = document.getElementById('vxScreenshotPlaceholder');
+        const fileNameEl = document.getElementById('vxScreenshotFileName');
+
+        if (previewImg) previewImg.src = compressedDataUrl;
+        if (fileNameEl) fileNameEl.textContent = file.name + ' (' + Math.round(compressedDataUrl.length / 1024) + ' KB)';
+        if (placeholder) placeholder.style.display = 'none';
+        if (previewBox) previewBox.style.display = 'flex';
+
+        const msg = document.getElementById('vxPayStatusMsg');
+        if (msg) {
+          msg.style.display = 'block';
+          msg.style.color = '#10b981';
+          msg.textContent = '✓ Screenshot loaded. Click "SUBMIT PAYMENT PROOF" to verify.';
+        }
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.vxClearScreenshot = function() {
+    activePaymentScreenshotBase64 = null;
+    const input = document.getElementById('vxPayScreenshotInput');
+    if (input) input.value = '';
+    const previewBox = document.getElementById('vxScreenshotPreviewBox');
+    const placeholder = document.getElementById('vxScreenshotPlaceholder');
+    const previewImg = document.getElementById('vxScreenshotPreviewImg');
+    if (previewImg) previewImg.src = '';
+    if (previewBox) previewBox.style.display = 'none';
+    if (placeholder) placeholder.style.display = 'block';
+  };
+
   window.vxSubmitPaymentProof = async function() {
     if (!activePaymentData) return;
-    const utrInput = document.getElementById('vxPayUtrInput');
     const msg = document.getElementById('vxPayStatusMsg');
     const btn = document.getElementById('btnConfirmPay');
+    const utrInput = document.getElementById('vxPayUtrInput');
     const utr = (utrInput?.value || '').trim();
 
-    msg.style.display = 'block';
-    msg.style.color = '#00E5FF';
-    msg.textContent = 'Recording your payment confirmation…';
-    btn.disabled = true;
+    if (!activePaymentScreenshotBase64) {
+      if (msg) {
+        msg.style.display = 'block';
+        msg.style.color = '#ef4444';
+        msg.textContent = '❌ ಪಾವತಿ ಮಾಡಿದ ಸ್ಕ್ರೀನ್‌ಶಾಟ್ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ / Please upload your payment screenshot to confirm.';
+      }
+      document.getElementById('vxScreenshotDropzone')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    if (msg) {
+      msg.style.display = 'block';
+      msg.style.color = '#00E5FF';
+      msg.textContent = 'Uploading payment screenshot & recording confirmation…';
+    }
+    if (btn) btn.disabled = true;
 
     try {
       const res = await fetch('/api/customer/order/' + encodeURIComponent(activePaymentData.orderId) + '/confirm-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
-        body: JSON.stringify({ utr })
+        body: JSON.stringify({
+          payment_screenshot: activePaymentScreenshotBase64,
+          utr: utr
+        })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to record payment.');
+      if (!res.ok) throw new Error(data.error || 'Failed to submit payment screenshot.');
 
-      msg.style.color = '#10b981';
-      msg.textContent = '✓ Online payment confirmation submitted! Our team is verifying it.';
+      if (msg) {
+        msg.style.color = '#10b981';
+        msg.textContent = '✓ Payment screenshot submitted successfully! Our engineering team will verify your transaction.';
+      }
 
       const meRes = await fetch('/api/customer/me', { credentials: 'same-origin' });
       if (meRes.ok) {
@@ -3778,12 +3869,14 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
 
       setTimeout(() => {
         volteraxClosePaymentModal();
-      }, 1600);
+      }, 2000);
     } catch (err) {
-      msg.style.color = '#ef4444';
-      msg.textContent = '✕ ' + err.message;
+      if (msg) {
+        msg.style.color = '#ef4444';
+        msg.textContent = '✕ ' + err.message;
+      }
     } finally {
-      btn.disabled = false;
+      if (btn) btn.disabled = false;
     }
   };
 
@@ -4888,13 +4981,41 @@ else if(!reduce&&!raf){last=0;raf=requestAnimationFrame(frame)}
         </div>
       </div>
 
-      <!-- Confirm / Submit UTR -->
+      <!-- Payment Proof Screenshot Upload (Required) -->
       <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)">
-        <label class="accountLabel" style="font-size:11px">ALREADY PAID? ENTER 12-DIGIT UPI REF / UTR (OPTIONAL):</label>
-        <div style="display:flex;gap:8px;margin-top:6px">
-          <input type="text" id="vxPayUtrInput" class="accountInput" maxlength="25" placeholder="e.g. 432109876543 / UTR" style="margin:0">
-          <button type="button" id="btnConfirmPay" onclick="window.vxSubmitPaymentProof()" style="background:#10b981;color:#050508;border:none;border-radius:8px;padding:0 16px;font-weight:800;font-size:12px;white-space:nowrap;cursor:pointer">
-            CONFIRM ✓
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <label class="accountLabel" style="font-size:11px;font-weight:800;color:#00E5FF;margin:0;letter-spacing:.5px">
+            📸 UPLOAD PAYMENT SCREENSHOT (REQUIRED):
+          </label>
+          <span style="font-size:10px;color:#94a3b8">PhonePe / GPay / Paytm</span>
+        </div>
+
+        <!-- Dropzone / Picker -->
+        <div id="vxScreenshotDropzone" onclick="document.getElementById('vxPayScreenshotInput').click()" style="border:2px dashed rgba(0,229,255,.35);background:rgba(0,229,255,.03);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:all .2s;position:relative">
+          <input type="file" id="vxPayScreenshotInput" accept="image/*" style="display:none" onchange="window.vxHandleScreenshotSelect(event)">
+          
+          <div id="vxScreenshotPlaceholder">
+            <div style="font-size:26px;margin-bottom:4px">📱 📸</div>
+            <div style="font-size:13px;font-weight:700;color:#fff">Click or Tap to Upload Payment Screenshot</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:2px">PhonePe / Google Pay / Paytm ಪಾವತಿ ಸ್ಕ್ರೀನ್‌ಶಾಟ್ ಆಯ್ಕೆಮಾಡಿ</div>
+          </div>
+
+          <!-- Preview box -->
+          <div id="vxScreenshotPreviewBox" style="display:none;align-items:center;justify-content:center;gap:14px">
+            <img id="vxScreenshotPreviewImg" src="" alt="Payment Proof" style="max-height:130px;max-width:130px;border-radius:8px;border:1px solid #10b981;box-shadow:0 0 14px rgba(16,185,129,.35);object-fit:cover">
+            <div style="text-align:left">
+              <div style="font-size:12px;font-weight:800;color:#10b981">✓ Screenshot Attached</div>
+              <div id="vxScreenshotFileName" style="font-size:11px;color:#cbd5e1;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">screenshot.jpg</div>
+              <button type="button" onclick="event.stopPropagation(); window.vxClearScreenshot();" style="margin-top:6px;background:rgba(239,68,68,.15);border:1px solid #ef4444;color:#fca5a5;font-size:10px;padding:3px 8px;border-radius:6px;cursor:pointer">Remove / Change ✕</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Optional UTR + Submit Button -->
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+          <input type="text" id="vxPayUtrInput" class="accountInput" maxlength="30" placeholder="Optional: UTR / UPI Ref ID" style="margin:0;font-size:11px;padding:9px 12px;flex:1">
+          <button type="button" id="btnConfirmPay" onclick="window.vxSubmitPaymentProof()" style="background:linear-gradient(90deg,#10b981,#00E5FF);color:#050508;border:none;border-radius:8px;padding:10px 18px;font-weight:900;font-size:12px;white-space:nowrap;cursor:pointer;box-shadow:0 0 14px rgba(16,185,129,.35)">
+            SUBMIT PAYMENT PROOF ✓
           </button>
         </div>
         <div id="vxPayStatusMsg" class="accountNotice" style="display:none;margin-top:8px" aria-live="polite"></div>
