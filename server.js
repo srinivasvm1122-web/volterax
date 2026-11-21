@@ -1171,6 +1171,9 @@ async function route(req,res){
     if (pIdx !== -1 && db.projects[pIdx] && Number(db.projects[pIdx].price) > 0) {
       enforcedPricePaise = Number(db.projects[pIdx].price) * 100;
       title = db.projects[pIdx].title;
+    } else if (enforcedPricePaise < 100000) {
+      // Default to fixed base project price of ₹6,500 (650000 paise); prevent fake ₹1 or ₹78 orders
+      enforcedPricePaise = 650000;
     }
 
     const item={
