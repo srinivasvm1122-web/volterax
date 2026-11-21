@@ -1344,6 +1344,7 @@ async function route(req,res){
     order.payment_proof = screenshot;
     order.payment_utr = utr || '';
     order.status = 'processing';
+    order.payment_rejection_reason = '';
     order.payment_submitted_at = now();
     order.updatedAt = now();
 
@@ -1509,7 +1510,25 @@ async function route(req,res){
     if(req.method==='GET'&&p==='/api/admin/feedback')return json(res,200,db.feedback.map(f=>({...f,customer:db.users.find(u=>u.id===f.userId)?.name||f.name,mobile:db.users.find(u=>u.id===f.userId)?.mobile||''})));
     if(req.method==='GET'&&p==='/api/admin/leads')return json(res,200,db.leads.map(l=>({...l,customer:db.users.find(u=>u.id===l.userId)?.name||l.name})));
     if(req.method==='POST'&&p==='/api/admin/order'){const x=await body(req);const user=db.users.find(v=>v.id===x.userId||v.mobile===String(x.mobile||'').replace(/\D/g,''));if(!user)return json(res,404,{error:'Customer not found.'});const item={id:id('ORD'),order_id:String(x.order_id||id('VX-ORD-')),userId:user.id,title:String(x.title||'VOLTERAX PROJECT').slice(0,200),amount_paise:Number(x.amount_paise||0),status:String(x.status||'pending'),details:String(x.details||'').slice(0,5000),shipping_address:x.shipping_address||null,createdAt:now(),updatedAt:now()};db.orders.unshift(item);save();syncRelational('order', item);return json(res,201,{ok:true,order:item})}
-    if(req.method==='PATCH'&&p.startsWith('/api/admin/order/')){const oid=p.split('/').pop();const x=await body(req);const o=db.orders.find(v=>v.id===oid||v.order_id===oid);if(!o)return json(res,404,{error:'Order not found.'});for(const k of ['title','status','details','payment_status','payment_utr','payment_screenshot','payment_proof'])if(x[k]!==undefined)o[k]=String(x[k]);if(x.amount_paise!==undefined)o.amount_paise=Number(x.amount_paise);if(x.shipping_address!==undefined)o.shipping_address=x.shipping_address;o.updatedAt=now();await save();await syncRelational('order', o);return json(res,200,{ok:true,order:o})}
+    if(req.method==='PATCH'&&p.startsWith('/api/admin/order/')){
+      const oid=p.split('/').pop();
+      const x=await body(req);
+      const o=db.orders.find(v=>v.id===oid||v.order_id===oid);
+      if(!o)return json(res,404,{error:'Order not found.'});
+      for(const k of ['title','status','details','payment_status','payment_utr','payment_screenshot','payment_proof','payment_rejection_reason','rejection_reason'])
+        if(x[k]!==undefined)o[k]=String(x[k]);
+      if(x.status === 'rejected' || x.payment_status === 'fake_receipt_rejected'){
+        o.status = 'rejected';
+        o.payment_status = 'fake_receipt_rejected';
+        o.payment_rejection_reason = x.payment_rejection_reason || x.rejection_reason || 'Fake or invalid payment receipt uploaded. Transaction was not received in bank/UPI.';
+      }
+      if(x.amount_paise!==undefined)o.amount_paise=Number(x.amount_paise);
+      if(x.shipping_address!==undefined)o.shipping_address=x.shipping_address;
+      o.updatedAt=now();
+      await save();
+      await syncRelational('order', o);
+      return json(res,200,{ok:true,order:o});
+    }
     if(req.method==='PATCH'&&p.startsWith('/api/admin/feedback/')){const fid=p.split('/').pop();const x=await body(req);const f=db.feedback.find(v=>v.id===fid);if(!f)return json(res,404,{error:'Feedback not found.'});if(x.status)f.status=String(x.status);save();syncRelational('feedback', f);return json(res,200,{ok:true,feedback:f})}
     if(req.method==='PATCH'&&p.startsWith('/api/admin/lead/')){const lid=p.split('/').pop();if(!lid||!/^LD[A-Za-z0-9_-]+$/.test(lid))return json(res,400,{error:'Invalid lead ID format.'});const x=await body(req);const allowed=['new','contacted','quoted','closed'];const status=String(x.status||'').toLowerCase().trim();if(!allowed.includes(status))return json(res,400,{error:'Invalid status. Allowed: '+allowed.join(', ')});const l=db.leads.find(v=>v.id===lid);if(!l)return json(res,404,{error:'Lead not found.'});l.status=status;l.updatedAt=now();save();syncRelational('lead', l);return json(res,200,{ok:true,lead:l})}
   }
