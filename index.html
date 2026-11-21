@@ -2618,42 +2618,48 @@ window.open(url, '_blank', 'noopener,noreferrer');
 
 
 
-async function loadSession() {
-
-try {
-
-const r = await fetch('/api/customer/me', { credentials: 'same-origin' });
-
-if (!r.ok) { currentAccount = null; return null; }
-
-const d = await r.json();
-
-currentAccount = d;
-
-window.volteraxAccountData = d;
-
-return d;
-
-} catch (e) {
-
-currentAccount = null;
-
-return null;
-
+function vxCustomerFetch(url, options = {}) {
+  const opts = { ...options };
+  opts.credentials = opts.credentials || 'same-origin';
+  opts.headers = opts.headers ? { ...opts.headers } : {};
+  const token = localStorage.getItem('vx_customer_token');
+  if (token) {
+    opts.headers['x-volterax-session'] = token;
+    opts.headers['Authorization'] = 'Bearer ' + token;
+  }
+  return fetch(url, opts);
 }
 
+async function loadSession() {
+  try {
+    const r = await vxCustomerFetch('/api/customer/me');
+    if (!r.ok) {
+      if (r.status === 401) localStorage.removeItem('vx_customer_token');
+      currentAccount = null;
+      return null;
+    }
+    const d = await r.json();
+    if (d && d.token) {
+      localStorage.setItem('vx_customer_token', d.token);
+    }
+    currentAccount = d;
+    window.volteraxAccountData = d;
+    return d;
+  } catch (e) {
+    currentAccount = null;
+    return null;
+  }
 }
 
 
 
 window.volteraxSetAccount = function(a) {
-
-currentAccount = a;
-
-window.volteraxAccountData = a;
-
-window.volteraxRefreshContactGate && window.volteraxRefreshContactGate();
-
+  currentAccount = a;
+  window.volteraxAccountData = a;
+  if (a && a.token) {
+    localStorage.setItem('vx_customer_token', a.token);
+  }
+  window.volteraxRefreshContactGate && window.volteraxRefreshContactGate();
 };
 
 
@@ -2858,8 +2864,17 @@ try { sessionStorage.setItem('volteraxIncomingReferral', ref.trim().toUpperCase(
 
 
 window.volteraxSessionPromise = loadSession().then(a => {
-  if (a) window.volteraxSetAccount(a);
-  else window.volteraxRefreshContactGate();
+  if (a) {
+    window.volteraxSetAccount(a);
+    if (typeof show === 'function') {
+      try { show(a); } catch(_) {}
+    }
+    if (typeof updateNavForUser === 'function') {
+      try { updateNavForUser(a.user || a); } catch(_) {}
+    }
+  } else {
+    window.volteraxRefreshContactGate && window.volteraxRefreshContactGate();
+  }
   return a;
 });
 
@@ -3521,6 +3536,9 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Verification failed. Please check the code.');
 
+        if (data.token) {
+          localStorage.setItem('vx_customer_token', data.token);
+        }
         msg.style.color = '#10b981';
         msg.textContent = '✓ Verified successfully! Loading your dashboard…';
         setTimeout(() => {
@@ -3543,8 +3561,9 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
   if (logoutBtn) {
     logoutBtn.onclick = async () => {
       try {
-        await fetch('/api/customer/logout', { method: 'POST', credentials: 'same-origin' });
+        await vxCustomerFetch('/api/customer/logout', { method: 'POST' });
       } catch (_) {}
+      localStorage.removeItem('vx_customer_token');
       window.volteraxAccountData = null;
       if (window.volteraxSetAccount) window.volteraxSetAccount(null);
       updateNavForUser(null);
@@ -3643,7 +3662,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
       btn.disabled = true;
 
       try {
-        const res = await fetch('/api/customer/order', {
+        const res = await vxCustomerFetch('/api/customer/order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
@@ -3870,7 +3889,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
     if (btn) btn.disabled = true;
 
     try {
-      const res = await fetch('/api/customer/order/' + encodeURIComponent(activePaymentData.orderId) + '/confirm-payment', {
+      const res = await vxCustomerFetch('/api/customer/order/' + encodeURIComponent(activePaymentData.orderId) + '/confirm-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
@@ -3991,7 +4010,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
       btn.disabled = true;
 
       try {
-        const res = await fetch('/api/customer/order/' + encodeURIComponent(orderId) + '/address', {
+        const res = await vxCustomerFetch('/api/customer/order/' + encodeURIComponent(orderId) + '/address', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
@@ -4045,7 +4064,7 @@ links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.cla
       btn.disabled = true;
 
       try {
-        const res = await fetch('/api/customer/profile', {
+        const res = await vxCustomerFetch('/api/customer/profile', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',

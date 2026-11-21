@@ -421,6 +421,8 @@ async function initDb(){
         await pgPool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_address JSONB;`);
         await pgPool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_screenshot TEXT;`);
         await pgPool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_proof TEXT;`);
+        await pgPool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status TEXT DEFAULT 'pending_online';`);
+        await pgPool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS mobile TEXT;`);
       } catch(_) {}
       const r=await pgPool.query(`SELECT data FROM volterax_store WHERE id = 'main'`);
       if(r.rows.length===0){
@@ -433,6 +435,54 @@ async function initDb(){
         const pR=await pgPool.query(`SELECT * FROM projects ORDER BY id ASC`);
         if(pR.rows&&pR.rows.length>0) db.projects=pR.rows;
       }catch(_){}
+      // Always merge fresh orders from SQL table into db.orders so status changes and screenshots are 100% persistent!
+      try {
+        const oR = await pgPool.query(`SELECT * FROM orders ORDER BY created_at DESC`);
+        if (oR.rows && oR.rows.length > 0) {
+          const map = new Map();
+          for (const o of (db.orders || [])) {
+            map.set(o.id, o);
+            if (o.order_id) map.set(o.order_id, o);
+          }
+          for (const row of oR.rows) {
+            const existing = map.get(row.id) || map.get(row.order_id) || {};
+            const sa = typeof row.shipping_address === 'object' && row.shipping_address ? row.shipping_address : (typeof existing.shipping_address === 'object' ? existing.shipping_address : {});
+            const phone = row.mobile || existing.mobile || sa.phone || sa.mobile || '';
+            const screenshot = row.payment_screenshot || row.payment_proof || existing.payment_screenshot || sa.payment_screenshot || null;
+            const merged = {
+              ...existing,
+              id: row.id,
+              order_id: row.order_id || row.id,
+              userId: row.user_id || existing.userId,
+              title: row.title || existing.title,
+              amount_paise: Number(row.amount_paise || existing.amount_paise || 0),
+              status: row.status || existing.status || 'pending',
+              details: row.details || existing.details || '',
+              shipping_address: row.shipping_address || existing.shipping_address || null,
+              payment_screenshot: screenshot,
+              payment_proof: screenshot,
+              payment_status: row.payment_status || existing.payment_status || 'pending_online',
+              mobile: phone,
+              phone: phone,
+              createdAt: row.created_at || existing.createdAt || new Date(),
+              updatedAt: row.updated_at || existing.updatedAt || new Date()
+            };
+            map.set(row.id, merged);
+            if (row.order_id) map.set(row.order_id, merged);
+          }
+          const seen = new Set();
+          const finalOrders = [];
+          for (const ord of map.values()) {
+            if (!seen.has(ord.id)) {
+              seen.add(ord.id);
+              finalOrders.push(ord);
+            }
+          }
+          db.orders = finalOrders;
+        }
+      } catch(ordErr) {
+        console.error('[VolteraX] Orders sync error on startup:', ordErr.message);
+      }
       console.log(`[VolteraX] PostgreSQL connected! Users: ${db.users.length}, Orders: ${db.orders.length}, Projects: ${db.projects?.length||0}`);
       return;
     }catch(err){
@@ -509,30 +559,29 @@ async function syncRelational(type, item) {
             referral_code = EXCLUDED.referral_code;
         `, [item.id, item.name, item.email || null, item.mobile || null, item.ref, item.referredBy || null, item.createdAt || new Date()]);
       } else if (type === 'order') {
-        const addrJson = item.shipping_address ? JSON.stringify(item.shipping_address) : null;
+        const addrJson = item.shipping_address ? (typeof item.shipping_address === 'string' ? item.shipping_address : JSON.stringify(item.shipping_address)) : null;
+        const sa = typeof item.shipping_address === 'object' && item.shipping_address ? item.shipping_address : {};
+        const phone = item.mobile || item.phone || sa.phone || sa.mobile || '';
+        const screenshot = item.payment_screenshot || item.payment_proof || sa.payment_screenshot || null;
+        const payStatus = item.payment_status || 'pending_online';
         try {
           await pgPool.query(`
-            INSERT INTO orders (id, order_id, user_id, title, amount_paise, status, details, shipping_address, created_at, updated_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            INSERT INTO orders (id, order_id, user_id, title, amount_paise, status, details, shipping_address, payment_screenshot, payment_proof, payment_status, mobile, created_at, updated_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
             ON CONFLICT (id) DO UPDATE SET
               title = EXCLUDED.title,
               amount_paise = EXCLUDED.amount_paise,
               status = EXCLUDED.status,
               details = EXCLUDED.details,
               shipping_address = EXCLUDED.shipping_address,
+              payment_screenshot = COALESCE(EXCLUDED.payment_screenshot, orders.payment_screenshot),
+              payment_proof = COALESCE(EXCLUDED.payment_proof, orders.payment_proof),
+              payment_status = EXCLUDED.payment_status,
+              mobile = COALESCE(EXCLUDED.mobile, orders.mobile),
               updated_at = NOW();
-          `, [item.id, item.order_id || item.id, item.userId, item.title, Number(item.amount_paise || 0), item.status || 'pending', item.details || '', addrJson, item.createdAt || new Date(), item.updatedAt || new Date()]);
+          `, [item.id, item.order_id || item.id, item.userId, item.title, Number(item.amount_paise || 0), item.status || 'pending', item.details || '', addrJson, screenshot, screenshot, payStatus, phone, item.createdAt || new Date(), item.updatedAt || new Date()]);
         } catch(pgErr) {
-          await pgPool.query(`
-            INSERT INTO orders (id, order_id, user_id, title, amount_paise, status, details, created_at, updated_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-            ON CONFLICT (id) DO UPDATE SET
-              title = EXCLUDED.title,
-              amount_paise = EXCLUDED.amount_paise,
-              status = EXCLUDED.status,
-              details = EXCLUDED.details,
-              updated_at = NOW();
-          `, [item.id, item.order_id || item.id, item.userId, item.title, Number(item.amount_paise || 0), item.status || 'pending', item.details || '', item.createdAt || new Date(), item.updatedAt || new Date()]);
+          console.error('[Supabase Order Sync Error]', pgErr.message);
         }
       } else if (type === 'lead') {
         await pgPool.query(`
@@ -681,10 +730,14 @@ async function syncRelational(type, item) {
     console.error(`[Supabase Relational Sync Error: ${type}]`, err.message);
   }
 }
-function save(){
+async function save(){
   const snapshot=JSON.parse(JSON.stringify(db));
+  const tasks = [];
+  if(pgPool){
+    tasks.push(pgPool.query(`INSERT INTO volterax_store (id, data, updated_at) VALUES ('main', $1, NOW()) ON CONFLICT (id) DO UPDATE SET data = $1, updated_at = NOW();`,[JSON.stringify(snapshot)]).catch(e=>console.error('[Supabase PG Save Error]',e.message)));
+  }
   if(SUPABASE_URL&&SUPABASE_KEY){
-    saveQueue=saveQueue.then(()=>fetch(`${SUPABASE_URL}/rest/v1/volterax_store?id=eq.main`,{
+    tasks.push(fetch(`${SUPABASE_URL}/rest/v1/volterax_store?id=eq.main`,{
       method:'PATCH',
       headers:{
         'apikey':SUPABASE_KEY,
@@ -693,18 +746,39 @@ function save(){
         'Prefer':'return=minimal'
       },
       body:JSON.stringify({data:snapshot,updated_at:new Date().toISOString()})
-    })).catch(e=>console.error('[Supabase REST Save Error]',e.message));
+    }).catch(e=>console.error('[Supabase REST Save Error]',e.message)));
   }
-  if(pgPool){
-    saveQueue=saveQueue.then(()=>pgPool.query(`INSERT INTO volterax_store (id, data, updated_at) VALUES ('main', $1, NOW()) ON CONFLICT (id) DO UPDATE SET data = $1, updated_at = NOW();`,[JSON.stringify(snapshot)])).catch(e=>console.error('[Supabase Save Error]',e.message));
+  if(globalThis.__vxStore){
+    tasks.push(globalThis.__vxStore.replaceOne({_id:'main'},{_id:'main',data:snapshot,updatedAt:new Date()},{upsert:true}).catch(e=>console.error('MongoDB save error:',e)));
   }
-  if(!MONGODB_URI){
-    const localDbPath=path.join(__dirname,'volterax-local-db.json');
-    try{fs.writeFileSync(localDbPath,JSON.stringify(snapshot,null,2))}catch(e){console.error('Local DB save error:',e)}
-    return saveQueue;
+  const localDbPath=path.join(__dirname,'volterax-local-db.json');
+  try{fs.writeFileSync(localDbPath,JSON.stringify(snapshot,null,2))}catch(e){}
+  if(tasks.length > 0){
+    await Promise.all(tasks);
   }
-  saveQueue=saveQueue.then(()=>globalThis.__vxStore.replaceOne({_id:'main'},{_id:'main',data:snapshot,updatedAt:new Date()},{upsert:true})).catch(e=>console.error('MongoDB save error:',e));
-  return saveQueue;
+  return snapshot;
+}
+
+const TOKEN_SECRET = process.env.TOKEN_SECRET || 'vx_sec_8105227644_volterax_karnataka_2026';
+function signCustomerToken(userId, expires) {
+  const payload = `${userId}.${expires}`;
+  const sig = crypto.createHmac('sha256', TOKEN_SECRET).update(payload).digest('hex');
+  return `${payload}.${sig}`;
+}
+function verifyCustomerToken(token) {
+  if (!token || typeof token !== 'string') return null;
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+  const [userId, expiresStr, sig] = parts;
+  const expires = parseInt(expiresStr, 10);
+  if (!expires || Date.now() > expires) return null;
+  const expectedSig = crypto.createHmac('sha256', TOKEN_SECRET).update(`${userId}.${expiresStr}`).digest('hex');
+  try {
+    if (crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expectedSig))) {
+      return userId;
+    }
+  } catch(_) {}
+  return null;
 }
 function id(prefix){return prefix+crypto.randomBytes(5).toString('hex').toUpperCase()}
 function now(){return new Date().toISOString()}
@@ -714,7 +788,28 @@ function cookie(name,value,maxAge){return `${name}=${value}; Path=/; HttpOnly; S
 function cookies(req){return Object.fromEntries((req.headers.cookie||'').split(';').filter(Boolean).map(x=>{const i=x.indexOf('=');return [x.slice(0,i).trim(),decodeURIComponent(x.slice(i+1))]}))}
 function json(res,status,data,extra={}){const b=JSON.stringify(data);res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store',...extra});res.end(b)}
 function body(req){return new Promise((resolve,reject)=>{let b='';req.on('data',c=>{b+=c;if(b.length>1e6)req.destroy()});req.on('end',()=>{try{resolve(b?JSON.parse(b):{})}catch(e){reject(e)}});req.on('error',reject)})}
-function customer(req){const sid=cookies(req).vx_session;if(!sid)return null;const s=db.sessions[sid];if(!s||Date.now()>s.expires){if(s)delete db.sessions[sid];return null}return db.users.find(u=>u.id===s.userId)||null}
+function customer(req){
+  const cookieSid = cookies(req).vx_session;
+  const authHeader = (req.headers['authorization'] || '').replace(/^Bearer\s+/i, '').trim();
+  const xSession = (req.headers['x-volterax-session'] || '').trim();
+  const token = authHeader || xSession || cookieSid;
+  if(!token) return null;
+
+  // 1. Stateless cryptographically signed token (100% persists across container freezes/restarts)
+  const verifiedUserId = verifyCustomerToken(token);
+  if(verifiedUserId) {
+    const user = db.users.find(u => u.id === verifiedUserId);
+    if(user) return user;
+  }
+
+  // 2. Session lookup
+  const s = db.sessions[token] || (cookieSid ? db.sessions[cookieSid] : null);
+  if(!s || Date.now() > s.expires){
+    if(s && db.sessions[token]) delete db.sessions[token];
+    return null;
+  }
+  return db.users.find(u => u.id === s.userId) || null;
+}
 function safeUser(u){return {id:u.id,name:u.name,email:u.email||'',mobile:u.mobile||'',createdAt:u.createdAt,lastLoginAt:u.lastLoginAt,ref:u.ref,referralCode:u.ref, referredBy:u.referredBy||null, mobileVerified:Boolean(u.mobile), emailVerified:Boolean(u.email)}}
 function customerBundle(u){const orders=db.orders.filter(o=>o.userId===u.id);const referrals=db.users.filter(x=>x.referredBy===u.ref).map(x=>({id:x.id,name:x.name,status:'registered',reward_paise:0}));return {user:safeUser(u),orders,referrals,earningsPaise:orders.filter(o=>o.status==='completed').reduce((a,o)=>a+Number(o.reward_paise||0),0)}}
 function admin(req){const sid=cookies(req).vx_admin;const s=sid&&db.adminSessions[sid];if(!s||Date.now()>s.expires)return false;return true}
@@ -904,11 +999,14 @@ async function route(req,res){
       }
 
       const sid = crypto.randomBytes(32).toString('hex');
-      db.sessions[sid] = { userId: user.id, expires: Date.now() + SESSION_TTL };
-      save();
-      syncRelational('customer', user);
+      const expiresAt = Date.now() + SESSION_TTL;
+      const signedToken = signCustomerToken(user.id, expiresAt);
+      db.sessions[sid] = { userId: user.id, expires: expiresAt };
+      db.sessions[signedToken] = { userId: user.id, expires: expiresAt };
+      await save();
+      await syncRelational('customer', user);
 
-      return json(res, 200, customerBundle(user), { 'Set-Cookie': cookie('vx_session', sid, SESSION_TTL / 1000) });
+      return json(res, 200, { ...customerBundle(user), token: signedToken }, { 'Set-Cookie': cookie('vx_session', signedToken, SESSION_TTL / 1000) });
     }
 
     if(req.method==='POST'&&p==='/api/customer/signup'){
@@ -955,10 +1053,13 @@ async function route(req,res){
     };
     db.users.push(user);
     const sid=crypto.randomBytes(32).toString('hex');
-    db.sessions[sid]={userId:idv,expires:Date.now()+SESSION_TTL};
-    save();
-    syncRelational('customer', user);
-    return json(res,200,customerBundle(user),{'Set-Cookie':cookie('vx_session',sid,SESSION_TTL/1000)});
+    const expiresAt = Date.now() + SESSION_TTL;
+    const signedToken = signCustomerToken(idv, expiresAt);
+    db.sessions[sid]={userId:idv,expires:expiresAt};
+    db.sessions[signedToken]={userId:idv,expires:expiresAt};
+    await save();
+    await syncRelational('customer', user);
+    return json(res,200,{ ...customerBundle(user), token: signedToken },{'Set-Cookie':cookie('vx_session',signedToken,SESSION_TTL/1000)});
   }
   if(req.method==='POST'&&p==='/api/customer/login'){
     const x=await body(req);
@@ -972,12 +1073,15 @@ async function route(req,res){
     if(!user||!checkPassword(password,user))return json(res,401,{error:'Incorrect Gmail/Email address or password.'});
     user.lastLoginAt=now();
     const sid=crypto.randomBytes(32).toString('hex');
-    db.sessions[sid]={userId:user.id,expires:Date.now()+SESSION_TTL};
-    save();
-    syncRelational('customer', user);
-    return json(res,200,customerBundle(user),{'Set-Cookie':cookie('vx_session',sid,SESSION_TTL/1000)});
+    const expiresAt = Date.now() + SESSION_TTL;
+    const signedToken = signCustomerToken(user.id, expiresAt);
+    db.sessions[sid]={userId:user.id,expires:expiresAt};
+    db.sessions[signedToken]={userId:user.id,expires:expiresAt};
+    await save();
+    await syncRelational('customer', user);
+    return json(res,200,{ ...customerBundle(user), token: signedToken },{'Set-Cookie':cookie('vx_session',signedToken,SESSION_TTL/1000)});
   }
-  if(req.method==='POST'&&p==='/api/customer/logout'){const sid=cookies(req).vx_session;if(sid)delete db.sessions[sid];save();return json(res,200,{ok:true},{'Set-Cookie':cookie('vx_session','',0)})}
+  if(req.method==='POST'&&p==='/api/customer/logout'){const sid=cookies(req).vx_session;if(sid)delete db.sessions[sid];await save();return json(res,200,{ok:true},{'Set-Cookie':cookie('vx_session','',0)})}
   if(req.method==='POST'&&p==='/api/customer/feedback'){const x=await body(req);const c=customer(req);const name=String(x.name||c?.name||'').trim(),message=String(x.feedbackText||'').trim(),rating=Number(x.rating);if(!name||!message||rating<1||rating>5)return json(res,400,{error:'Invalid feedback.'});const item={id:id('FB'),userId:c?.id||null,name,rating,feedbackText:message,createdAt:now(),status:'new'};db.feedback.unshift(item);save();syncRelational('feedback', item);return json(res,201,{ok:true,id:item.id})}
   if(req.method==='POST'&&p==='/api/customer/lead'){
     const c=requireCustomer(req,res);
@@ -1069,8 +1173,8 @@ async function route(req,res){
       updatedAt:now()
     };
     db.orders.unshift(item);
-    save();
-    syncRelational('order', item);
+    await save();
+    await syncRelational('order', item);
     const paymentPayload = generateOrderPaymentPayload(item);
     return json(res,201,{ok:true,order:item,payment:paymentPayload});
   }
@@ -1115,8 +1219,8 @@ async function route(req,res){
         updatedAt: now()
       };
       order.updatedAt = now();
-      save();
-      syncRelational('order', order);
+      await save();
+      await syncRelational('order', order);
       return json(res, 200, { ok: true, order, message: 'Delivery address saved successfully.' });
     }
   }
@@ -1169,8 +1273,8 @@ async function route(req,res){
       order.shipping_address.payment_status = 'proof_submitted';
     }
 
-    save();
-    syncRelational('order', order);
+    await save();
+    await syncRelational('order', order);
 
     return json(res, 200, {
       ok: true,
@@ -1204,8 +1308,8 @@ async function route(req,res){
       if(x.status!==undefined)proj.status=String(x.status);
       if(x.featured!==undefined)proj.featured=Boolean(x.featured);
       proj.updatedAt=now();
-      save();
-      syncRelational('project', proj);
+      await save();
+      await syncRelational('project', proj);
       return json(res,200,{ok:true,project:proj});
     }
     if(req.method==='POST'&&(p==='/api/admin/projects'||p==='/api/admin/project')){
@@ -1227,8 +1331,8 @@ async function route(req,res){
       };
       if(!db.projects)db.projects=[];
       db.projects.unshift(item);
-      save();
-      syncRelational('project', item);
+      await save();
+      await syncRelational('project', item);
       return json(res,201,{ok:true,project:item});
     }
     if(req.method==='DELETE'&&(p.startsWith('/api/admin/projects/')||p.startsWith('/api/admin/project/'))){
@@ -1237,12 +1341,38 @@ async function route(req,res){
       const idx=matchProject(db.projects, rawPid);
       if(idx===-1)return json(res,404,{error:'Project not found: '+rawPid});
       const removed=db.projects.splice(idx,1)[0];
-      save();
-      syncRelational('delete_project', removed);
+      await save();
+      await syncRelational('delete_project', removed);
       return json(res,200,{ok:true,deleted:removed});
     }
     if(req.method==='GET'&&p==='/api/admin/customers')return json(res,200,db.users.map(safeUser));
     if(req.method==='GET'&&p==='/api/admin/orders'){
+      if(pgPool){
+        try{
+          const r = await pgPool.query(`SELECT * FROM orders ORDER BY created_at DESC`);
+          if(r.rows && r.rows.length > 0){
+            return json(res, 200, r.rows.map(o => {
+              const user = db.users.find(u => u.id === o.user_id);
+              const sa = typeof o.shipping_address === 'object' && o.shipping_address ? o.shipping_address : {};
+              const phone = o.mobile || sa.phone || sa.mobile || user?.mobile || '';
+              const screenshot = o.payment_screenshot || o.payment_proof || sa.payment_screenshot || null;
+              return {
+                ...o,
+                userId: o.user_id,
+                payment_screenshot: screenshot,
+                payment_proof: screenshot,
+                user: user?.name || 'Customer',
+                userName: user?.name || 'Customer',
+                userEmail: user?.email || '',
+                mobile: phone,
+                phone: phone
+              };
+            }));
+          }
+        }catch(e){
+          console.error('[Admin Orders PG direct query error]', e.message);
+        }
+      }
       return json(res, 200, db.orders.map(o => {
         const user = db.users.find(u => u.id === o.userId);
         const sa = typeof o.shipping_address === 'object' && o.shipping_address ? o.shipping_address : {};
@@ -1263,7 +1393,7 @@ async function route(req,res){
     if(req.method==='GET'&&p==='/api/admin/feedback')return json(res,200,db.feedback.map(f=>({...f,customer:db.users.find(u=>u.id===f.userId)?.name||f.name,mobile:db.users.find(u=>u.id===f.userId)?.mobile||''})));
     if(req.method==='GET'&&p==='/api/admin/leads')return json(res,200,db.leads.map(l=>({...l,customer:db.users.find(u=>u.id===l.userId)?.name||l.name})));
     if(req.method==='POST'&&p==='/api/admin/order'){const x=await body(req);const user=db.users.find(v=>v.id===x.userId||v.mobile===String(x.mobile||'').replace(/\D/g,''));if(!user)return json(res,404,{error:'Customer not found.'});const item={id:id('ORD'),order_id:String(x.order_id||id('VX-ORD-')),userId:user.id,title:String(x.title||'VOLTERAX PROJECT').slice(0,200),amount_paise:Number(x.amount_paise||0),status:String(x.status||'pending'),details:String(x.details||'').slice(0,5000),shipping_address:x.shipping_address||null,createdAt:now(),updatedAt:now()};db.orders.unshift(item);save();syncRelational('order', item);return json(res,201,{ok:true,order:item})}
-    if(req.method==='PATCH'&&p.startsWith('/api/admin/order/')){const oid=p.split('/').pop();const x=await body(req);const o=db.orders.find(v=>v.id===oid||v.order_id===oid);if(!o)return json(res,404,{error:'Order not found.'});for(const k of ['title','status','details','payment_status','payment_utr','payment_screenshot'])if(x[k]!==undefined)o[k]=String(x[k]);if(x.amount_paise!==undefined)o.amount_paise=Number(x.amount_paise);if(x.shipping_address!==undefined)o.shipping_address=x.shipping_address;o.updatedAt=now();save();syncRelational('order', o);return json(res,200,{ok:true,order:o})}
+    if(req.method==='PATCH'&&p.startsWith('/api/admin/order/')){const oid=p.split('/').pop();const x=await body(req);const o=db.orders.find(v=>v.id===oid||v.order_id===oid);if(!o)return json(res,404,{error:'Order not found.'});for(const k of ['title','status','details','payment_status','payment_utr','payment_screenshot','payment_proof'])if(x[k]!==undefined)o[k]=String(x[k]);if(x.amount_paise!==undefined)o.amount_paise=Number(x.amount_paise);if(x.shipping_address!==undefined)o.shipping_address=x.shipping_address;o.updatedAt=now();await save();await syncRelational('order', o);return json(res,200,{ok:true,order:o})}
     if(req.method==='PATCH'&&p.startsWith('/api/admin/feedback/')){const fid=p.split('/').pop();const x=await body(req);const f=db.feedback.find(v=>v.id===fid);if(!f)return json(res,404,{error:'Feedback not found.'});if(x.status)f.status=String(x.status);save();syncRelational('feedback', f);return json(res,200,{ok:true,feedback:f})}
     if(req.method==='PATCH'&&p.startsWith('/api/admin/lead/')){const lid=p.split('/').pop();if(!lid||!/^LD[A-Za-z0-9_-]+$/.test(lid))return json(res,400,{error:'Invalid lead ID format.'});const x=await body(req);const allowed=['new','contacted','quoted','closed'];const status=String(x.status||'').toLowerCase().trim();if(!allowed.includes(status))return json(res,400,{error:'Invalid status. Allowed: '+allowed.join(', ')});const l=db.leads.find(v=>v.id===lid);if(!l)return json(res,404,{error:'Lead not found.'});l.status=status;l.updatedAt=now();save();syncRelational('lead', l);return json(res,200,{ok:true,lead:l})}
   }
